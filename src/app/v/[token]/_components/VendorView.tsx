@@ -454,6 +454,7 @@ export default function VendorView({
           const clockView = doc.getElementById('pip-clock-view');
           const alertView = doc.getElementById('pip-alert-view');
           const alertText = doc.getElementById('pip-alert-text');
+          const listEl = doc.getElementById('pip-rundown-list');
 
           const { messages: frameMessages } = stateRef.current;
           const latestMsg = frameMessages[0];
@@ -461,16 +462,41 @@ export default function VendorView({
           const activeMsg = activeAlertRef.current;
 
           if (container) {
-            container.className = `relative min-h-screen flex flex-col items-center justify-center font-sans p-2 select-none transition-colors duration-300 ${
+            container.className = `relative min-h-screen grid grid-cols-[1.2fr_1fr] gap-2 font-sans p-2 select-none transition-colors duration-300 ${
               over ? 'bg-rose-950 animate-pulse-slow' : 'bg-slate-950'
             }`;
           }
           if (titleEl) {
             const sessionTitle = currentItem ? currentItem.title : 'EventFlow';
-            const maxTitleLength = 35;
+            const maxTitleLength = 20;
             titleEl.innerText = (sessionTitle.length > maxTitleLength 
               ? sessionTitle.substring(0, maxTitleLength) + '…'
               : sessionTitle).toUpperCase();
+          }
+
+          if (listEl && items) {
+            const total = items.length;
+            const curIdx = room.currentRundownIndex;
+            const limit = 8;
+            let start = 0;
+            if (curIdx !== -1 && curIdx >= 7) {
+              start = Math.max(0, Math.min(total - limit, curIdx - 1));
+            }
+            const end = Math.min(total, start + limit);
+            
+            let html = '';
+            for (let index = start; index < end; index++) {
+              const item = items[index];
+              if (!item) continue;
+              const isActive = index === curIdx;
+              html += `
+                <div class="pip-item ${isActive ? 'pip-item-active' : 'pip-item-inactive'}">
+                  <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px;">${index + 1}. ${item.title}</span>
+                  <span style="font-family: monospace; font-size: 8px; opacity: 0.8; margin-left: 4px;">${item.durationSeconds / 60}m</span>
+                </div>
+              `;
+            }
+            listEl.innerHTML = html;
           }
 
           if (isFreshAlert && activeMsg) {
@@ -499,7 +525,7 @@ export default function VendorView({
                 : room.timerStatus === 'running'
                 ? 'text-indigo-400'
                 : 'text-slate-300';
-              timerEl.className = `font-mono text-4xl font-extrabold tracking-tighter text-center ${pipColorClass}`;
+              timerEl.className = `font-mono text-3xl font-extrabold tracking-tighter text-center leading-none ${pipColorClass}`;
             }
             if (dotEl) {
               const currentStatus = room.timerStatus;
@@ -517,7 +543,7 @@ export default function VendorView({
             if (msgEl) {
               if (latestMsg) {
                 msgEl.innerText = `[to ${latestMsg.targetRole}] : ${latestMsg.message}`;
-                msgEl.className = `text-[9px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
+                msgEl.className = `text-[8px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
               } else {
                 msgEl.className = 'hidden';
               }
@@ -638,8 +664,8 @@ export default function VendorView({
 
       try {
         const pipWindow = await (window as any).documentPictureInPicture.requestWindow({
-          width: 320,
-          height: 180,
+          width: 480,
+          height: 200,
         });
 
         pipWindowRef.current = pipWindow;
@@ -672,23 +698,31 @@ export default function VendorView({
         // Initialize PiP structure
         const pipDiv = pipWindow.document.createElement('div');
         pipDiv.innerHTML = `
-          <div id="pip-container" class="relative min-h-screen flex flex-col items-center justify-center font-sans p-2 select-none bg-slate-950 text-slate-100">
-            <span id="pip-status-dot" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500"></span>
-            <span id="pip-title" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest text-center">EVENTFLOW</span>
+          <div id="pip-container" class="relative min-h-screen grid grid-cols-[1.2fr_1fr] gap-2 font-sans p-2 select-none bg-slate-950 text-slate-100">
+            <!-- Left: Rundown List -->
+            <div id="pip-rundown-list" class="flex flex-col gap-1 pr-1.5 border-r border-slate-900/60 overflow-hidden text-[9px] justify-center">
+              <!-- Items will be injected here dynamically -->
+            </div>
             
-            <div id="pip-clock-view" class="flex flex-col items-center justify-center">
-              <div id="pip-timer" class="font-mono text-4xl font-extrabold tracking-tighter text-slate-300 my-0.5 text-center">00:00</div>
-              <div class="flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-bold tracking-wider text-center">
-                <span id="pip-wall-time">00:00:00</span>
+            <!-- Right: Timer, Wall Clock, Prompter -->
+            <div class="flex flex-col items-center justify-center relative pl-1">
+              <span id="pip-status-dot" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500"></span>
+              <span id="pip-title" class="text-[8px] font-bold text-slate-500 uppercase tracking-widest text-center mb-1">EVENTFLOW</span>
+              
+              <div id="pip-clock-view" class="flex flex-col items-center justify-center w-full">
+                <div id="pip-timer" class="font-mono text-3xl font-extrabold tracking-tighter text-slate-300 text-center leading-none">00:00</div>
+                <div class="mt-1.5 flex items-center gap-1.5 text-[9px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-bold tracking-wider text-center">
+                  <span id="pip-wall-time">00:00:00</span>
+                </div>
               </div>
-            </div>
 
-            <div id="pip-alert-view" class="flex flex-col items-center justify-center text-center px-2 py-1.5 bg-indigo-950 border border-indigo-600 rounded my-1 w-full hidden animate-pulse-fast">
-              <span class="text-[8px] font-extrabold text-rose-500 uppercase tracking-wider">PESAN BARU!</span>
-              <div id="pip-alert-text" class="text-[11px] font-extrabold text-slate-50 leading-snug line-clamp-2"></div>
-            </div>
+              <div id="pip-alert-view" class="flex flex-col items-center justify-center text-center px-1.5 py-1 bg-indigo-950 border border-indigo-600 rounded w-full hidden animate-pulse-fast">
+                <span class="text-[7px] font-extrabold text-rose-500 uppercase tracking-wider">ALERT!</span>
+                <div id="pip-alert-text" class="text-[9px] font-extrabold text-slate-50 leading-snug line-clamp-2"></div>
+              </div>
 
-            <div id="pip-message" class="text-[9px] text-indigo-600 font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-700 pt-1 w-full truncate hidden"></div>
+              <div id="pip-message" class="text-[8px] text-indigo-300 font-bold text-center mt-2 px-1 border-t border-slate-900 pt-1 w-full truncate hidden"></div>
+            </div>
           </div>
         `;
         pipWindow.document.body.appendChild(pipDiv);
@@ -717,6 +751,29 @@ export default function VendorView({
           .animate-dot-pulse {
             animation: dot-pulse 1s ease-in-out infinite;
           }
+          .pip-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1px 4px;
+            border-radius: 4px;
+            margin: 1px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: all 0.15s ease;
+          }
+          .pip-item-active {
+            font-weight: 800;
+            font-size: 10px;
+            color: #818cf8;
+            background-color: rgba(99, 102, 241, 0.1);
+            border-left: 2px solid #6366f1;
+            padding-left: 3px;
+          }
+          .pip-item-inactive {
+            color: #94a3b8;
+          }
         `;
         pipWindow.document.head.appendChild(animStyle);
 
@@ -737,8 +794,15 @@ export default function VendorView({
         const clockView = pipWindow.document.getElementById('pip-clock-view');
         const alertView = pipWindow.document.getElementById('pip-alert-view');
         const alertText = pipWindow.document.getElementById('pip-alert-text');
+        const listEl = pipWindow.document.getElementById('pip-rundown-list');
         
-        if (titleEl) titleEl.innerText = (currentActiveItem ? currentActiveItem.title : 'EventFlow ⏱️').toUpperCase();
+        if (titleEl) {
+          const sessionTitle = currentActiveItem ? currentActiveItem.title : 'EventFlow ⏱️';
+          const maxTitleLength = 20;
+          titleEl.innerText = (sessionTitle.length > maxTitleLength 
+            ? sessionTitle.substring(0, maxTitleLength) + '…'
+            : sessionTitle).toUpperCase();
+        }
         if (timerEl) timerEl.innerText = timerDisplayRef.current;
         
         const currentStatus = currentRoom ? currentRoom.timerStatus : 'stopped';
@@ -753,6 +817,31 @@ export default function VendorView({
         }
         if (wallTimeEl) {
           wallTimeEl.innerText = new Date().toTimeString().split(' ')[0];
+        }
+
+        if (listEl && currentItems) {
+          const total = currentItems.length;
+          const curIdx = currentRoom ? currentRoom.currentRundownIndex : -1;
+          const limit = 8;
+          let start = 0;
+          if (curIdx !== -1 && curIdx >= 7) {
+            start = Math.max(0, Math.min(total - limit, curIdx - 1));
+          }
+          const end = Math.min(total, start + limit);
+          
+          let html = '';
+          for (let index = start; index < end; index++) {
+            const item = currentItems[index];
+            if (!item) continue;
+            const isActive = index === curIdx;
+            html += `
+              <div class="pip-item ${isActive ? 'pip-item-active' : 'pip-item-inactive'}">
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px;">${index + 1}. ${item.title}</span>
+                <span style="font-family: monospace; font-size: 8px; opacity: 0.8; margin-left: 4px;">${item.durationSeconds / 60}m</span>
+              </div>
+            `;
+          }
+          listEl.innerHTML = html;
         }
 
         const { messages: initMsgs } = stateRef.current;
@@ -773,8 +862,8 @@ export default function VendorView({
           if (alertView) alertView.style.display = 'none';
           if (msgEl) {
             if (latestInitMsg) {
-              msgEl.innerText = `💬 [to ${latestInitMsg.targetRole}] : ${latestInitMsg.message}`;
-              msgEl.className = `text-[9px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
+              msgEl.innerText = `[to ${latestInitMsg.targetRole}] : ${latestInitMsg.message}`;
+              msgEl.className = `text-[8px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
             } else {
               msgEl.className = 'hidden';
             }
@@ -948,18 +1037,89 @@ export default function VendorView({
             ctx.fillText(line2.trim(), canvas.width / 2, 98);
           }
         } else {
-          // Normal clock drawing
+          // Draw vertical separator
+          const leftWidth = 165;
+          const rightStart = 175;
+          const rightCenterX = rightStart + (canvas.width - rightStart) / 2;
+
+          ctx.strokeStyle = isDark ? '#1e293b' : '#e2e8f0';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(leftWidth + 5, 5);
+          ctx.lineTo(leftWidth + 5, canvas.height - 5);
+          ctx.stroke();
+
+          // 1. Draw rundown list on the left side
+          if (frameItems && frameItems.length > 0) {
+            const curIdx = frameRoom ? frameRoom.currentRundownIndex : -1;
+            const total = frameItems.length;
+            const limit = 8;
+            let start = 0;
+            if (curIdx !== -1 && curIdx >= 7) {
+              start = Math.max(0, Math.min(total - limit, curIdx - 1));
+            }
+            const end = Math.min(total, start + limit);
+            
+            let yOffset = 15;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+            
+            for (let index = start; index < end; index++) {
+              const item = frameItems[index];
+              if (!item) continue;
+              const isActive = index === curIdx;
+              
+              if (isActive) {
+                ctx.font = 'bold 10px sans-serif';
+                ctx.fillStyle = isDark ? '#818cf8' : '#0c66e4'; // Mencolok
+                // Draw small active indicator bar
+                ctx.fillStyle = isDark ? '#6366f1' : '#0c66e4';
+                ctx.fillRect(2, yOffset - 6, 2, 12);
+                ctx.fillStyle = isDark ? '#818cf8' : '#0c66e4';
+              } else {
+                ctx.font = '9px sans-serif';
+                ctx.fillStyle = colorTextMuted;
+              }
+              
+              // Draw title
+              const itemNum = `${index + 1}. `;
+              const titleText = item.title;
+              const fullText = itemNum + titleText;
+              const maxTextWidth = leftWidth - 25;
+              let drawText = fullText;
+              if (ctx.measureText(fullText).width > maxTextWidth) {
+                while (ctx.measureText(drawText + '…').width > maxTextWidth && drawText.length > 0) {
+                  drawText = drawText.slice(0, -1);
+                }
+                drawText += '…';
+              }
+              
+              ctx.fillText(drawText, isActive ? 8 : 6, yOffset);
+              
+              // Draw duration on the right of the left column
+              ctx.textAlign = 'right';
+              ctx.font = '8px monospace';
+              ctx.fillText(`${item.durationSeconds / 60}m`, leftWidth - 2, yOffset);
+              
+              // Restore align
+              ctx.textAlign = 'left';
+              
+              yOffset += 18;
+            }
+          }
+
+          // 2. Normal clock drawing in the right column
           ctx.fillStyle = colorTextSlate;
-          ctx.font = 'bold 11px sans-serif';
+          ctx.font = 'bold 10px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'top';
           
           const sessionTitle = frameActiveItem ? frameActiveItem.title : 'EventFlow';
-          const maxTitleLength = 35;
+          const maxTitleLength = 20; // smaller limit for right column width limit
           const truncatedTitle = sessionTitle.length > maxTitleLength 
             ? sessionTitle.substring(0, maxTitleLength) + '…'
             : sessionTitle;
-          ctx.fillText(truncatedTitle.toUpperCase(), canvas.width / 2, 28);
+          ctx.fillText(truncatedTitle.toUpperCase(), rightCenterX, 24);
 
           // Check if overtime dynamically
           let isFrameOvertime = false;
@@ -993,10 +1153,10 @@ export default function VendorView({
             ctx.fillStyle = colorTextPrimary;
           }
 
-          ctx.font = 'bold 64px monospace';
+          ctx.font = 'bold 44px monospace'; // slightly smaller font for narrow column
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(timerDisplayRef.current, canvas.width / 2, 85);
+          ctx.fillText(timerDisplayRef.current, rightCenterX, 75);
 
           const status = frameRoom ? frameRoom.timerStatus : 'stopped';
           const wallTimeText = new Date().toTimeString().split(' ')[0];
@@ -1023,25 +1183,25 @@ export default function VendorView({
           }
           
           // Draw wall time centered
-          const statusY = 120;
-          ctx.font = 'bold 14px sans-serif';
+          const statusY = 112;
+          ctx.font = 'bold 11px sans-serif';
           ctx.fillStyle = colorTextMuted;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(wallTimeText, canvas.width / 2, statusY);
+          ctx.fillText(wallTimeText, rightCenterX, statusY);
 
           // Draw latest prompter message at the bottom
           if (latestMsg) {
             ctx.fillStyle = isDark ? '#a5b4fc' : '#0C66E4';
-            ctx.font = 'bold 11px sans-serif';
+            ctx.font = 'bold 10px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
             const msgText = `[to ${latestMsg.targetRole}] : ${latestMsg.message}`;
-            const maxMsgLength = 45;
+            const maxMsgLength = 22; // shorter limit for narrow column
             const truncatedMsg = msgText.length > maxMsgLength 
               ? msgText.substring(0, maxMsgLength) + '…'
               : msgText;
-            ctx.fillText(truncatedMsg, canvas.width / 2, 144);
+            ctx.fillText(truncatedMsg, rightCenterX, 144);
           }
         }
       };

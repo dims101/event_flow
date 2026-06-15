@@ -4,6 +4,18 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ---
 
+## 📅 Pembaruan: 15 Juni 2026 (Bagian 3 - Sidebar Playlist Rundown di Picture-in-Picture)
+
+### 1. 📋 Jendela Samping Playlist Rundown di Jendela Melayang (PiP Sidebar Playlist)
+*   **Perubahan:**
+    *   **Document PiP Grid Layout (`ControlPanel.tsx` & `VendorView.tsx`):** Memperluas dimensi viewport Document PiP menjadi `480px × 200px` dan mendesain ulang antarmuka HTML dengan CSS Grid dua kolom (kiri: rundown playlist, kanan: kontrol timer dan wall clock).
+    *   **Sliding Window Karaoke Algorithm:** Mengimplementasikan pagination geser otomatis (sliding window) berkapasitas 8 baris sesi rundown. Jika indeks sesi aktif berada di baris ke-7 atau lebih (`curIdx >= 7`), daftar rundown akan tergeser ke atas (`start = Math.max(0, Math.min(total - 8, curIdx - 1))`) untuk memastikan sesi aktif selalu terlihat di dekat bagian atas daftar (seperti subtitle karaoke).
+    *   **Indikator Sesi Aktif Visual:** Menandai sesi aktif dengan teks lebih tebal (`font-weight: 800`), ukuran font lebih besar (`10px`), warna teks mencolok (`#818cf8`), highlight latar belakang, dan border penunjuk khusus di sebelah kiri. Sesi tidak aktif menggunakan visual redup (`#94a3b8`).
+    *   **Canvas Fallback PiP Partitioning (`ControlPanel.tsx` & `VendorView.tsx`):** Membagi area canvas fallback PiP (`400px × 160px`) menjadi dua bagian menggunakan garis pembatas vertikal. Di kolom kiri (X: 0 s.d. 165), rundown playlist digambar lengkap dengan active indicator bar dan kalkulasi auto-crop elipsis judul sesi. Di kolom kanan (centered pada `rightCenterX = 287`), status dot, timer (ukuran font disesuaikan menjadi `44px`), jam dinding, dan pesan prompter digambar secara dinamis.
+*   **Tujuan:** Mempermudah kru lapangan dan show caller memantau jalannya lini masa acara (sebelum dan sesudah sesi aktif) secara real-time langsung dari mode melayang (PiP) tanpa menutup window lain.
+
+---
+
 ## 📅 Pembaruan: 15 Juni 2026 (Bagian 2 - Sistem PIC Dinamis & Tautan Bersama)
 
 ### 1. 🗃️ Migrasi ke Sistem PIC (Person In Charge) Dinamis
