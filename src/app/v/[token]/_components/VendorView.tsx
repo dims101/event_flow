@@ -167,6 +167,7 @@ export default function VendorView({
   const prevOffset = useRef<number | null>(null);
   const prevStatus = useRef<string | null>(null);
   const pipWindowRef = useRef<any>(null);
+  const pipVideoRef = useRef<HTMLVideoElement | null>(null);
 
   // Refs to prevent useEffect teardown on state changes, bypassing background throttle issues
   const stateRef = useRef(state);
@@ -185,6 +186,17 @@ export default function VendorView({
       if (pipWindowRef.current) {
         try {
           pipWindowRef.current.close();
+        } catch (e) {}
+      }
+      if (pipVideoRef.current) {
+        try {
+          const video = pipVideoRef.current;
+          if ((video as any).webkitPresentationMode === 'picture-in-picture') {
+            (video as any).webkitSetPresentationMode('inline');
+          }
+          if (video.parentNode) {
+            video.parentNode.removeChild(video);
+          }
         } catch (e) {}
       }
     };
@@ -801,7 +813,10 @@ export default function VendorView({
     }
 
     // B. Fallback to Canvas Video PiP
-    if (!document.pictureInPictureEnabled) {
+    const hasWebkitPiP = typeof HTMLVideoElement !== 'undefined' && 
+                         (HTMLVideoElement.prototype as any).webkitSupportsPresentationMode;
+    
+    if (!document.pictureInPictureEnabled && !hasWebkitPiP) {
       alert('Picture-in-Picture tidak didukung atau dinonaktifkan di browser ini.');
       return;
     }
@@ -810,6 +825,8 @@ export default function VendorView({
       try {
         if (document.pictureInPictureElement) {
           await document.exitPictureInPicture();
+        } else if (pipVideoRef.current && (pipVideoRef.current as any).webkitPresentationMode === 'picture-in-picture') {
+          (pipVideoRef.current as any).webkitSetPresentationMode('inline');
         }
         setIsPipActive(false);
       } catch (e) {
@@ -848,6 +865,7 @@ export default function VendorView({
       video.style.zIndex = '1000';
       
       document.body.appendChild(video);
+      pipVideoRef.current = video;
 
       const canvasStream = (canvas as any).captureStream ? (canvas as any).captureStream(10) : (canvas as any).mozCaptureStream ? (canvas as any).mozCaptureStream(10) : null;
       if (!canvasStream) {
@@ -856,22 +874,30 @@ export default function VendorView({
       
       video.srcObject = canvasStream;
       
-      await new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error('Timeout memuat video metadata')), 3000);
-        video.onloadedmetadata = () => {
-          clearTimeout(timeout);
-          resolve();
-        };
-      });
+      try {
+        await video.play();
+      } catch (playErr) {
+        console.warn('Initial video.play() failed, continuing:', playErr);
+      }
 
-      await video.play();
-      await video.requestPictureInPicture();
+      // Beri sedikit jeda mikro agar frame render terkomposisi di Safari iOS
+      await new Promise((r) => requestAnimationFrame(r));
+
+      if (video.requestPictureInPicture) {
+        await video.requestPictureInPicture();
+      } else if ((video as any).webkitSupportsPresentationMode && typeof (video as any).webkitSetPresentationMode === 'function') {
+        (video as any).webkitSetPresentationMode('picture-in-picture');
+      } else {
+        throw new Error('Browser tidak mendukung Picture-in-Picture.');
+      }
+
       setIsPipActive(true);
 
       let pipIntervalId: any = null;
 
       const handleLeavePiP = () => {
         setIsPipActive(false);
+        pipVideoRef.current = null;
         if (pipIntervalId) clearInterval(pipIntervalId);
         try {
           document.body.removeChild(video);
@@ -879,6 +905,14 @@ export default function VendorView({
       };
 
       video.addEventListener('leavepictureinpicture', handleLeavePiP);
+
+      // Safari iOS event listener
+      video.addEventListener('webkitpresentationmodechanged', () => {
+        const presentationMode = (video as any).webkitPresentationMode;
+        if (presentationMode === 'inline' || presentationMode === 'fullscreen') {
+          handleLeavePiP();
+        }
+      });
 
       const draw = () => {
         const isDark = document.documentElement.classList.contains('dark');
