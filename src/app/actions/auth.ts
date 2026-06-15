@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { cache } from 'react';
 
 
 export async function registerAction(prevState: any, formData: FormData) {
@@ -101,13 +102,20 @@ export async function logoutAction() {
  * Safe to use in Server Actions because the session cookie is HTTP-only
  * and cannot be tampered with by the client.
  * Use this instead of getCurrentUser() when you only need the userId.
+ *
+ * Wrapped with React cache() so multiple calls in the same request are free.
  */
-export async function getSessionUserId(): Promise<string | null> {
+export const getSessionUserId = cache(async (): Promise<string | null> => {
   const cookieStore = await cookies();
   return cookieStore.get('session')?.value ?? null;
-}
+});
 
-export async function getCurrentUser() {
+/**
+ * Full user fetch — queries the DB.
+ * Wrapped with React cache() so layout.tsx + page.tsx both calling this
+ * in the same request only hits the DB once.
+ */
+export const getCurrentUser = cache(async () => {
   const cookieStore = await cookies();
   const userId = cookieStore.get('session')?.value;
   if (!userId) return null;
@@ -115,4 +123,4 @@ export async function getCurrentUser() {
   return db.query.users.findFirst({
     where: eq(users.id, userId),
   });
-}
+});

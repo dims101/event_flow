@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
 import { Calendar, ArrowLeft } from 'lucide-react';
 
 
-import { getCurrentUser } from '@/app/actions/auth';
+import { getSessionUserId } from '@/app/actions/auth';
 
 import AddRundownForm from './_components/AddRundownForm';
 import RundownTable from './_components/RundownTable';
@@ -24,44 +24,38 @@ interface RoomPageProps {
 export default async function RoomPage({ params }: RoomPageProps) {
   const { id: roomId } = await params;
   
-  const user = await getCurrentUser();
-  if (!user) {
-    notFound();
-  }
+  const userId = await getSessionUserId();
+  if (!userId) notFound();
 
-  // 1. Fetch Room Details
+  // Step 1: Fetch room and verify ownership (sequential — needed before other queries)
   const room = await db.query.rooms.findFirst({
     where: eq(rooms.id, roomId),
   });
 
-  if (!room || room.userId !== user.id) {
+  if (!room || room.userId !== userId) {
     notFound();
   }
 
-  // 2. Fetch Rundown Items
-  const items = await db.query.rundownItems.findMany({
-    where: eq(rundownItems.roomId, roomId),
-    orderBy: (rundownItems, { asc }) => [asc(rundownItems.orderIndex)],
-  });
-
-  // 3. Fetch Role Tokens
-  const tokens = await db.query.roleTokens.findMany({
-    where: eq(roleTokens.roomId, roomId),
-  });
-
-  // 4. Fetch Prompter Messages
-  const messages = await db.query.prompterMessages.findMany({
-    where: eq(prompterMessages.roomId, roomId),
-    orderBy: (prompterMessages, { desc }) => [desc(prompterMessages.createdAt)],
-    limit: 15,
-  });
-
-  // 5. Fetch Activity Logs
-  const logs = await db.query.activityLogs.findMany({
-    where: eq(activityLogs.roomId, roomId),
-    orderBy: (activityLogs, { desc }) => [desc(activityLogs.createdAt)],
-    limit: 30,
-  });
+  // Step 2: Fetch all remaining data IN PARALLEL — none depend on each other
+  const [items, tokens, messages, logs] = await Promise.all([
+    db.query.rundownItems.findMany({
+      where: eq(rundownItems.roomId, roomId),
+      orderBy: (rundownItems, { asc }) => [asc(rundownItems.orderIndex)],
+    }),
+    db.query.roleTokens.findMany({
+      where: eq(roleTokens.roomId, roomId),
+    }),
+    db.query.prompterMessages.findMany({
+      where: eq(prompterMessages.roomId, roomId),
+      orderBy: (prompterMessages, { desc }) => [desc(prompterMessages.createdAt)],
+      limit: 15,
+    }),
+    db.query.activityLogs.findMany({
+      where: eq(activityLogs.roomId, roomId),
+      orderBy: (activityLogs, { desc }) => [desc(activityLogs.createdAt)],
+      limit: 30,
+    }),
+  ]);
 
   const formattedDate = new Date(room.eventDate).toLocaleDateString('id-ID', {
     weekday: 'long',
