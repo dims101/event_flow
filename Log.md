@@ -181,7 +181,14 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 *   **Perubahan:**
     *   **Penyelesaian Masalah Keterbacaan:** Mengubah warna teks `text-white` (warna putih statis) pada elemen peringatan pesan baru (`#pip-alert-text`) dan `text-indigo-300` pada elemen pesan prompter (`#pip-message`) di dalam template Document PiP menjadi kelas dinamis `text-slate-50` (yang memetakan ke `--text-1` / teks gelap di mode terang) dan `text-indigo-600` (yang memetakan ke `--brand-base`).
     *   **Penyesuaian Label:** Mengubah warna label `"PESAN BARU!"` dari `text-amber-400` yang buram di latar terang menjadi `text-rose-500` (danger red) yang sangat kontras dan aman untuk dibaca pada mode terang maupun gelap.
-*   **Tujuan:** Memperbaiki bug kegagalan rasio kontras warna pada mode terang agar kru EO/vendor dapat membaca instruksi baru melayang di layar dengan sangat jelas.
+### 6. ⚡ Migrasi Sistem Real-Time ke Supabase Realtime (Supabase Realtime Migration)
+*   **Perubahan:**
+    *   **Pemasangan Library:** Menambahkan `@supabase/supabase-js` sebagai pustaka utama koneksi client-side.
+    *   **Inisialisasi Client:** Membuat berkas konfigurasi [supabaseClient.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/lib/supabaseClient.ts) untuk mengelola langganan WebSocket di sisi klien.
+    *   **Penggantian SSE:** Mengganti penanganan `EventSource` (SSE) pada [ControlPanel.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/ControlPanel.tsx) dan [VendorView.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/v/[token]/_components/VendorView.tsx) dengan WebSocket subscription Supabase Realtime.
+    *   **Penyelarasan Skema (CamelCase Mapping):** Mengimplementasikan fungsi mapper (`mapRoom`, `mapMessage`, `mapLog`) untuk mengonversi payload *snake_case* PostgreSQL menjadi objek *camelCase* agar kompatibel dengan model UI.
+    *   **Ketahanan Offline (Dexie Sync):** Mengintegrasikan update real-time di sisi vendor dengan penyimpanan IndexedDB (Dexie) secara instan guna memastikan fallback luring tetap sinkron.
+*   **Tujuan:** Mengeliminasi latensi geografi serverless, memotong total kueri database (dari puluhan query per klik menjadi 0-1 query saja), dan menghilangkan ketergantungan SSE jangka pendek yang tidak cocok untuk serverless.
 
 ---
 

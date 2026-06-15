@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { localDb } from '@/lib/localDb';
+import { supabase } from '@/lib/supabaseClient';
+import { getRundownItemsAction } from '@/app/actions/rundown';
 import { 
   Monitor, AlertTriangle, MessageSquare, Bell, Wifi, WifiOff, 
   ChevronRight, ArrowRight, ShieldAlert, CheckCircle2 
@@ -194,51 +196,157 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
     prevStatus.current = state.room.timerStatus;
   }, [state.room]);
 
-  // 3. SSE Connection (Only when online)
+  // Helper mapper functions to convert database snake_case keys to camelCase models
+  const mapRoom = (dbRoom: any) => {
+    if (!dbRoom) return null;
+    return {
+      id: dbRoom.id,
+      name: dbRoom.name,
+      eventDate: dbRoom.event_date || dbRoom.eventDate,
+      userId: dbRoom.user_id || dbRoom.userId,
+      currentOffsetSeconds: dbRoom.current_offset_seconds !== undefined ? dbRoom.current_offset_seconds : dbRoom.currentOffsetSeconds,
+      currentRundownIndex: dbRoom.current_rundown_index !== undefined ? dbRoom.current_rundown_index : dbRoom.currentRundownIndex,
+      timerStatus: dbRoom.timer_status || dbRoom.timerStatus,
+      timerStartTime: dbRoom.timer_start_time !== undefined ? dbRoom.timer_start_time : dbRoom.timerStartTime,
+      timerElapsedSeconds: dbRoom.timer_elapsed_seconds !== undefined ? dbRoom.timer_elapsed_seconds : dbRoom.timerElapsedSeconds,
+    };
+  };
+
+  const mapMessage = (dbMsg: any) => {
+    if (!dbMsg) return null;
+    return {
+      id: dbMsg.id,
+      roomId: dbMsg.room_id || dbMsg.roomId,
+      targetRole: dbMsg.target_role || dbMsg.targetRole,
+      message: dbMsg.message,
+      createdAt: dbMsg.created_at !== undefined ? Number(dbMsg.created_at) : dbMsg.createdAt,
+    };
+  };
+
+  const mapLog = (dbLog: any) => {
+    if (!dbLog) return null;
+    return {
+      id: dbLog.id,
+      roomId: dbLog.room_id || dbLog.roomId,
+      actionType: dbLog.action_type || dbLog.actionType,
+      description: dbLog.description,
+      createdAt: dbLog.created_at !== undefined ? Number(dbLog.created_at) : dbLog.createdAt,
+    };
+  };
+
+  // 3. Supabase Realtime Connection (Only when online)
   useEffect(() => {
     if (!isOnline) return;
 
-    let eventSource: EventSource;
+    setConnected(true);
 
-    function connect() {
-      eventSource = new EventSource(`/api/rooms/${roomId}/stream`);
-
-      eventSource.onopen = () => {
-        setConnected(true);
-      };
-
-      eventSource.onerror = () => {
-        setConnected(false);
-        eventSource.close();
-        setTimeout(connect, 3000); // retry
-      };
-
-      eventSource.addEventListener('state', async (event: any) => {
+    const updateDexieCache = async (nextState: any) => {
+      if (localDb) {
         try {
-          const data = JSON.parse(event.data);
-          setState(data);
+          await localDb.rundownCache.put({
+            id: roomId,
+            roomName,
+            roomState: nextState.room,
+            items: nextState.items,
+            messages: nextState.messages,
+            lastUpdated: Date.now(),
+          });
+        } catch (err) {
+          console.error('Failed to update Dexie cache:', err);
+        }
+      }
+    };
 
-          // Auto-cache to Dexie (IndexedDB)
-          if (localDb) {
-            await localDb.rundownCache.put({
-              id: roomId,
-              roomName,
-              roomState: data.room,
-              items: data.items,
-              messages: data.messages,
-              lastUpdated: Date.now(),
-            });
-          }
-        } catch (e) {
-          console.error('Failed to parse SSE state data', e);
+    const channel = supabase
+      .channel(`room-vendor:${roomId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'rooms',
+          filter: `id=eq.${roomId}`,
+        },
+        (payload: any) => {
+          const mappedRoom = mapRoom(payload.new);
+          setState((prev: any) => {
+            const nextState = { ...prev, room: mappedRoom };
+            updateDexieCache(nextState);
+            return nextState;
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'prompter_messages',
+          filter: `room_id=eq.${roomId}`,
+        },
+        (payload: any) => {
+          const mappedMsg = mapMessage(payload.new);
+          if (!mappedMsg) return;
+          setState((prev: any) => {
+            if (prev.messages.some((m: any) => m.id === mappedMsg.id)) return prev;
+            const nextState = {
+              ...prev,
+              messages: [mappedMsg, ...prev.messages].slice(0, 15),
+            };
+            updateDexieCache(nextState);
+            return nextState;
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'activity_logs',
+          filter: `room_id=eq.${roomId}`,
+        },
+        (payload: any) => {
+          const mappedLog = mapLog(payload.new);
+          if (!mappedLog) return;
+          setState((prev: any) => {
+            if (prev.logs.some((l: any) => l.id === mappedLog.id)) return prev;
+            const nextState = {
+              ...prev,
+              logs: [mappedLog, ...prev.logs].slice(0, 30),
+            };
+            updateDexieCache(nextState);
+            return nextState;
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'rundown_items',
+          filter: `room_id=eq.${roomId}`,
+        },
+        async () => {
+          const updatedItems = await getRundownItemsAction(roomId);
+          setState((prev: any) => {
+            const nextState = { ...prev, items: updatedItems };
+            updateDexieCache(nextState);
+            return nextState;
+          });
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setConnected(true);
+        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          setConnected(false);
         }
       });
-    }
-
-    connect();
 
     return () => {
-      if (eventSource) eventSource.close();
+      supabase.removeChannel(channel);
     };
   }, [roomId, isOnline, roomName]);
 

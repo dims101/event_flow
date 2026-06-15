@@ -74,8 +74,8 @@ Platform ini dibangun menggunakan teknologi modern yang memastikan performa ting
 * **Core Framework**: [Next.js](https://nextjs.org/) (App Router, TypeScript)
 * **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 * **Database Relasional**: [PostgreSQL](https://www.postgresql.org/) via [Supabase](https://supabase.com/) & [Drizzle ORM](https://orm.drizzle.team/)
-* **Real-time State & Cache**: [Upstash Redis](https://upstash.com/) via `@upstash/redis` SDK — menyimpan offset waktu panggung dan antrean pesan prompter secara persisten lintas server instance. Mendukung **dual-mode** otomatis: terhubung ke Upstash Cloud jika `REDIS_URL` & `REDIS_TOKEN` dikonfigurasi, atau fallback ke in-memory mock untuk pengembangan lokal tanpa konfigurasi tambahan.
-* **Real-time Streaming**: **Server-Sent Events (SSE)** via Next.js API Routes (HTTP-Only Stream)
+* **Real-time Synchronization**: **Supabase Realtime** via `@supabase/supabase-js` — mendengarkan perubahan langsung dari PostgreSQL database via WebSocket untuk sinkronisasi instan di browser tanpa membebani server/database dengan query berulang (Zero DB Query overhead untuk event).
+* **Real-time State & Cache (Legacy/Backend)**: [Upstash Redis](https://upstash.com/) via `@upstash/redis` SDK — dipertahankan untuk pencatatan cadangan dan fallbacks. Mendukung mode in-memory mock untuk pengembangan lokal.
 * **Offline Database**: [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
 * **PWA Enabler**: `@ducanh2912/next-pwa`
 
@@ -89,15 +89,15 @@ eventflow/
 ├── src/
 │   ├── app/
 │   │   ├── actions/        # Server Actions (auth, room, rundown, dll.)
-│   │   ├── api/            # API Routes (SSE Stream /api/rooms/[id]/stream)
+│   │   ├── api/            # API Routes (SSE Stream /api/rooms/[id]/stream - legacy)
 │   │   ├── dashboard/      # Panel Dashboard EO & Show Caller
 │   │   ├── login/          # Halaman Masuk EO
 │   │   ├── register/       # Halaman Daftar EO
 │   │   ├── v/              # Tampilan Mobile Vendor (/v/[token])
 │   │   ├── layout.tsx
 │   │   └── page.tsx
-│   ├── db/                 # Konfigurasi Drizzle & SQLite Schema
-│   └── lib/                # Utilitas (Redis client, Local IndexedDB helper)
+│   ├── db/                 # Konfigurasi Drizzle & PostgreSQL Schema
+│   └── lib/                # Utilitas (Redis client, Supabase client, Dexie helper)
 ├── middleware.ts           # Proteksi sesi rute dasbor
 ├── next.config.ts          # Konfigurasi Next.js & Integrasi PWA
 └── package.json

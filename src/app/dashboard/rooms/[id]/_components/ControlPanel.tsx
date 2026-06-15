@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
+import { getRundownItemsAction } from '@/app/actions/rundown';
 import { 
   updateTimerStatusAction, 
   adjustRoomOffsetAction, 
@@ -117,38 +119,131 @@ export default function ControlPanel({
     };
   }, []);
 
-  // 1. Establish SSE Connection
+  // Helper mapper functions to convert database snake_case keys to camelCase models
+  const mapRoom = (dbRoom: any) => {
+    if (!dbRoom) return null;
+    return {
+      id: dbRoom.id,
+      name: dbRoom.name,
+      eventDate: dbRoom.event_date || dbRoom.eventDate,
+      userId: dbRoom.user_id || dbRoom.userId,
+      currentOffsetSeconds: dbRoom.current_offset_seconds !== undefined ? dbRoom.current_offset_seconds : dbRoom.currentOffsetSeconds,
+      currentRundownIndex: dbRoom.current_rundown_index !== undefined ? dbRoom.current_rundown_index : dbRoom.currentRundownIndex,
+      timerStatus: dbRoom.timer_status || dbRoom.timerStatus,
+      timerStartTime: dbRoom.timer_start_time !== undefined ? dbRoom.timer_start_time : dbRoom.timerStartTime,
+      timerElapsedSeconds: dbRoom.timer_elapsed_seconds !== undefined ? dbRoom.timer_elapsed_seconds : dbRoom.timerElapsedSeconds,
+    };
+  };
+
+  const mapMessage = (dbMsg: any) => {
+    if (!dbMsg) return null;
+    return {
+      id: dbMsg.id,
+      roomId: dbMsg.room_id || dbMsg.roomId,
+      targetRole: dbMsg.target_role || dbMsg.targetRole,
+      message: dbMsg.message,
+      createdAt: dbMsg.created_at !== undefined ? Number(dbMsg.created_at) : dbMsg.createdAt,
+    };
+  };
+
+  const mapLog = (dbLog: any) => {
+    if (!dbLog) return null;
+    return {
+      id: dbLog.id,
+      roomId: dbLog.room_id || dbLog.roomId,
+      actionType: dbLog.action_type || dbLog.actionType,
+      description: dbLog.description,
+      createdAt: dbLog.created_at !== undefined ? Number(dbLog.created_at) : dbLog.createdAt,
+    };
+  };
+
+  // 1. Establish Supabase Realtime Connection
   useEffect(() => {
-    let eventSource: EventSource;
+    setConnected(true);
 
-    function connect() {
-      eventSource = new EventSource(`/api/rooms/${roomId}/stream`);
-
-      eventSource.onopen = () => {
-        setConnected(true);
-      };
-
-      eventSource.onerror = () => {
-        setConnected(false);
-        eventSource.close();
-        // Retry connection after 3s
-        setTimeout(connect, 3000);
-      };
-
-      eventSource.addEventListener('state', (event: any) => {
-        try {
-          const data = JSON.parse(event.data);
-          setState(data);
-        } catch (e) {
-          console.error('Failed to parse SSE state data', e);
+    const channel = supabase
+      .channel(`room-control:${roomId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'rooms',
+          filter: `id=eq.${roomId}`,
+        },
+        (payload: any) => {
+          setState((prev: any) => ({
+            ...prev,
+            room: mapRoom(payload.new),
+          }));
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'prompter_messages',
+          filter: `room_id=eq.${roomId}`,
+        },
+        (payload: any) => {
+          const mappedMsg = mapMessage(payload.new);
+          if (!mappedMsg) return;
+          setState((prev: any) => {
+            if (prev.messages.some((m: any) => m.id === mappedMsg.id)) return prev;
+            return {
+              ...prev,
+              messages: [mappedMsg, ...prev.messages].slice(0, 15),
+            };
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'activity_logs',
+          filter: `room_id=eq.${roomId}`,
+        },
+        (payload: any) => {
+          const mappedLog = mapLog(payload.new);
+          if (!mappedLog) return;
+          setState((prev: any) => {
+            if (prev.logs.some((l: any) => l.id === mappedLog.id)) return prev;
+            return {
+              ...prev,
+              logs: [mappedLog, ...prev.logs].slice(0, 30),
+            };
+          });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'rundown_items',
+          filter: `room_id=eq.${roomId}`,
+        },
+        async () => {
+          const updatedItems = await getRundownItemsAction(roomId);
+          setState((prev: any) => ({
+            ...prev,
+            items: updatedItems,
+          }));
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setConnected(true);
+        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          setConnected(false);
         }
       });
-    }
-
-    connect();
 
     return () => {
-      if (eventSource) eventSource.close();
+      supabase.removeChannel(channel);
     };
   }, [roomId]);
 
