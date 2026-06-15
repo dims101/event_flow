@@ -6,6 +6,16 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ## 📅 Pembaruan: 15 Juni 2026
 
+### 0. ⚡ Integrasi Upstash Redis (Penggantian In-Memory Mock)
+*   **Perubahan:**
+    *   Memasang paket `@upstash/redis` (SDK resmi Upstash berbasis HTTP/REST) sebagai dependency baru.
+    *   Merefaktorisasi [redis.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/lib/redis.ts) dengan logika dual-mode:
+        *   **Mode Produksi (Upstash):** Jika variabel lingkungan `REDIS_URL` dan `REDIS_TOKEN` di `.env` terisi dengan nilai valid (bukan placeholder), sistem secara otomatis menginisialisasi klien `@upstash/redis` dan menggunakan perintah `get`, `set`, serta `publish`/`subscribe` Upstash untuk sinkronisasi data real-time lintas instans server.
+        *   **Mode Fallback (In-Memory):** Jika variabel lingkungan tidak dikonfigurasi atau masih berisi teks placeholder, sistem otomatis beralih ke implementasi *mock* berbasis `Map` in-process tanpa memerlukan konfigurasi apapun dari developer lokal.
+    *   Menambahkan `upstashClient.publish(roomId, value)` setiap kali `redis.set()` dipanggil untuk meneruskan sinyal pembaruan ke seluruh SSE subscriber.
+    *   Menggunakan `.unsubscribe()` pada objek *subscriber* Upstash di dalam cleanup callback `request.signal` untuk mencegah kebocoran koneksi saat klien memutus sambungan.
+*   **Tujuan:** Memungkinkan sinkronisasi status timer dan prompter secara real-time lintas instans server di lingkungan produksi (multi-instance/serverless), serta menjamin keandalan SSE broadcast ke semua klien yang terhubung dari manapun.
+
 ### 1. 🗄️ Migrasi Database PostgreSQL Supabase
 *   **Perubahan:** 
     *   Mengganti driver database Drizzle ORM dari `better-sqlite3` ke `postgres-js` (`postgres` npm package).
