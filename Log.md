@@ -8,12 +8,17 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ### 1. 📋 Jendela Samping Playlist Rundown di Jendela Melayang (PiP Sidebar Playlist)
 *   **Perubahan:**
-    *   **Document PiP Grid Layout & Optimization (`ControlPanel.tsx` & `VendorView.tsx`):** Memperluas dimensi viewport Document PiP menjadi `480px × 200px` dan mengoptimalkan pembagian ruang kolom dengan proporsi `grid-cols-[0.8fr_1.2fr]` (lebar playlist dipersempit untuk memaksimalkan area tampilan timer utama).
+    *   **Document PiP Grid Layout & Optimization (`ControlPanel.tsx` & `VendorView.tsx`):** Memperluas dimensi viewport Document PiP menjadi `480px × 200px` dan mengoptimalkan pembagian ruang kolom dengan proporsi `grid-cols-[0.45fr_1.55fr]`. Lebar playlist dipersempit kembali menjadi hanya 22.5% dari lebar layar (turun dari 30% sebelumnya) untuk memberikan ruang sebesar-besarnya (77.5%) bagi area penayangan waktu.
+    *   **Pembesaran Skala Teks (Font Scaling):**
+        *   **Timer Utama:** Diperbesar kembali dari `text-5xl font-black` ke `text-6xl font-black` agar digit angka terlihat sangat masif dan jelas.
+        *   **Sesi Rundown:** Diperbesar dari `13px` (aktif) / `11px` (tidak aktif) menjadi `16px font-bold` (aktif) / `13px` (tidak aktif).
+        *   **Jam Dinding:** Diperbesar dari `text-xs` (12px) ke `text-base` (16px) dengan padding proporsional.
+        *   **Judul Sesi Aktif:** Diperbesar dari `text-[8px]` ke `text-sm font-bold`.
+        *   **Pesan Prompter:** Diperbesar dari `text-[10px]` ke `text-xs`.
     *   **Penyederhanaan Sesi & Wrapping Teks:** Menghapus durasi sesi (`m`) dari daftar playlist rundown dan mengizinkan nama sesi yang panjang untuk melakukan pembungkusan teks (*text wrapping*) otomatis hingga maksimal 2-3 baris menggunakan CSS `-webkit-line-clamp: 3`.
     *   **Sliding Window Karaoke Algorithm:** Mengimplementasikan pagination geser otomatis (sliding window) berkapasitas 8 baris sesi rundown. Jika indeks sesi aktif berada di baris ke-7 atau lebih (`curIdx >= 7`), daftar rundown akan tergeser ke atas (`start = Math.max(0, Math.min(total - 8, curIdx - 1))`) untuk memastikan sesi aktif selalu terlihat di dekat bagian atas daftar (seperti subtitle karaoke).
-    *   **Indikator Sesi Aktif Visual:** Menandai sesi aktif dengan teks lebih tebal (`font-weight: 800`), ukuran font `9.5px` (dan `8.5px` untuk sesi tidak aktif), warna teks mencolok (`#818cf8`), highlight latar belakang, dan border penunjuk khusus di sebelah kiri.
-    *   **Canvas Fallback PiP Partitioning (`ControlPanel.tsx` & `VendorView.tsx`):** Membagi area canvas fallback PiP (`400px × 160px`) menjadi dua bagian dengan memosisikan garis separator vertikal lebih ke kiri (`leftWidth = 130` dari sebelumnya `165`) untuk memaksimalkan lebar area timer (centered pada `rightCenterX = 270`).
-    *   **Canvas Text Wrapping:** Mengimplementasikan pemotong kata dinamis berbasis lebar piksel teks (`ctx.measureText`) pada Canvas fallback untuk membungkus judul sesi secara otomatis hingga maksimal 3 baris di dalam batas area playlist kiri ($120\text{px}$).
+    *   **Canvas Fallback PiP Partitioning (`ControlPanel.tsx` & `VendorView.tsx`):** Membagi area canvas fallback PiP (`400px × 160px`) menjadi dua bagian dengan memosisikan garis separator vertikal lebih ke kiri (`leftWidth = 75` dari sebelumnya `100`, setara tepat 18.75% lebar kanvas) untuk memaksimalkan lebar area timer (centered pada `rightCenterX = 242`).
+    *   **Canvas Text Scaling & Wrapping:** Mengonfigurasi pemotong kata dinamis di Canvas fallback untuk melayani font baru yang lebih besar (aktif: `14px sans-serif`, tidak aktif: `11px sans-serif`), memaketkan wrapping judul hingga 3 baris dengan line-height `15px` / `12px` dinamis. Timer diperbesar dari `54px` menjadi `64px`, jam dinding diperbesar dari `13px` menjadi `16px`, judul sesi aktif dari `12px` ke `15px`, dan pesan prompter ke `13px`.
 *   **Tujuan:** Memaksimalkan keterbacaan digit angka timer utama dalam jendela melayang (PiP) serta memastikan seluruh nama sesi yang panjang tetap terbaca seutuhnya tanpa terpotong elipsis satu baris.
 
 ---

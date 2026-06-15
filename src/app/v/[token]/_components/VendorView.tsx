@@ -462,7 +462,7 @@ export default function VendorView({
           const activeMsg = activeAlertRef.current;
 
           if (container) {
-            container.className = `relative min-h-screen grid grid-cols-[0.8fr_1.2fr] gap-2 font-sans p-2 select-none transition-colors duration-300 ${
+            container.className = `relative min-h-screen grid grid-cols-[0.45fr_1.55fr] gap-2 font-sans p-2 select-none transition-colors duration-300 ${
               over ? 'bg-rose-950 animate-pulse-slow' : 'bg-slate-950'
             }`;
           }
@@ -524,7 +524,7 @@ export default function VendorView({
                 : room.timerStatus === 'running'
                 ? 'text-indigo-400'
                 : 'text-slate-300';
-              timerEl.className = `font-mono text-3xl font-extrabold tracking-tighter text-center leading-none ${pipColorClass}`;
+              timerEl.className = `font-mono text-6xl font-black tracking-tighter text-center leading-none ${pipColorClass}`;
             }
             if (dotEl) {
               const currentStatus = room.timerStatus;
@@ -542,7 +542,7 @@ export default function VendorView({
             if (msgEl) {
               if (latestMsg) {
                 msgEl.innerText = `[to ${latestMsg.targetRole}] : ${latestMsg.message}`;
-                msgEl.className = `text-[8px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
+                msgEl.className = `text-xs font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
               } else {
                 msgEl.className = 'hidden';
               }
@@ -697,21 +697,21 @@ export default function VendorView({
         // Initialize PiP structure
         const pipDiv = pipWindow.document.createElement('div');
         pipDiv.innerHTML = `
-          <div id="pip-container" class="relative min-h-screen grid grid-cols-[0.8fr_1.2fr] gap-2 font-sans p-2 select-none bg-slate-950 text-slate-100">
+          <div id="pip-container" class="relative min-h-screen grid grid-cols-[0.45fr_1.55fr] gap-2 font-sans p-2 select-none bg-slate-950 text-slate-100">
             <!-- Left: Rundown List -->
-            <div id="pip-rundown-list" class="flex flex-col gap-1 pr-1.5 border-r border-slate-900/60 overflow-hidden text-[9px] justify-center">
+            <div id="pip-rundown-list" class="flex flex-col gap-1 pr-1.5 border-r border-slate-900/60 overflow-hidden text-[13px] justify-center">
               <!-- Items will be injected here dynamically -->
             </div>
             
             <!-- Right: Timer, Wall Clock, Prompter -->
             <div class="flex flex-col items-center justify-center relative pl-1">
               <span id="pip-status-dot" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500"></span>
-              <span id="pip-title" class="text-[8px] font-bold text-slate-500 uppercase tracking-widest text-center mb-1">EVENTFLOW</span>
+              <span id="pip-title" class="text-sm font-bold text-slate-400 uppercase tracking-wider text-center mb-1.5">EVENTFLOW</span>
               
               <div id="pip-clock-view" class="flex flex-col items-center justify-center w-full">
-                <div id="pip-timer" class="font-mono text-3xl font-extrabold tracking-tighter text-slate-300 text-center leading-none">00:00</div>
-                <div class="mt-1.5 flex items-center gap-1.5 text-[9px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-bold tracking-wider text-center">
-                  <span id="pip-wall-time">00:00:00</span>
+                <div id="pip-timer" class="font-mono text-6xl font-black tracking-tighter text-slate-300 text-center leading-none">00:00</div>
+                <div class="mt-2 flex items-center gap-2 text-base px-3 py-1 rounded bg-slate-900 border border-slate-800 text-slate-400 font-bold tracking-wider text-center">
+                  <span id="pip-wall-time" class="font-mono">00:00:00</span>
                 </div>
               </div>
 
@@ -720,7 +720,7 @@ export default function VendorView({
                 <div id="pip-alert-text" class="text-[9px] font-extrabold text-slate-50 leading-snug line-clamp-2"></div>
               </div>
 
-              <div id="pip-message" class="text-[8px] text-indigo-300 font-bold text-center mt-2 px-1 border-t border-slate-900 pt-1 w-full truncate hidden"></div>
+              <div id="pip-message" class="text-xs text-indigo-300 font-bold text-center mt-2 px-1 border-t border-slate-900 pt-1 w-full truncate hidden"></div>
             </div>
           </div>
         `;
@@ -753,9 +753,9 @@ export default function VendorView({
           .pip-item {
             display: flex;
             align-items: center;
-            padding: 2px 4px;
+            padding: 4px 6px;
             border-radius: 4px;
-            margin: 1px 0;
+            margin: 2px 0;
             transition: all 0.15s ease;
             white-space: normal;
           }
@@ -765,18 +765,18 @@ export default function VendorView({
             -webkit-box-orient: vertical;
             overflow: hidden;
             word-break: break-word;
-            line-height: 1.1;
+            line-height: 1.2;
           }
           .pip-item-active {
-            font-weight: 800;
-            font-size: 9.5px;
+            font-weight: 850;
+            font-size: 16px;
             color: #818cf8;
-            background-color: rgba(99, 102, 241, 0.1);
-            border-left: 2px solid #6366f1;
-            padding-left: 3px;
+            background-color: rgba(99, 102, 241, 0.15);
+            border-left: 3.5px solid #6366f1;
+            padding-left: 6px;
           }
           .pip-item-inactive {
-            font-size: 8.5px;
+            font-size: 13px;
             color: #94a3b8;
           }
         `;
@@ -867,7 +867,7 @@ export default function VendorView({
           if (msgEl) {
             if (latestInitMsg) {
               msgEl.innerText = `[to ${latestInitMsg.targetRole}] : ${latestInitMsg.message}`;
-              msgEl.className = `text-[8px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
+              msgEl.className = `text-xs font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
             } else {
               msgEl.className = 'hidden';
             }
@@ -1042,8 +1042,8 @@ export default function VendorView({
           }
         } else {
           // Draw vertical separator
-          const leftWidth = 130;
-          const rightStart = 140;
+          const leftWidth = 75;
+          const rightStart = 85;
           const rightCenterX = rightStart + (canvas.width - rightStart) / 2;
 
           ctx.strokeStyle = isDark ? '#1e293b' : '#e2e8f0';
@@ -1074,17 +1074,17 @@ export default function VendorView({
               const isActive = index === curIdx;
               
               if (isActive) {
-                ctx.font = 'bold 9.5px sans-serif';
+                ctx.font = 'bold 14px sans-serif';
                 ctx.fillStyle = isDark ? '#818cf8' : '#0c66e4'; // Mencolok
               } else {
-                ctx.font = '9px sans-serif';
+                ctx.font = '11px sans-serif';
                 ctx.fillStyle = colorTextMuted;
               }
               
               // Wrap text dynamically for canvas
               const itemNum = `${index + 1}. `;
               const fullText = itemNum + item.title;
-              const maxTextWidth = leftWidth - 10;
+              const maxTextWidth = leftWidth - 8;
               
               const words = fullText.split(' ');
               const lines: string[] = [];
@@ -1104,35 +1104,36 @@ export default function VendorView({
               }
               
               const displayLines = lines.slice(0, 3);
+              const lineHeight = isActive ? 15 : 12;
               
               // Draw active indicator bar
               if (isActive) {
                 ctx.fillStyle = isDark ? '#6366f1' : '#0c66e4';
-                ctx.fillRect(2, yOffset, 2, displayLines.length * 10);
+                ctx.fillRect(2, yOffset, 2, displayLines.length * lineHeight);
                 ctx.fillStyle = isDark ? '#818cf8' : '#0c66e4';
               }
               
               displayLines.forEach((line, lineIdx) => {
-                ctx.fillText(line, isActive ? 8 : 6, yOffset + lineIdx * 10);
+                ctx.fillText(line, isActive ? 8 : 6, yOffset + lineIdx * lineHeight);
               });
               
-              yOffset += displayLines.length * 10 + 6;
+              yOffset += displayLines.length * lineHeight + 6;
               if (yOffset > canvas.height - 5) break;
             }
           }
 
           // 2. Normal clock drawing in the right column
           ctx.fillStyle = colorTextSlate;
-          ctx.font = 'bold 10px sans-serif';
+          ctx.font = 'bold 15px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'top';
           
           const sessionTitle = frameActiveItem ? frameActiveItem.title : 'EventFlow';
-          const maxTitleLength = 20; // smaller limit for right column width limit
+          const maxTitleLength = 28; // slightly longer limit for wider right column width limit
           const truncatedTitle = sessionTitle.length > maxTitleLength 
             ? sessionTitle.substring(0, maxTitleLength) + '…'
             : sessionTitle;
-          ctx.fillText(truncatedTitle.toUpperCase(), rightCenterX, 24);
+          ctx.fillText(truncatedTitle.toUpperCase(), rightCenterX, 20);
 
           // Check if overtime dynamically
           let isFrameOvertime = false;
@@ -1166,10 +1167,10 @@ export default function VendorView({
             ctx.fillStyle = colorTextPrimary;
           }
 
-          ctx.font = 'bold 44px monospace'; // slightly smaller font for narrow column
+          ctx.font = 'bold 64px monospace'; // larger font for wider column
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(timerDisplayRef.current, rightCenterX, 75);
+          ctx.fillText(timerDisplayRef.current, rightCenterX, 72);
 
           const status = frameRoom ? frameRoom.timerStatus : 'stopped';
           const wallTimeText = new Date().toTimeString().split(' ')[0];
@@ -1196,8 +1197,8 @@ export default function VendorView({
           }
           
           // Draw wall time centered
-          const statusY = 112;
-          ctx.font = 'bold 11px sans-serif';
+          const statusY = 115;
+          ctx.font = 'bold 16px sans-serif';
           ctx.fillStyle = colorTextMuted;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -1206,15 +1207,15 @@ export default function VendorView({
           // Draw latest prompter message at the bottom
           if (latestMsg) {
             ctx.fillStyle = isDark ? '#a5b4fc' : '#0C66E4';
-            ctx.font = 'bold 10px sans-serif';
+            ctx.font = 'bold 13px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
             const msgText = `[to ${latestMsg.targetRole}] : ${latestMsg.message}`;
-            const maxMsgLength = 22; // shorter limit for narrow column
+            const maxMsgLength = 28; // longer limit for wider column
             const truncatedMsg = msgText.length > maxMsgLength 
               ? msgText.substring(0, maxMsgLength) + '…'
               : msgText;
-            ctx.fillText(truncatedMsg, rightCenterX, 144);
+            ctx.fillText(truncatedMsg, rightCenterX, 148);
           }
         }
       };
