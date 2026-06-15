@@ -4,6 +4,29 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ---
 
+## 📅 Pembaruan: 15 Juni 2026
+
+### 1. 🗄️ Migrasi Database PostgreSQL Supabase
+*   **Perubahan:** 
+    *   Mengganti driver database Drizzle ORM dari `better-sqlite3` ke `postgres-js` (`postgres` npm package).
+    *   Menghapus paket dependencies `better-sqlite3` dan `@types/better-sqlite3`.
+    *   Mengubah konfigurasi `drizzle.config.ts` untuk menggunakan dialect `postgresql`.
+    *   Mengonversi kolom waktu millisecond (`timerStartTime`, `createdAt`) pada [schema.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/db/schema.ts) dari `integer` ke `bigint({ mode: 'number' })` untuk mencegah batas overflow 32-bit di PostgreSQL.
+    *   Mengonfigurasi koneksi pooler Supavisor (Port 6543) dengan parameter `prepare: false` pada [index.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/db/index.ts) guna mendukung mode transaksi (*Transaction Mode*) serverless.
+*   **Tujuan:** Memindahkan database lokal SQLite ke infrastruktur terdistribusi cloud Supabase PostgreSQL secara andal untuk mendukung deployment produksi serverless.
+
+### 2. 🛡️ Audit Keamanan IDOR (Insecure Direct Object Reference) & Otorisasi
+*   **Perubahan:** 
+    *   Menambahkan fungsi otorisasi kepemilikan ruangan (`room.userId === user.id`) pada halaman detail event [page.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/page.tsx).
+    *   Mengamankan seluruh Server Actions mutasi dan kontrol di [room.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/room.ts), [roomControl.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/roomControl.ts), dan [rundown.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/rundown.ts) dengan mencocokkan ID user dari cookie sesi terenkripsi (`getCurrentUser()`) terhadap kolom `userId` tabel `rooms` sebelum mengeksekusi operasi database.
+*   **Tujuan:** Menutup celah bypass logika yang memungkinkan pengguna luar untuk menghapus room, memanipulasi waktu timer panggung, mengirim pesan prompter palsu, atau mengubah rundown acara milik EO lain hanya dengan mengirimkan/menebak parameter `roomId`.
+
+### 3. 📝 Berkas Templat Lingkungan (.env.example)
+*   **Perubahan:** Membuat berkas templat [.env.example](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/.env.example) yang berisi konfigurasi kosong standar untuk database PostgreSQL Supabase dan Upstash Redis.
+*   **Tujuan:** Mempermudah standardisasi konfigurasi *environment variables* lokal bagi kolaborator proyek lain.
+
+---
+
 ## 📅 Pembaruan: 14 Juni 2026
 
 ### 1. ⏱️ Solusi Timer Beku di Latar Belakang (Timer Throttling)
