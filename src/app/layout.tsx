@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { SerwistProvider } from "@serwist/turbopack/react";
 import ThemeToggle from "./_components/ThemeToggle";
 
 const geistSans = Geist({
@@ -62,7 +63,13 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 font-sans antialiased">
-        {children}
+        {process.env.NODE_ENV !== "development" ? (
+          <SerwistProvider swUrl="/sw.js">
+            {children}
+          </SerwistProvider>
+        ) : (
+          children
+        )}
         <ThemeToggle />
       </body>
     </html>

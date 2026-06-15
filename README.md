@@ -77,7 +77,7 @@ Platform ini dibangun menggunakan teknologi modern yang memastikan performa ting
 * **Real-time Synchronization**: **Supabase Realtime** via `@supabase/supabase-js` — mendengarkan perubahan langsung dari PostgreSQL database via WebSocket untuk sinkronisasi instan di browser tanpa membebani server/database dengan query berulang (Zero DB Query overhead untuk event).
 * **Real-time State & Cache (Legacy/Backend)**: [Upstash Redis](https://upstash.com/) via `@upstash/redis` SDK — dipertahankan untuk pencatatan cadangan dan fallbacks. Mendukung mode in-memory mock untuk pengembangan lokal.
 * **Offline Database**: [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
-* **PWA Enabler**: `@ducanh2912/next-pwa`
+* **PWA Enabler & Push Notification**: `@serwist/next` & `@serwist/turbopack` (Static compiles custom service worker `sw.ts`)
 
 ---
 

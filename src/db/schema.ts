@@ -50,3 +50,14 @@ export const activityLogs = pgTable('activity_logs', {
   description: text('description').notNull(),
   createdAt: bigint('created_at', { mode: 'number' }).notNull(),
 });
+
+export const pushSubscriptions = pgTable('push_subscriptions', {
+  id: text('id').primaryKey(),
+  roomId: text('room_id').notNull().references(() => rooms.id, { onDelete: 'cascade' }),
+  role: text('role').notNull(), // 'All', 'MC', 'Catering', 'MUA', 'Admin'
+  endpoint: text('endpoint').notNull().unique(),
+  p256dh: text('p256dh').notNull(),
+  auth: text('auth').notNull(),
+  deviceInfo: text('device_info'),
+  createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+});

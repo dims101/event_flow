@@ -1,9 +1,10 @@
 'use server';
 
 import { db } from '@/db';
-import { rooms, prompterMessages, rundownItems, activityLogs } from '@/db/schema';
+import { rooms, prompterMessages, rundownItems, activityLogs, roleTokens } from '@/db/schema';
 import { redis } from '@/lib/redis';
 import { eq, and } from 'drizzle-orm';
+import { sendPushNotification } from '@/lib/pushSender';
 import { getSessionUserId } from './auth';
 import { logActivityBackground } from '@/lib/serverUtils';
 
@@ -191,6 +192,25 @@ export async function sendPrompterMessageAction(
       message: message.trim(),
       createdAt: Date.now(),
     });
+
+    // Fire-and-forget push notification trigger to target vendors
+    try {
+      // Find the specific role token to generate direct redirect link
+      const roleToken = await db.query.roleTokens.findFirst({
+        where: and(
+          eq(roleTokens.roomId, roomId),
+          eq(roleTokens.role, targetRole)
+        ),
+      });
+
+      sendPushNotification(roomId, targetRole, {
+        title: `📢 Prompter: [${targetRole}]`,
+        body: message.trim(),
+        url: roleToken ? `/v/${roleToken.token}` : '/',
+      });
+    } catch (pushErr) {
+      console.error('Failed to dispatch push notification in background:', pushErr);
+    }
 
     // Fire-and-forget log + SSE trigger
     logActivityBackground(

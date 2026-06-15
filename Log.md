@@ -190,6 +190,19 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **Ketahanan Offline (Dexie Sync):** Mengintegrasikan update real-time di sisi vendor dengan penyimpanan IndexedDB (Dexie) secara instan guna memastikan fallback luring tetap sinkron.
 *   **Tujuan:** Mengeliminasi latensi geografi serverless, memotong total kueri database (dari puluhan query per klik menjadi 0-1 query saja), dan menghilangkan ketergantungan SSE jangka pendek yang tidak cocok untuk serverless.
 
+### 7. 📲 Integrasi PWA & Push Notification via Serwist (PWA & Web Push Notification Integration)
+*   **Perubahan:**
+    *   **Transisi Library PWA:** Mengganti `@ducanh2912/next-pwa` dengan `@serwist/next` dan `@serwist/turbopack` guna memastikan kompatibilitas 100% dengan Turbopack compiler (`next dev --turbo`).
+    *   **Kompilasi Statis Service Worker:** Membuat static route compiler di [route.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/serwist/[path]/route.ts) dan rewrites/headers di `next.config.ts` untuk memicu kompilasi esbuild Service Worker saat build time, guna membebaskan aplikasi dari crash perizinan baca-saja (*read-only failure*) di Vercel.
+    *   **Service Worker Custom (`sw.ts`):** Mengimplementasikan penanganan event `push` dan `notificationclick` pada [sw.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/sw.ts) untuk memicu notifikasi visual dan pola getaran smartwatch.
+    *   **Tabel Database & Token:** Menambahkan skema tabel `push_subscriptions` di [schema.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/db/schema.ts) untuk menyimpan token notifikasi berdasarkan `roomId` dan `role` vendor secara login-free.
+    *   **Server Actions & Dispatcher:**
+        *   Membuat berkas Server Action pendaftaran token di [pushSubscribe.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/pushSubscribe.ts).
+        *   Membuat helper pengiriman notifikasi [pushSender.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/lib/pushSender.ts) menggunakan pustaka `web-push`.
+        *   Mengintegrasikan trigger pengiriman notifikasi di `sendPrompterMessageAction` agar pesan prompter langsung memicu push notif ke HP/smartwatch vendor penerima secara real-time.
+    *   **UI Lonceng & Banner Prompt:** Menambahkan Bell Icon (Opsi 1) dan Banner Prompt interaktif (Opsi 2) di [VendorView.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/v/[token]/_components/VendorView.tsx) agar kru dapat dengan mudah menyalakan/mematikan notifikasi.
+*   **Tujuan:** Memperluas jangkauan notifikasi real-time panggung langsung ke HP dan smartwatch pergelangan tangan kru di lapangan secara andal tanpa memakan daya HP yang besar.
+
 ---
 
 ## 🛠️ Status Kompilasi Proyek

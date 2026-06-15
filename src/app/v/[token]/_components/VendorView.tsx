@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { localDb } from '@/lib/localDb';
 import { supabase } from '@/lib/supabaseClient';
 import { getRundownItemsAction } from '@/app/actions/rundown';
+import { subscribeToPushAction, unsubscribeFromPushAction } from '@/app/actions/pushSubscribe';
 import { 
   Monitor, AlertTriangle, MessageSquare, Bell, Wifi, WifiOff, 
   ChevronRight, ArrowRight, ShieldAlert, CheckCircle2 
@@ -145,6 +146,8 @@ export default function VendorView({
 
   const [isOnline, setIsOnline] = useState(true);
   const [connected, setConnected] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [pushSupported, setPushSupported] = useState(false);
   
   // Ticker states
   const [timerDisplay, setTimerDisplay] = useState('00:00');
@@ -183,6 +186,20 @@ export default function VendorView({
         pipWindowRef.current.close();
       }
     };
+  }, []);
+
+  // Check Web Push Notification support and status
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      setPushSupported(false);
+      return;
+    }
+    setPushSupported(true);
+
+    navigator.serviceWorker.ready.then(async (reg) => {
+      const sub = await reg.pushManager.getSubscription();
+      setIsSubscribed(!!sub);
+    }).catch(err => console.error("Error checking push subscription:", err));
   }, []);
 
   // 2. Network status tracking
@@ -981,6 +998,87 @@ export default function VendorView({
     }
   };
 
+  const handleToggleNotification = async () => {
+    try {
+      if (!pushSupported) {
+        alert("Browser atau perangkat Anda tidak mendukung push notifikasi.");
+        return;
+      }
+
+      let registration = await navigator.serviceWorker.getRegistration();
+      if (!registration) {
+        registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      }
+
+      if (!registration) {
+        throw new Error("Service Worker tidak aktif.");
+      }
+
+      const reg = await Promise.race([
+        navigator.serviceWorker.ready,
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout menunggu Service Worker siap.")), 5000)
+        ),
+      ]);
+
+      if (!isSubscribed) {
+        // 1. Minta Izin Notifikasi
+        const status = await Notification.requestPermission();
+        if (status !== "granted") {
+          throw new Error("Izin notifikasi ditolak oleh browser.");
+        }
+
+        // 2. Dapatkan VAPID Key
+        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+        if (!vapidPublicKey) {
+          throw new Error("VAPID Public Key belum dikonfigurasi di server.");
+        }
+        const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+
+        // 3. Subscribe
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: convertedKey,
+        });
+
+        // 4. Simpan ke Database
+        const res = await subscribeToPushAction(
+          roomId,
+          vendorRole,
+          JSON.parse(JSON.stringify(sub)),
+          navigator.userAgent
+        );
+
+        if (res.error) {
+          throw new Error(res.error);
+        }
+        setIsSubscribed(true);
+      } else {
+        // Unsubscribe
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          await unsubscribeFromPushAction(sub.endpoint);
+          await sub.unsubscribe();
+        }
+        setIsSubscribed(false);
+      }
+    } catch (err: any) {
+      console.error("Gagal memperbarui notifikasi:", err);
+      alert(err.message || "Gagal mengubah setelan notifikasi.");
+    }
+  };
+
+  function urlBase64ToUint8Array(base64String: string) {
+    const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/\-/g, "+").replace(/_/g, "/");
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
   const { room, items, messages } = state;
   const currentItem = room && items[room.currentRundownIndex];
   const nextItem = room && items[room.currentRundownIndex + 1];
@@ -1014,6 +1112,23 @@ export default function VendorView({
               <Monitor className="w-3.5 h-3.5 text-indigo-400" />
               <span>Float</span>
             </button>
+
+            {pushSupported && (
+              <button
+                onClick={handleToggleNotification}
+                type="button"
+                className={`px-2.5 py-1 rounded-lg border transition duration-150 flex items-center gap-1 cursor-pointer min-h-[32px] select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 focus-visible:ring-offset-1 focus-visible:ring-offset-slate-950 ${
+                  isSubscribed
+                    ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400 font-bold'
+                    : 'border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-400 font-bold'
+                }`}
+                title={isSubscribed ? "Notifikasi Aktif" : "Aktifkan Notifikasi"}
+              >
+                <Bell className={`w-3.5 h-3.5 ${isSubscribed ? 'text-emerald-400' : 'text-slate-400 animate-pulse'}`} />
+                <span>{isSubscribed ? "Aktif" : "Notif"}</span>
+              </button>
+            )}
+
             <span className={`px-2.5 py-1 rounded border text-[10px] font-bold ${
               vendorRole === 'All' ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400' :
               vendorRole === 'MC' ? 'border-amber-500/20 bg-amber-500/10 text-amber-400' :
@@ -1030,12 +1145,28 @@ export default function VendorView({
                 <span>OFFLINE</span>
               </span>
             ) : connected ? (
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-505 animate-pulse" title="Koneksi terhubung" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" title="Koneksi terhubung" />
             ) : (
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" title="Koneksi terputus" />
             )}
           </div>
         </div>
+
+        {/* Option 2: Active Push Notification Invite Banner */}
+        {pushSupported && !isSubscribed && (
+          <div className="flex items-center justify-between p-3 rounded-xl border border-indigo-500/10 bg-indigo-500/5 text-slate-300 text-xs gap-3 animate-pulse-slow">
+            <div className="flex items-center gap-2">
+              <Bell className="w-4 h-4 text-indigo-400 shrink-0 animate-bounce" style={{ animationDuration: '3s' }} />
+              <span>Aktifkan push notifikasi untuk getaran HP & smartwatch saat instruksi baru masuk.</span>
+            </div>
+            <button
+              onClick={handleToggleNotification}
+              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg text-[10px] transition duration-150 whitespace-nowrap cursor-pointer min-h-[28px]"
+            >
+              Aktifkan
+            </button>
+          </div>
+        )}
 
         {/* Current Active Item Card */}
         <div className="text-center py-2">
