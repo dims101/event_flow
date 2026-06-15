@@ -159,6 +159,12 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **Kejelasan Aksi (CTA):** Mengubah teks tombol primer menjadi "Masuk ke Dasbor" dan tombol sekunder menjadi "Mulai Gratis".
 *   **Tujuan:** Membantu pengguna baru memahami nilai dan manfaat aplikasi dengan lebih cepat serta meningkatkan konversi pendaftaran.
 
+### 4. 🖼️ Sinkronisasi Tema pada Mode Picture-in-Picture (PiP Theme Synchronization)
+*   **Perubahan:**
+    *   **Document PiP Theme Sync:** Menambahkan penyalinan kelas `.dark` dari dokumen induk (`document.documentElement`) ke dokumen jendela PiP baru (`pipWindow.document.documentElement`) pada [ControlPanel.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/ControlPanel.tsx) dan [VendorView.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/v/[token]/_components/VendorView.tsx).
+    *   **Canvas PiP Dynamic Styling:** Mengganti warna Hex statis di dalam loop gambar kanvas (`draw()`) menjadi warna dinamis yang membaca kelas `.dark` dari dokumen induk, memastikan tampilan kanvas PiP menyesuaikan palet warna mode terang atau mode gelap secara tepat.
+*   **Tujuan:** Menjamin konsistensi visual di seluruh mode PiP (baik HTML melayang maupun video kanvas) agar serasi dengan skema warna yang diatur pengguna di dasbor utama.
+
 ---
 
 ## 🛠️ Status Kompilasi Proyek

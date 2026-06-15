@@ -438,6 +438,13 @@ export default function ControlPanel({
         pipWindowRef.current = pipWindow;
         setIsPipActive(true);
 
+        // Copy active theme (dark/light) to the Document PiP window
+        if (document.documentElement.classList.contains('dark')) {
+          pipWindow.document.documentElement.classList.add('dark');
+        } else {
+          pipWindow.document.documentElement.classList.remove('dark');
+        }
+
         // Copy styles to Document PiP window
         [...document.styleSheets].forEach((styleSheet) => {
           try {
@@ -654,6 +661,15 @@ export default function ControlPanel({
       video.addEventListener('leavepictureinpicture', handleLeavePiP);
 
       const draw = () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        
+        // Define colors dynamically depending on parent theme
+        const colorBg = isDark ? '#090d16' : '#FAFBFC';
+        const colorTextPrimary = isDark ? '#818cf8' : '#0C66E4';
+        const colorTextMuted = isDark ? '#94a3b8' : '#42526E';
+        const colorTextSlate = isDark ? '#64748b' : '#5E6C84';
+        const colorTextWhite = isDark ? '#ffffff' : '#091E42';
+
         // Fetch fresh state from ref on each draw frame
         const { room: frameRoom, items: frameItems, messages: frameMessages } = stateRef.current;
         const frameActiveItem = frameRoom && frameItems[frameRoom.currentRundownIndex];
@@ -661,24 +677,24 @@ export default function ControlPanel({
         const isFreshAlert = activeAlertRef.current !== null;
         const activeMsg = activeAlertRef.current;
 
-        ctx.fillStyle = '#090d16';
+        ctx.fillStyle = colorBg;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         if (isFreshAlert && activeMsg) {
           // Draw BIG ALERT in the center instead of the clock!
-          ctx.fillStyle = '#1e1b4b'; // dark indigo
+          ctx.fillStyle = isDark ? '#1e1b4b' : '#DEEBFF'; // dark indigo vs subtle brand
           ctx.fillRect(10, 10, canvas.width - 20, canvas.height - 20);
-          ctx.strokeStyle = '#6366f1'; // indigo border
+          ctx.strokeStyle = isDark ? '#6366f1' : '#0C66E4'; // indigo border vs bold brand
           ctx.lineWidth = 2;
           ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
 
-          ctx.fillStyle = '#f59e0b'; // Amber header text
+          ctx.fillStyle = isDark ? '#f59e0b' : '#CA3521'; // Amber vs Danger bold text
           ctx.font = 'bold 12px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'top';
           ctx.fillText(`INSTRUKSI BARU! [To: ${activeMsg.targetRole}]`, canvas.width / 2, 34);
 
-          ctx.fillStyle = '#ffffff'; // White message text
+          ctx.fillStyle = colorTextWhite;
           ctx.font = 'bold 22px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -704,7 +720,7 @@ export default function ControlPanel({
           }
         } else {
           // Normal clock drawing
-          ctx.fillStyle = '#64748b';
+          ctx.fillStyle = colorTextSlate;
           ctx.font = 'bold 11px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'top';
@@ -727,7 +743,7 @@ export default function ControlPanel({
             isFrameOvertime = (totalAllowed - elapsed) < 0;
           }
 
-          ctx.fillStyle = isFrameOvertime ? '#ef4444' : '#818cf8';
+          ctx.fillStyle = isFrameOvertime ? '#ef4444' : colorTextPrimary;
           ctx.font = 'bold 64px monospace';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -760,14 +776,14 @@ export default function ControlPanel({
           // Draw wall time centered
           const statusY = 120;
           ctx.font = 'bold 14px sans-serif';
-          ctx.fillStyle = '#94a3b8';
+          ctx.fillStyle = colorTextMuted;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(wallTimeText, canvas.width / 2, statusY);
 
           // Draw latest prompter message sent at the bottom
           if (latestMsg) {
-            ctx.fillStyle = '#a5b4fc';
+            ctx.fillStyle = isDark ? '#a5b4fc' : '#0C66E4';
             ctx.font = 'bold 11px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
