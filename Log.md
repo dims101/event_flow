@@ -20,7 +20,8 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **Komponen UI PicManagement:** Membuat komponen [PicManagement.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/PicManagement.tsx) yang diletakkan pada tab "Akses" di dashboard EO untuk menambah dan menghapus PIC.
     *   **Form Sesi Rundown Checklist:** Memperbarui [AddRundownForm.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/AddRundownForm.tsx) dengan pilihan multi-select berbasis checkbox badge untuk menugaskan satu atau beberapa PIC ke sesi rundown.
     *   **Tabel Rundown Multi-Badge:** Memperbarui [RundownTable.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/RundownTable.tsx) untuk merender daftar badge PIC yang ditugaskan di setiap baris rundown dengan parser fallback jika data lama kosong.
-*   **Tujuan:** Memberikan kemudahan bagi EO untuk menyusun penanggung jawab sesi secara intuitif dengan antarmuka yang bersih dan interaktif.
+    *   **Pewarnaan Badge Dinamis (Colorful Badges):** Membuat berkas utility [picColors.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/lib/picColors.ts) untuk mengelola pewarnaan badge PIC secara terpusat. Mendukung warna coklat khusus untuk "Pihak KUA", biru untuk "Pria", pink untuk "Wanita", teal untuk "Keluarga", serta algoritma hashing deterministik untuk menghasilkan warna unik yang berbeda-beda bagi PIC kustom lainnya. Variasi warna ini diterapkan konsisten di form checklist input, tabel rundown, log prompter, dan status screen vendor.
+*   **Tujuan:** Memberikan kemudahan bagi EO untuk menyusun penanggung jawab sesi secara intuitif dengan antarmuka yang bersih, interaktif, dan penuh warna yang kontras.
 
 ### 3. 📢 Pocket Prompter Dinamis & Layar Bersama Layanan Lapangan (Shared Prompter Screen)
 *   **Perubahan:**

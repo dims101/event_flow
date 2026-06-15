@@ -16,6 +16,7 @@ import {
   Trash2, Clock, Activity, MessageSquare, Monitor, Check, Calendar, 
   ChevronRight, Sparkles, AlertCircle, Hourglass, HelpCircle 
 } from 'lucide-react';
+import { getRoleBadgeStyle } from '@/lib/picColors';
 
 interface Room {
   id: string;
@@ -1343,12 +1344,7 @@ export default function ControlPanel({
                     className="border border-slate-800 bg-slate-950/30 rounded-lg p-3 space-y-1.5"
                   >
                     <div className="flex items-center justify-between text-xs">
-                      <span className={`px-2 py-0.2 rounded font-bold border text-[10px] tracking-wide ${
-                        msg.targetRole === 'All' ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400' :
-                        msg.targetRole === 'MC' ? 'border-amber-500/20 bg-amber-500/10 text-amber-400' :
-                        msg.targetRole === 'Catering' ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' :
-                        'border-purple-500/20 bg-purple-500/10 text-purple-400'
-                      }`}>
+                      <span className={`px-2 py-0.2 rounded font-bold border text-[10px] tracking-wide ${getRoleBadgeStyle(msg.targetRole)}`}>
                         To: {msg.targetRole}
                       </span>
                       <span className="font-mono text-slate-500 text-[10px]">{time}</span>

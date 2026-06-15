@@ -4,6 +4,7 @@ import React, { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { addPicAction, deletePicAction } from '@/app/actions/pic';
 import { Plus, Trash2, Shield, User } from 'lucide-react';
+import { getRoleBadgeStyle } from '@/lib/picColors';
 
 interface Pic {
   id: string;
@@ -108,8 +109,10 @@ export default function PicManagement({ roomId, initialPics }: PicManagementProp
                 key={pic.id}
                 className="flex items-center justify-between p-2 rounded-lg border border-slate-800 bg-slate-950/40 hover:bg-slate-950/80 transition duration-100 text-xs"
               >
-                <div className="flex items-center gap-2 text-slate-200">
-                  <span>{pic.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded border font-bold text-[10px] ${getRoleBadgeStyle(pic.name)}`}>
+                    {pic.name}
+                  </span>
                   {isDefault && (
                     <span className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center gap-0.5 font-bold tracking-wider uppercase font-mono">
                       <Shield className="w-2.5 h-2.5" />

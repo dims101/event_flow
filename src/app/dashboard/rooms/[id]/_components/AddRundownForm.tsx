@@ -4,6 +4,7 @@ import React, { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { addRundownItemAction } from '@/app/actions/rundown';
 import { Plus, AlertCircle, Sparkles } from 'lucide-react';
+import { getRoleBadgeStyle } from '@/lib/picColors';
 
 interface Pic {
   id: string;
@@ -98,13 +99,13 @@ export default function AddRundownForm({ roomId, pics }: AddRundownFormProps) {
                 pics.map((pic) => (
                   <label
                     key={pic.id}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-900 cursor-pointer text-xs font-semibold select-none text-slate-300 transition hover:border-slate-700"
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer text-xs font-semibold select-none transition ${getRoleBadgeStyle(pic.name)}`}
                   >
                     <input
                       type="checkbox"
                       name="targetPics"
                       value={pic.name}
-                      className="w-3.5 h-3.5 rounded border-slate-800 bg-slate-950 text-indigo-650 focus:ring-indigo-500 cursor-pointer"
+                      className="w-3.5 h-3.5 rounded border-transparent bg-slate-950 text-indigo-650 focus:ring-indigo-500 cursor-pointer opacity-80"
                     />
                     <span>{pic.name}</span>
                   </label>

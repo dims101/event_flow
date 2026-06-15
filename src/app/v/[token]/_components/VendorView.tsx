@@ -9,6 +9,7 @@ import {
   Monitor, AlertTriangle, MessageSquare, Bell, Wifi, WifiOff, 
   ChevronRight, ArrowRight, ShieldAlert, CheckCircle2 
 } from 'lucide-react';
+import { getRoleBadgeStyle } from '@/lib/picColors';
 
 interface VendorViewProps {
   roomId: string;
@@ -1182,12 +1183,7 @@ export default function VendorView({
               </button>
             )}
 
-            <span className={`px-2.5 py-1 rounded border text-[10px] font-bold ${
-              vendorRole === 'All' ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400' :
-              vendorRole === 'MC' ? 'border-amber-500/20 bg-amber-500/10 text-amber-400' :
-              vendorRole === 'Catering' ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' :
-              'border-purple-500/20 bg-purple-500/10 text-purple-400'
-            }`}>
+            <span className={`px-2.5 py-1 rounded border text-[10px] font-bold ${getRoleBadgeStyle(vendorRole)}`}>
               {vendorRole}
             </span>
 

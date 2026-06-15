@@ -4,6 +4,7 @@ import React, { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteRundownItemAction } from '@/app/actions/rundown';
 import { Trash2, Clock, ClipboardList } from 'lucide-react';
+import { getRoleBadgeStyle } from '@/lib/picColors';
 
 interface RundownItem {
   id: string;
@@ -18,24 +19,6 @@ interface RundownItem {
 interface RundownTableProps {
   items: RundownItem[];
 }
-
-const getRoleBadgeStyle = (role: string) => {
-  switch (role) {
-    case 'All':
-      return 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400';
-    case 'MC':
-      return 'border-amber-500/20 bg-amber-500/10 text-amber-400';
-    case 'Catering':
-      return 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400';
-    case 'MUA':
-      return 'border-purple-500/20 bg-purple-500/10 text-purple-400';
-    case 'Dokumentasi':
-    case 'Fotografer':
-      return 'border-blue-500/20 bg-blue-500/10 text-blue-400';
-    default:
-      return 'border-slate-800 bg-slate-900 text-slate-400';
-  }
-};
 
 const renderPicBadges = (item: RundownItem) => {
   let list: string[] = [];
