@@ -477,11 +477,9 @@ export default function VendorView({
           if (listEl && items) {
             const total = items.length;
             const curIdx = room.currentRundownIndex;
-            const limit = 8;
-            let start = 0;
-            if (curIdx !== -1 && curIdx >= 7) {
-              start = Math.max(0, Math.min(total - limit, curIdx - 1));
-            }
+            const limit = 5;
+            const page = curIdx !== -1 ? Math.floor(curIdx / limit) : 0;
+            const start = page * limit;
             const end = Math.min(total, start + limit);
             
             let html = '';
@@ -827,11 +825,9 @@ export default function VendorView({
         if (listEl && currentItems) {
           const total = currentItems.length;
           const curIdx = currentRoom ? currentRoom.currentRundownIndex : -1;
-          const limit = 8;
-          let start = 0;
-          if (curIdx !== -1 && curIdx >= 7) {
-            start = Math.max(0, Math.min(total - limit, curIdx - 1));
-          }
+          const limit = 5;
+          const page = curIdx !== -1 ? Math.floor(curIdx / limit) : 0;
+          const start = page * limit;
           const end = Math.min(total, start + limit);
           
           let html = '';
@@ -1057,11 +1053,9 @@ export default function VendorView({
           if (frameItems && frameItems.length > 0) {
             const curIdx = frameRoom ? frameRoom.currentRundownIndex : -1;
             const total = frameItems.length;
-            const limit = 8;
-            let start = 0;
-            if (curIdx !== -1 && curIdx >= 7) {
-              start = Math.max(0, Math.min(total - limit, curIdx - 1));
-            }
+            const limit = 5;
+            const page = curIdx !== -1 ? Math.floor(curIdx / limit) : 0;
+            const start = page * limit;
             const end = Math.min(total, start + limit);
             
             let yOffset = 15;
