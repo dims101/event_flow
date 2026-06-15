@@ -2,7 +2,7 @@
 
 import { db } from '@/db';
 import { rooms, roleTokens } from '@/db/schema';
-import { getCurrentUser } from './auth';
+import { getCurrentUser, getSessionUserId } from './auth';
 import { eq, and } from 'drizzle-orm';
 
 export async function createRoomAction(prevState: any, formData: FormData) {
@@ -14,8 +14,8 @@ export async function createRoomAction(prevState: any, formData: FormData) {
   }
 
   try {
-    const user = await getCurrentUser();
-    if (!user) {
+    const userId = await getSessionUserId();
+    if (!userId) {
       return { error: 'Anda harus masuk terlebih dahulu' };
     }
 
@@ -26,7 +26,7 @@ export async function createRoomAction(prevState: any, formData: FormData) {
       id: roomId,
       name,
       eventDate,
-      userId: user.id,
+      userId,
       currentOffsetSeconds: 0,
       currentRundownIndex: -1,
       timerStatus: 'stopped',
@@ -53,11 +53,11 @@ export async function createRoomAction(prevState: any, formData: FormData) {
 
 export async function getRoomsAction() {
   try {
-    const user = await getCurrentUser();
-    if (!user) return [];
+    const userId = await getSessionUserId();
+    if (!userId) return [];
 
     return await db.query.rooms.findMany({
-      where: eq(rooms.userId, user.id),
+      where: eq(rooms.userId, userId),
       orderBy: (rooms, { desc }) => [desc(rooms.eventDate)],
     });
   } catch (error) {
@@ -68,10 +68,10 @@ export async function getRoomsAction() {
 
 export async function deleteRoomAction(roomId: string) {
   try {
-    const user = await getCurrentUser();
-    if (!user) return { error: 'Unauthorized' };
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
 
-    await db.delete(rooms).where(and(eq(rooms.id, roomId), eq(rooms.userId, user.id)));
+    await db.delete(rooms).where(and(eq(rooms.id, roomId), eq(rooms.userId, userId)));
     return { success: true };
   } catch (error) {
     console.error('Delete room error:', error);

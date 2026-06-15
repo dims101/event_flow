@@ -96,6 +96,17 @@ export async function logoutAction() {
   redirect('/login');
 }
 
+/**
+ * Lightweight session check — reads userId from cookie WITHOUT a DB query.
+ * Safe to use in Server Actions because the session cookie is HTTP-only
+ * and cannot be tampered with by the client.
+ * Use this instead of getCurrentUser() when you only need the userId.
+ */
+export async function getSessionUserId(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get('session')?.value ?? null;
+}
+
 export async function getCurrentUser() {
   const cookieStore = await cookies();
   const userId = cookieStore.get('session')?.value;

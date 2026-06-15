@@ -4,8 +4,10 @@ import { db } from '@/db';
 import { rooms, prompterMessages, rundownItems, activityLogs } from '@/db/schema';
 import { redis } from '@/lib/redis';
 import { eq, and } from 'drizzle-orm';
-import { getCurrentUser } from './auth';
+import { getSessionUserId } from './auth';
+import { logActivityBackground } from '@/lib/serverUtils';
 
+// Keep the awaited version for cases that need it
 export async function logActivity(
   roomId: string,
   actionType: 'timer' | 'offset' | 'prompter' | 'rundown',
@@ -19,10 +21,7 @@ export async function logActivity(
       description,
       createdAt: Date.now(),
     });
-
-    // Trigger SSE stream update
-    const nowMs = Date.now();
-    await redis.set(`room:${roomId}`, nowMs.toString());
+    await redis.set(`room:${roomId}`, Date.now().toString());
   } catch (error) {
     console.error('Failed to log activity:', error);
   }
@@ -34,11 +33,11 @@ export async function updateTimerStatusAction(
   targetIndex?: number
 ) {
   try {
-    const user = await getCurrentUser();
-    if (!user) return { error: 'Unauthorized' };
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
 
     const room = await db.query.rooms.findFirst({
-      where: and(eq(rooms.id, roomId), eq(rooms.userId, user.id)),
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, userId)),
     });
 
     if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
@@ -52,11 +51,9 @@ export async function updateTimerStatusAction(
 
     if (targetIndex !== undefined) {
       currentRundownIndex = targetIndex;
-      // Reset elapsed for the new session
       timerElapsedSeconds = 0;
       timerStartTime = status === 'running' ? nowMs : null;
 
-      // Fetch rundown item info for logging
       const item = await db.query.rundownItems.findFirst({
         where: and(
           eq(rundownItems.roomId, roomId),
@@ -64,30 +61,27 @@ export async function updateTimerStatusAction(
         ),
       });
 
-      if (item) {
-        description = `Pindah ke sesi "${item.title}" (${status === 'running' ? 'Timer dimulai' : 'Timer dijeda'})`;
-      } else {
-        description = `Pindah ke sesi indeks ${targetIndex}`;
-      }
+      description = item
+        ? `Pindah ke sesi "${item.title}" (${status === 'running' ? 'Timer dimulai' : 'Timer dijeda'})`
+        : `Pindah ke sesi indeks ${targetIndex}`;
     } else {
-      // Find current item for logging
-      const item = room.currentRundownIndex !== -1
-        ? await db.query.rundownItems.findFirst({
-            where: and(
-              eq(rundownItems.roomId, roomId),
-              eq(rundownItems.orderIndex, room.currentRundownIndex)
-            ),
-          })
-        : null;
+      const item =
+        room.currentRundownIndex !== -1
+          ? await db.query.rundownItems.findFirst({
+              where: and(
+                eq(rundownItems.roomId, roomId),
+                eq(rundownItems.orderIndex, room.currentRundownIndex)
+              ),
+            })
+          : null;
 
       const itemSuffix = item ? ` (Sesi: "${item.title}")` : '';
 
       if (status === 'running') {
-        if (room.timerStatus === 'paused') {
-          description = `Timer dilanjutkan${itemSuffix}`;
-        } else {
-          description = `Timer dimulai${itemSuffix}`;
-        }
+        description =
+          room.timerStatus === 'paused'
+            ? `Timer dilanjutkan${itemSuffix}`
+            : `Timer dimulai${itemSuffix}`;
       } else if (status === 'paused') {
         description = `Timer dijeda${itemSuffix}`;
       } else if (status === 'stopped') {
@@ -111,23 +105,14 @@ export async function updateTimerStatusAction(
       currentRundownIndex = -1;
     }
 
+    // Await only the critical DB update — log runs in background
     await db
       .update(rooms)
-      .set({
-        timerStatus: status,
-        timerStartTime,
-        timerElapsedSeconds,
-        currentRundownIndex,
-      })
+      .set({ timerStatus: status, timerStartTime, timerElapsedSeconds, currentRundownIndex })
       .where(eq(rooms.id, roomId));
 
-    // Log activity (this will also update redis and trigger SSE)
-    if (description) {
-      await logActivity(roomId, 'timer', description);
-    } else {
-      const nowMs = Date.now();
-      await redis.set(`room:${roomId}`, nowMs.toString());
-    }
+    // Fire-and-forget: does not block response
+    logActivityBackground(roomId, 'timer', description || 'Timer diperbarui');
 
     return { success: true };
   } catch (error: any) {
@@ -138,47 +123,40 @@ export async function updateTimerStatusAction(
 
 export async function adjustRoomOffsetAction(roomId: string, seconds: number) {
   try {
-    const user = await getCurrentUser();
-    if (!user) return { error: 'Unauthorized' };
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
 
     const room = await db.query.rooms.findFirst({
-      where: and(eq(rooms.id, roomId), eq(rooms.userId, user.id)),
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, userId)),
     });
 
     if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
 
     const newOffset = room.currentOffsetSeconds + seconds;
 
+    // Await only the critical DB update
     await db
       .update(rooms)
       .set({ currentOffsetSeconds: newOffset })
       .where(eq(rooms.id, roomId));
 
-    // Format offset nicely for logging
+    // Build description string
     const absSeconds = Math.abs(seconds);
     const direction = seconds > 0 ? 'ditambah' : 'dikurangi';
-    let timeStr = '';
-    if (absSeconds % 60 === 0) {
-      timeStr = `${absSeconds / 60} menit`;
-    } else {
-      timeStr = `${absSeconds} detik`;
-    }
-
+    const timeStr = absSeconds % 60 === 0 ? `${absSeconds / 60} menit` : `${absSeconds} detik`;
     const totalAbsOffset = Math.abs(newOffset);
-    let totalOffsetStr = '';
-    if (newOffset === 0) {
-      totalOffsetStr = '0';
-    } else {
-      const totalDir = newOffset > 0 ? '+' : '-';
-      if (totalAbsOffset % 60 === 0) {
-        totalOffsetStr = `${totalDir}${totalAbsOffset / 60} menit`;
-      } else {
-        totalOffsetStr = `${totalDir}${totalAbsOffset} detik`;
-      }
-    }
+    const totalDir = newOffset > 0 ? '+' : newOffset < 0 ? '-' : '';
+    const totalOffsetStr =
+      newOffset === 0
+        ? '0'
+        : totalAbsOffset % 60 === 0
+        ? `${totalDir}${totalAbsOffset / 60} menit`
+        : `${totalDir}${totalAbsOffset} detik`;
 
     const description = `Offset waktu ${direction} sebesar ${timeStr} (Total offset: ${totalOffsetStr})`;
-    await logActivity(roomId, 'offset', description);
+
+    // Fire-and-forget
+    logActivityBackground(roomId, 'offset', description);
 
     return { success: true };
   } catch (error: any) {
@@ -197,14 +175,15 @@ export async function sendPrompterMessageAction(
   }
 
   try {
-    const user = await getCurrentUser();
-    if (!user) return { error: 'Unauthorized' };
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
 
     const room = await db.query.rooms.findFirst({
-      where: and(eq(rooms.id, roomId), eq(rooms.userId, user.id)),
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, userId)),
     });
     if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
 
+    // Await the insert so the message is saved before we return
     await db.insert(prompterMessages).values({
       id: crypto.randomUUID(),
       roomId,
@@ -213,8 +192,12 @@ export async function sendPrompterMessageAction(
       createdAt: Date.now(),
     });
 
-    const description = `Pesan prompter dikirim ke divisi ${targetRole}: "${message.trim()}"`;
-    await logActivity(roomId, 'prompter', description);
+    // Fire-and-forget log + SSE trigger
+    logActivityBackground(
+      roomId,
+      'prompter',
+      `Pesan prompter dikirim ke divisi ${targetRole}: "${message.trim()}"`
+    );
 
     return { success: true };
   } catch (error: any) {
@@ -225,17 +208,18 @@ export async function sendPrompterMessageAction(
 
 export async function clearPrompterMessagesAction(roomId: string) {
   try {
-    const user = await getCurrentUser();
-    if (!user) return { error: 'Unauthorized' };
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
 
     const room = await db.query.rooms.findFirst({
-      where: and(eq(rooms.id, roomId), eq(rooms.userId, user.id)),
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, userId)),
     });
     if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
 
     await db.delete(prompterMessages).where(eq(prompterMessages.roomId, roomId));
-    
-    await logActivity(roomId, 'prompter', 'Semua pesan prompter dibersihkan');
+
+    // Fire-and-forget
+    logActivityBackground(roomId, 'prompter', 'Semua pesan prompter dibersihkan');
 
     return { success: true };
   } catch (error: any) {

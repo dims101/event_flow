@@ -4,7 +4,8 @@ import { db } from '@/db';
 import { rundownItems, rooms } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { logActivity } from './roomControl';
-import { getCurrentUser } from './auth';
+import { getSessionUserId } from './auth';
+import { logActivityBackground } from '@/lib/serverUtils';
 
 export async function addRundownItemAction(prevState: any, formData: FormData) {
   const roomId = formData.get('roomId') as string;
@@ -22,11 +23,11 @@ export async function addRundownItemAction(prevState: any, formData: FormData) {
   }
 
   try {
-    const user = await getCurrentUser();
-    if (!user) return { error: 'Unauthorized' };
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
 
     const room = await db.query.rooms.findFirst({
-      where: and(eq(rooms.id, roomId), eq(rooms.userId, user.id)),
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, userId)),
     });
     if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
 
@@ -49,7 +50,8 @@ export async function addRundownItemAction(prevState: any, formData: FormData) {
       orderIndex: nextOrderIndex,
     });
 
-    await logActivity(
+    // Fire-and-forget log + SSE trigger
+    logActivityBackground(
       roomId,
       'rundown',
       `Item rundown "${title}" ditambahkan (Durasi: ${durationMinutes} menit, Target: ${targetRole})`
@@ -64,8 +66,8 @@ export async function addRundownItemAction(prevState: any, formData: FormData) {
 
 export async function deleteRundownItemAction(itemId: string) {
   try {
-    const user = await getCurrentUser();
-    if (!user) return { error: 'Unauthorized' };
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
 
     const item = await db.query.rundownItems.findFirst({
       where: eq(rundownItems.id, itemId),
@@ -74,17 +76,14 @@ export async function deleteRundownItemAction(itemId: string) {
     if (!item) return { error: 'Item tidak ditemukan' };
 
     const room = await db.query.rooms.findFirst({
-      where: and(eq(rooms.id, item.roomId), eq(rooms.userId, user.id)),
+      where: and(eq(rooms.id, item.roomId), eq(rooms.userId, userId)),
     });
     if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
 
     await db.delete(rundownItems).where(eq(rundownItems.id, itemId));
 
-    await logActivity(
-      item.roomId,
-      'rundown',
-      `Item rundown "${item.title}" dihapus`
-    );
+    // Fire-and-forget
+    logActivityBackground(item.roomId, 'rundown', `Item rundown "${item.title}" dihapus`);
 
     return { success: true };
   } catch (error: any) {
