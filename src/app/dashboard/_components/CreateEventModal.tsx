@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createRoomAction } from '@/app/actions/room';
 import { X, AlertCircle } from 'lucide-react';
@@ -14,6 +14,14 @@ export default function CreateEventModal({ isOpen, onClose }: CreateEventModalPr
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   if (!isOpen) return null;
 
@@ -39,6 +47,7 @@ export default function CreateEventModal({ isOpen, onClose }: CreateEventModalPr
       <div 
         className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity" 
         onClick={onClose}
+        role="presentation"
       />
 
       {/* Modal Content */}
@@ -74,8 +83,9 @@ export default function CreateEventModal({ isOpen, onClose }: CreateEventModalPr
               name="name"
               type="text"
               required
-              placeholder="Contoh: Pernikahan Rian & Sinta"
-              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-650 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-base"
+              placeholder="Contoh: Pernikahan Rian & Sinta…"
+              autoComplete="off"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-base"
             />
           </div>
 

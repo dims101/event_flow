@@ -67,8 +67,9 @@ export default function Register() {
               name="companyName"
               type="text"
               required
-              placeholder="Contoh: Dream Weddings"
-              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-650 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-base"
+              placeholder="Contoh: Dream Weddings…"
+              autoComplete="organization"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-base"
             />
           </div>
 
@@ -81,7 +82,9 @@ export default function Register() {
               name="email"
               type="email"
               required
-              placeholder="nama@perusahaan.com"
+              placeholder="nama@perusahaan.com…"
+              autoComplete="email"
+              spellCheck={false}
               className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-base"
             />
           </div>
@@ -96,6 +99,7 @@ export default function Register() {
               type="password"
               required
               placeholder="••••••••"
+              autoComplete="new-password"
               className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-base"
             />
           </div>

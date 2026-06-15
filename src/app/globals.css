@@ -4,41 +4,57 @@
   --background: var(--bg-1);
   --foreground: var(--text-1);
 
-  /* Light Mode CSS variables based on Atlassian Design System */
-  --bg-1: #FAFBFC;          /* Atlassian neutral page background */
-  --bg-2: #FFFFFF;          /* Card / Modal surface background */
-  --bg-3: #F4F5F7;          /* Inputs / Inner panels / Table headers */
-  --bg-4: #EBECF0;          /* Hover / Item highlights */
-  --bg-5: #DFE1E6;          /* Standard borders / Dividers */
-  --bg-6: #C1C7D0;          /* Disabled states / Strong borders */
+  /* Light Mode CSS variables based on blue-theme.json */
+  --bg-1: oklch(0.969 0.009 128.6);          /* Page background */
+  --bg-2: oklch(0.948 0.009 128.6);          /* Card / Modal background */
+  --bg-3: oklch(0.948 0.009 128.6);          /* Secondary card2 background / Inputs */
+  --bg-4: oklch(0.925 0.009 128.6);          /* Hover / Item highlights */
+  --bg-5: oklch(0.909 0.009 128.6);          /* Standard borders / Dividers */
+  --bg-6: oklch(0.850 0.009 128.6);          /* Disabled states / Strong borders */
 
-  --text-1: #091E42;        /* Atlassian Charcoal primary text */
-  --text-2: #42526E;        /* Secondary text / labels */
-  --text-3: #5E6C84;        /* Muted text / metadata */
+  --text-1: oklch(0.000 0.000 0.0);          /* Primary text */
+  --text-2: oklch(0.085 0.000 127.5);        /* Secondary text / labels (textMuted) */
+  --text-3: oklch(0.200 0.000 127.5);        /* Muted text / metadata */
 
-  --brand-base: #0C66E4;    /* Atlassian Blue */
-  --brand-hover: #0052CC;   /* Darker Atlassian Blue for hover */
-  --brand-light: #388BFF;   /* Active border highlight */
-  --brand-subtle: #DEEBFF;  /* Light blue surface background */
+  --brand-base: oklch(0.374 0.149 275.5);    /* Primary color (blue-violet) */
+  --brand-hover: oklch(0.320 0.149 275.5);   /* Darker brand for hover */
+  --brand-light: oklch(0.375 0.126 275.7);   /* Active border highlight / ring */
+  --brand-subtle: oklch(0.950 0.030 275.5);  /* Subtle brand background surface */
+
+  /* Status Colors from blue-theme.json */
+  --status-good: oklch(0.363 0.045 90.4);
+  --status-good-bg: oklch(0.950 0.020 90.4);
+  --status-bad: oklch(0.375 0.105 336.8);
+  --status-bad-bg: oklch(0.950 0.020 336.8);
+  --status-warn: oklch(0.447 0.102 50.4);
+  --status-warn-bg: oklch(0.950 0.020 50.4);
 }
 
 :root.dark {
-  /* Dark Mode CSS variables based on Atlassian Design System */
-  --bg-1: #1D2125;          /* Atlassian dark neutral page background */
-  --bg-2: #22272B;          /* Card / Modal surface background */
-  --bg-3: #2C333A;          /* Inputs / Inner panels / Table headers */
-  --bg-4: #3C444E;          /* Hover / Item highlights */
-  --bg-5: #454F59;          /* Standard borders / Dividers */
-  --bg-6: #5A6673;          /* Disabled states / Strong borders */
+  /* Dark Mode CSS variables based on blue-theme.json */
+  --bg-1: oklch(0.000 0.000 0.0);            /* Page background */
+  --bg-2: oklch(0.040 0.000 0.0);            /* Card / Modal background (elevated slightly for contrast) */
+  --bg-3: oklch(0.080 0.000 0.0);            /* Secondary card2 background / Inputs */
+  --bg-4: oklch(0.120 0.000 0.0);            /* Hover / Item highlights */
+  --bg-5: oklch(0.320 0.010 275.5);          /* Thin contrast border in dark mode (32% lightness) */
+  --bg-6: oklch(0.450 0.015 275.5);          /* Active border / Strong border in dark mode (45% lightness) */
 
-  --text-1: #E4E6EA;        /* Atlassian dark primary text */
-  --text-2: #9FADBC;        /* Secondary text / labels */
-  --text-3: #8C9BAB;        /* Muted text / metadata */
+  --text-1: oklch(0.969 0.009 128.6);        /* Primary text */
+  --text-2: oklch(0.688 0.009 128.6);        /* Secondary text / labels (textMuted) */
+  --text-3: oklch(0.500 0.009 128.6);        /* Muted text / metadata */
 
-  --brand-base: #579DFF;    /* Bright Atlassian Blue in dark mode */
-  --brand-hover: #85B8FF;   /* Lighter blue for hover */
-  --brand-light: #0C66E4;   /* Active border highlight */
-  --brand-subtle: #1C2B41;  /* Dark blue surface background */
+  --brand-base: oklch(0.591 0.226 276.7);    /* Primary color (violet-blue) */
+  --brand-hover: oklch(0.650 0.226 276.7);   /* Lighter brand for hover in dark mode */
+  --brand-light: oklch(0.578 0.152 275.4);   /* Active border highlight / ring */
+  --brand-subtle: oklch(0.120 0.050 276.7);  /* Subtle brand background surface */
+
+  /* Status Colors from blue-theme.json */
+  --status-good: oklch(0.573 0.080 95.2);
+  --status-good-bg: oklch(0.120 0.030 95.2);
+  --status-bad: oklch(0.599 0.172 336.1);
+  --status-bad-bg: oklch(0.120 0.050 336.1);
+  --status-warn: oklch(0.666 0.168 53.6);
+  --status-warn-bg: oklch(0.120 0.050 53.6);
 }
 
 
@@ -68,6 +84,27 @@
   --color-indigo-500: var(--brand-hover);
   --color-indigo-400: var(--brand-light);
   --color-indigo-300: #C084FC;
+
+  /* Map rose/red status classes dynamically */
+  --color-rose-950: var(--status-bad-bg);
+  --color-rose-500: var(--status-bad);
+  --color-rose-450: var(--status-bad);
+  --color-rose-400: var(--status-bad);
+  --color-red-500: var(--status-bad);
+  --color-red-400: var(--status-bad);
+
+  /* Map emerald status classes dynamically */
+  --color-emerald-505: var(--status-good);
+  --color-emerald-500: var(--status-good);
+  --color-emerald-455: var(--status-good);
+  --color-emerald-450: var(--status-good);
+  --color-emerald-400: var(--status-good);
+  --color-emerald-600: var(--status-good);
+
+  /* Map amber status classes dynamically */
+  --color-amber-600: var(--status-warn);
+  --color-amber-500: var(--status-warn);
+  --color-amber-400: var(--status-warn);
 }
 
 @theme inline {
@@ -105,7 +142,7 @@ body {
   [class*="border-r-slate-"],
   [class*="border-l-slate-"],
   [class*="divide-slate-"] > :not([hidden]) ~ :not([hidden]) {
-    border-color: rgba(9, 30, 66, 0.08) !important;
+    border-color: var(--bg-5) !important;
   }
 
   [class*="border-slate-700"],
@@ -118,23 +155,57 @@ body {
   [class*="border-b-slate-600"],
   [class*="border-r-slate-600"],
   [class*="border-l-slate-600"] {
-    border-color: rgba(9, 30, 66, 0.16) !important;
+    border-color: var(--bg-6) !important;
   }
 
   /* 3. Background opacity normalization (resolves transparent slate overlays to subtle grey) */
   [class*="bg-slate-900/"],
   [class*="bg-slate-950/"] {
-    background-color: rgba(9, 30, 66, 0.04) !important;
+    background-color: color-mix(in oklch, var(--bg-2) 4%, transparent) !important;
   }
 
   [class*="hover:bg-slate-900/"]:hover,
   [class*="hover:bg-slate-950/"]:hover {
-    background-color: rgba(9, 30, 66, 0.08) !important;
+    background-color: color-mix(in oklch, var(--bg-2) 8%, transparent) !important;
   }
 
   /* 4. Modal backdrop visibility */
   .bg-slate-950\/80 {
-    background-color: rgba(9, 30, 66, 0.40) !important;
+    background-color: color-mix(in oklch, var(--bg-1) 40%, transparent) !important;
   }
+}
+
+/* Custom Accessibility & Card Border Enhancements for Dark Mode */
+.dark [class*="border-slate-"],
+.dark [class*="border-t-slate-"],
+.dark [class*="border-b-slate-"],
+.dark [class*="border-r-slate-"],
+.dark [class*="border-l-slate-"],
+.dark [class*="divide-slate-"] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--bg-5) !important;
+}
+
+.dark [class*="border-slate-700"],
+.dark [class*="border-t-slate-700"],
+.dark [class*="border-b-slate-700"],
+.dark [class*="border-r-slate-700"],
+.dark [class*="border-l-slate-700"],
+.dark [class*="border-slate-600"],
+.dark [class*="border-t-slate-600"],
+.dark [class*="border-b-slate-600"],
+.dark [class*="border-r-slate-600"],
+.dark [class*="border-l-slate-600"] {
+  border-color: var(--bg-6) !important;
+}
+
+/* Background opacity normalization for dark mode */
+.dark [class*="bg-slate-900/"],
+.dark [class*="bg-slate-950/"] {
+  background-color: color-mix(in oklch, var(--bg-2) 15%, transparent) !important;
+}
+
+.dark [class*="hover:bg-slate-900/"]:hover,
+.dark [class*="hover:bg-slate-950/"]:hover {
+  background-color: color-mix(in oklch, var(--bg-2) 25%, transparent) !important;
 }
 

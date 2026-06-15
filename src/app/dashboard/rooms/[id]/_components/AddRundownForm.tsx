@@ -34,7 +34,7 @@ export default function AddRundownForm({ roomId }: AddRundownFormProps) {
   return (
     <div className="bg-slate-900 border border-slate-900/40 rounded-xl p-6">
       <h3 className="text-base font-bold text-slate-100 mb-4 font-sans flex items-center gap-2">
-        <Sparkles className="w-5 h-5 text-indigo-450" />
+        <Sparkles className="w-5 h-5 text-indigo-400" />
         <span>Tambah Sesi Rundown</span>
       </h3>
 
@@ -60,8 +60,8 @@ export default function AddRundownForm({ roomId }: AddRundownFormProps) {
             name="title"
             type="text"
             required
-            placeholder="Contoh: Sambutan Pihak Keluarga"
-            className="w-full px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-655 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm"
+            placeholder="Contoh: Sambutan Pihak Keluarga…"
+            className="w-full px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm"
           />
         </div>
 
@@ -76,8 +76,8 @@ export default function AddRundownForm({ roomId }: AddRundownFormProps) {
               type="number"
               min="1"
               required
-              placeholder="Contoh: 15"
-              className="w-full px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-655 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm"
+              placeholder="Contoh: 15…"
+              className="w-full px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm"
             />
           </div>
 

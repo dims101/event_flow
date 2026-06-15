@@ -21,7 +21,7 @@ export default function RoomList({ initialRooms }: RoomListProps) {
   const [isPending, startTransition] = useTransition();
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Apakah Anda yakin ingin menghapus event "${name}"? Semua data rundown dan token akses akan dihapus permanen.`)) {
+    if (!confirm(`Apakah Anda yakin ingin menghapus event “${name}”? Semua data rundown dan token akses akan dihapus permanen.`)) {
       return;
     }
 
@@ -43,7 +43,7 @@ export default function RoomList({ initialRooms }: RoomListProps) {
         </div>
         <h3 className="text-base font-bold text-slate-200 font-sans">Belum ada event yang dibuat</h3>
         <p className="text-sm text-slate-400 max-w-sm mt-1 leading-relaxed">
-          Mulai kelola rundown panggung Anda. Klik tombol "Buat Event Baru" di atas untuk membuat ruangan event pertama Anda.
+          Mulai kelola rundown panggung Anda. Klik tombol “Buat Event Baru” di atas untuk membuat ruangan event pertama Anda.
         </p>
       </div>
     );
@@ -90,8 +90,9 @@ export default function RoomList({ initialRooms }: RoomListProps) {
               <button
                 onClick={() => handleDelete(room.id, room.name)}
                 disabled={isPending}
-                className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 border border-slate-800 hover:border-red-500/20 rounded-lg transition duration-150 cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center select-none"
+                className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 border border-slate-800 hover:border-red-500/20 rounded-lg transition duration-150 cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-red-500"
                 title="Hapus Event"
+                aria-label={`Hapus Event ${room.name}`}
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>

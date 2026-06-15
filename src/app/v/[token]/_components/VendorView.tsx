@@ -318,7 +318,7 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
           const sessionTitle = currentItem ? currentItem.title : 'EventFlow';
           const maxTitleLength = 35;
           titleEl.innerText = (sessionTitle.length > maxTitleLength 
-            ? sessionTitle.substring(0, maxTitleLength) + '...'
+            ? sessionTitle.substring(0, maxTitleLength) + '…'
             : sessionTitle).toUpperCase();
         }
 
@@ -513,7 +513,7 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
             <span id="pip-title" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest text-center">EVENTFLOW</span>
             
             <div id="pip-clock-view" class="flex flex-col items-center justify-center">
-              <div id="pip-timer" class="font-mono text-4xl font-extrabold tracking-tighter text-slate-355 my-0.5 text-center">00:00</div>
+              <div id="pip-timer" class="font-mono text-4xl font-extrabold tracking-tighter text-slate-300 my-0.5 text-center">00:00</div>
               <div class="flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-bold tracking-wider text-center">
                 <span id="pip-wall-time">00:00:00</span>
               </div>
@@ -768,7 +768,7 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
           const sessionTitle = frameActiveItem ? frameActiveItem.title : 'EventFlow';
           const maxTitleLength = 35;
           const truncatedTitle = sessionTitle.length > maxTitleLength 
-            ? sessionTitle.substring(0, maxTitleLength) + '...'
+            ? sessionTitle.substring(0, maxTitleLength) + '…'
             : sessionTitle;
           ctx.fillText(truncatedTitle.toUpperCase(), canvas.width / 2, 28);
 
@@ -830,7 +830,7 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
             const msgText = latestMsg.message;
             const maxMsgLength = 45;
             const truncatedMsg = msgText.length > maxMsgLength 
-              ? msgText.substring(0, maxMsgLength) + '...'
+              ? msgText.substring(0, maxMsgLength) + '…'
               : msgText;
             ctx.fillText(truncatedMsg, canvas.width / 2, 144);
           }
@@ -872,7 +872,7 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
             <button
               onClick={togglePiP}
               type="button"
-              className="px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-[10px] text-slate-400 font-bold transition duration-150 flex items-center gap-1 cursor-pointer min-h-[32px] select-none"
+              className="px-2.5 py-1 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-[10px] text-slate-400 font-bold transition duration-150 flex items-center gap-1 cursor-pointer min-h-[32px] select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 focus-visible:ring-offset-1 focus-visible:ring-offset-slate-950"
               title="Aktifkan Picture-in-Picture"
             >
               <Monitor className="w-3.5 h-3.5 text-indigo-400" />
@@ -894,7 +894,7 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
                 <span>OFFLINE</span>
               </span>
             ) : connected ? (
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-555 animate-pulse" title="Koneksi terhubung" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-505 animate-pulse" title="Koneksi terhubung" />
             ) : (
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" title="Koneksi terputus" />
             )}
@@ -951,7 +951,7 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
           ) : (
             <div className="space-y-1">
               <p className="text-sm text-indigo-300 font-bold leading-relaxed animate-in fade-in duration-300 font-sans">
-                "{myMessages[0].message}"
+                &ldquo;{myMessages[0].message}&rdquo;
               </p>
               <span className="text-[9px] text-slate-500 font-mono block">
                 Dikirim pukul {new Date(myMessages[0].createdAt).toLocaleTimeString('id-ID')}
@@ -973,7 +973,7 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
               Instruksi Baru ({activeAlert.targetRole})
             </div>
             <h2 className="text-2xl font-bold text-white leading-snug font-sans">
-              "{activeAlert.message}"
+              &ldquo;{activeAlert.message}&rdquo;
             </h2>
             <button
               onClick={() => setActiveAlert(null)}

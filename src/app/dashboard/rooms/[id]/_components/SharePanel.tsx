@@ -86,7 +86,7 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
             <div className="flex items-center gap-2 pt-3 border-t border-slate-900/40">
               <button
                 onClick={() => handleCopy(token.token, token.role)}
-                className="flex-1 py-2 text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-lg transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer min-h-[36px] select-none"
+                className="flex-1 py-2 text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-lg transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer min-h-[36px] select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400"
               >
                 {copiedId === token.role ? (
                   <>
@@ -102,8 +102,9 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
               </button>
               <button
                 onClick={() => handleWhatsApp(token.token, token.role)}
-                className="p-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150 text-xs flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px] select-none"
+                className="p-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150 text-xs flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px] select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500"
                 title="Kirim ke WhatsApp"
+                aria-label={`Bagikan tautan peran ${token.role} via WhatsApp`}
               >
                 <Send className="w-4 h-4" />
               </button>

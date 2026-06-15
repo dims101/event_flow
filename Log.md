@@ -58,6 +58,31 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   Menyuntikkan header `Cache-Control: no-store, max-age=0, must-revalidate` ke seluruh respon pengalihan (*redirect*) pada middleware [proxy.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/proxy.ts) dan API clear auth di [route.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/api/auth/clear/route.ts).
 *   **Tujuan:** Menutup celah bug kegagalan enkripsi Server Action saat pengujian lintas perangkat, serta menghilangkan *infinite loading* akibat *redirect loop* yang disimpan di dalam cache peramban.
 
+### 9. 🎨 Pembenahan Token Warna Tailwind (Critical UI Patch)
+*   **Perubahan:**
+    *   Mengoreksi 17 token warna Tailwind tidak valid/tidak terdaftar yang tersebar di `VendorView.tsx`, `ControlPanel.tsx`, `AddRundownForm.tsx`, `CreateEventModal.tsx`, `Register.tsx`, dan `RundownTable.tsx` (misalnya, `bg-emerald-555` -> `bg-emerald-505`, `text-slate-355` -> `text-slate-300`, `text-indigo-450` -> `text-indigo-400`, `placeholder-slate-655` -> `placeholder-slate-500`, dan `bg-indigo-650/15` -> `bg-indigo-600/15`).
+*   **Tujuan:** Mengembalikan pewarnaan UI status koneksi, teks timer PiP, teks log aktivitas, dan label placeholder input agar merender dengan warna semantik yang benar alih-alih transparan/default browser.
+
+### 10. ♿ Penguatan Aksesibilitas (WCAG 2.2 Compliance)
+*   **Perubahan:**
+    *   Menambahkan atribut `aria-label` deskriptif untuk tombol-tombol berbasis ikon saja (tombol hapus event di `RoomList.tsx`, tombol hapus rundown di `RundownTable.tsx`, dan tombol kirim WhatsApp di `SharePanel.tsx`).
+    *   Menambahkan Event Listener tombol `Escape` untuk menutup `CreateEventModal.tsx` secara keyboard-native serta menyuntikkan `role="presentation"` pada elemen latar belakang (*backdrop*).
+    *   Menerapkan kelas fokus visual `focus-visible:ring-1` pada tombol-tombol interaktif.
+*   **Tujuan:** Memastikan aplikasi dapat digunakan dengan lancar menggunakan pembaca layar (*screen reader*) maupun keyboard di lapangan.
+
+### 11. ⚡ Optimasi Algoritma Estimasi Waktu Rundown
+*   **Perubahan:**
+    *   Refaktorisasi metode kalkulasi start offset kumulatif di desktop view `RundownTable.tsx` dari perulangan kuadratik $O(N^2)$ menjadi perulangan linier tunggal $O(N)$ menggunakan variabel pelacak kumulatif sebelum pemetaan `.map()`.
+    *   Menambahkan properti CSS `tabular-nums` untuk kolom perbandingan waktu numerik agar penulisan angka sejajar tegak lurus.
+*   **Tujuan:** Meningkatkan efisiensi dan kecepatan render komponen rundown saat EO memuat jadwal acara yang berskala besar (>50 sesi).
+
+### 12. 📑 Standardisasi UX Autocomplete & Tipografi Copy
+*   **Perubahan:**
+    *   Menyematkan properti `autoComplete` pada formulir login (`username`/`current-password`) dan registrasi (`organization`/`new-password`) untuk mempermudah deteksi pengelola kata sandi (*password managers*).
+    *   Menyematkan `spellCheck={false}` pada inputsurel guna menghilangkan garis bawah merah ejaan browser.
+    *   Mengonversi seluruh string dots elipsis manual `...` menjadi simbol karakter elipsis tunggal `…` sesuai pedoman typography modern, serta meloloskan tanda kutip tidak sah dalam JSX `VendorView.tsx`.
+*   **Tujuan:** Menyediakan pengalaman otentikasi yang ramah pengguna serta standarisasi tipografi profesional.
+
 ---
 
 ## 📅 Pembaruan: 14 Juni 2026

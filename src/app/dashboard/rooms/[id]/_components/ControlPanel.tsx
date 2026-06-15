@@ -258,7 +258,7 @@ export default function ControlPanel({
           const sessionTitle = currentItem ? currentItem.title : 'EventFlow ⏱️';
           const maxTitleLength = 35;
           titleEl.innerText = (sessionTitle.length > maxTitleLength 
-            ? sessionTitle.substring(0, maxTitleLength) + '...'
+            ? sessionTitle.substring(0, maxTitleLength) + '…'
             : sessionTitle).toUpperCase();
         }
 
@@ -463,7 +463,7 @@ export default function ControlPanel({
             <span id="pip-title" class="text-[9px] font-bold text-slate-500 uppercase tracking-widest text-center">EVENTFLOW</span>
             
             <div id="pip-clock-view" class="flex flex-col items-center justify-center">
-              <div id="pip-timer" class="font-mono text-4xl font-extrabold tracking-tighter text-slate-355 my-0.5 text-center">00:00</div>
+              <div id="pip-timer" class="font-mono text-4xl font-extrabold tracking-tighter text-slate-300 my-0.5 text-center">00:00</div>
               <div class="flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-bold tracking-wider text-center">
                 <span id="pip-wall-time">00:00:00</span>
               </div>
@@ -712,7 +712,7 @@ export default function ControlPanel({
           const sessionTitle = frameActiveItem ? frameActiveItem.title : 'EventFlow ⏱️';
           const maxTitleLength = 35;
           const truncatedTitle = sessionTitle.length > maxTitleLength 
-            ? sessionTitle.substring(0, maxTitleLength) + '...'
+            ? sessionTitle.substring(0, maxTitleLength) + '…'
             : sessionTitle;
           ctx.fillText(truncatedTitle.toUpperCase(), canvas.width / 2, 28);
 
@@ -774,7 +774,7 @@ export default function ControlPanel({
             const msgText = `[To: ${latestMsg.targetRole}] ${latestMsg.message}`;
             const maxMsgLength = 45;
             const truncatedMsg = msgText.length > maxMsgLength 
-              ? msgText.substring(0, maxMsgLength) + '...'
+              ? msgText.substring(0, maxMsgLength) + '…'
               : msgText;
             ctx.fillText(truncatedMsg, canvas.width / 2, 144);
           }
@@ -796,7 +796,7 @@ export default function ControlPanel({
         <div className="flex items-center justify-between px-4 py-2.5 border border-slate-900/40 bg-slate-900 rounded-lg text-xs text-slate-400 select-none">
           <div className="flex items-center gap-2">
             <span className={`w-2.5 h-2.5 rounded-full ${connected ? 'bg-emerald-505 animate-pulse' : 'bg-rose-500'}`} />
-            <span className="font-medium">{connected ? 'Koneksi Live Terhubung' : 'Mencoba Menghubungkan...'}</span>
+            <span className="font-medium">{connected ? 'Koneksi Live Terhubung' : 'Mencoba Menghubungkan…'}</span>
           </div>
           <span className="font-mono text-slate-500 hidden sm:inline">Room ID: {roomId}</span>
         </div>
@@ -824,7 +824,7 @@ export default function ControlPanel({
 
           {/* TIMER DIGITS */}
           <div className={`relative z-10 font-mono text-7xl md:text-8xl font-extrabold tracking-tighter my-4 sm:my-6 select-none ${
-            isOvertime ? 'text-rose-500' : room.timerStatus === 'running' ? 'text-indigo-450' : 'text-slate-400'
+            isOvertime ? 'text-rose-500' : room.timerStatus === 'running' ? 'text-indigo-400' : 'text-slate-400'
           }`}>
             {timerDisplay}
           </div>
@@ -926,7 +926,8 @@ export default function ControlPanel({
             <button
               onClick={() => handleAdjustOffset(-60)}
               disabled={!currentItem || isOffsetPending}
-              className="px-4 py-2 text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-450 rounded-lg transition duration-150 cursor-pointer min-h-[36px] flex items-center justify-center gap-1 select-none"
+              className="px-4 py-2 text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-450 rounded-lg transition duration-150 cursor-pointer min-h-[36px] flex items-center justify-center gap-1 select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-500"
+              aria-label="Kurangi waktu 1 menit"
             >
               <Minus className="w-3.5 h-3.5" />
               <span>1m</span>
@@ -934,7 +935,8 @@ export default function ControlPanel({
             <button
               onClick={() => handleAdjustOffset(-300)}
               disabled={!currentItem || isOffsetPending}
-              className="px-4 py-2 text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-450 rounded-lg transition duration-150 cursor-pointer min-h-[36px] flex items-center justify-center gap-1 select-none"
+              className="px-4 py-2 text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-450 rounded-lg transition duration-150 cursor-pointer min-h-[36px] flex items-center justify-center gap-1 select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rose-500"
+              aria-label="Kurangi waktu 5 menit"
             >
               <Minus className="w-3.5 h-3.5" />
               <span>5m</span>
@@ -942,7 +944,8 @@ export default function ControlPanel({
             <button
               onClick={() => handleAdjustOffset(60)}
               disabled={!currentItem || isOffsetPending}
-              className="px-4 py-2 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-455 rounded-lg transition duration-150 cursor-pointer min-h-[36px] flex items-center justify-center gap-1 select-none"
+              className="px-4 py-2 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-455 rounded-lg transition duration-150 cursor-pointer min-h-[36px] flex items-center justify-center gap-1 select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500"
+              aria-label="Tambah waktu 1 menit"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>1m</span>
@@ -950,7 +953,8 @@ export default function ControlPanel({
             <button
               onClick={() => handleAdjustOffset(300)}
               disabled={!currentItem || isOffsetPending}
-              className="px-4 py-2 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-455 rounded-lg transition duration-150 cursor-pointer min-h-[36px] flex items-center justify-center gap-1 select-none"
+              className="px-4 py-2 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-455 rounded-lg transition duration-150 cursor-pointer min-h-[36px] flex items-center justify-center gap-1 select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500"
+              aria-label="Tambah waktu 5 menit"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>5m</span>
@@ -973,7 +977,7 @@ export default function ControlPanel({
                   onClick={() => handleSelectSession(index)}
                   className={`w-full text-left p-3.5 flex items-center justify-between text-xs sm:text-sm transition duration-100 cursor-pointer min-h-[44px] select-none ${
                     isActive 
-                      ? 'bg-indigo-650/15 text-indigo-400 border-l-2 border-l-indigo-500 font-semibold' 
+                      ? 'bg-indigo-600/15 text-indigo-400 border-l-2 border-l-indigo-500 font-semibold' 
                       : 'hover:bg-slate-900/40 text-slate-300'
                   }`}
                 >
@@ -1040,7 +1044,7 @@ export default function ControlPanel({
                 maxLength={120}
                 required
                 placeholder="MC silakan buka acara. Pengantin siap masuk."
-                className="w-full h-24 px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-650 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm resize-none"
+                className="w-full h-24 px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm resize-none"
               />
             </div>
 
@@ -1103,7 +1107,7 @@ export default function ControlPanel({
                       </span>
                       <span className="font-mono text-slate-500 text-[10px]">{time}</span>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-250 leading-relaxed break-words font-medium">
+                    <p className="text-xs sm:text-sm text-slate-200 leading-relaxed break-words font-medium">
                       {msg.message}
                     </p>
                   </div>
@@ -1146,7 +1150,7 @@ export default function ControlPanel({
                   >
                     <span className="font-mono text-slate-500 text-[10px] shrink-0 mt-0.5">{time}</span>
                     <span className="shrink-0 mt-0.5" title={log.actionType}>
-                      {log.actionType === 'timer' && <Clock className="w-3.5 h-3.5 text-indigo-450 shrink-0" />}
+                      {log.actionType === 'timer' && <Clock className="w-3.5 h-3.5 text-indigo-400 shrink-0" />}
                       {log.actionType === 'offset' && <Hourglass className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
                       {log.actionType === 'prompter' && <MessageSquare className="w-3.5 h-3.5 text-purple-400 shrink-0" />}
                       {log.actionType === 'rundown' && <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}

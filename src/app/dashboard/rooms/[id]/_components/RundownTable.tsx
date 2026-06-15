@@ -59,7 +59,7 @@ export default function RundownTable({ items }: RundownTableProps) {
           <ClipboardList className="w-6 h-6" />
         </div>
         <h4 className="text-sm font-bold text-slate-300 font-sans">Rundown masih kosong</h4>
-        <p className="text-xs text-slate-450 mt-1 max-w-sm leading-relaxed">
+        <p className="text-xs text-slate-400 mt-1 max-w-sm leading-relaxed">
           Belum ada jadwal kegiatan yang ditambahkan. Gunakan formulir di sebelah kanan untuk menambahkan sesi acara pertama Anda.
         </p>
       </div>
@@ -92,7 +92,7 @@ export default function RundownTable({ items }: RundownTableProps) {
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-slate-550 font-bold">#{index + 1}</span>
+                    <span className="font-mono text-xs text-slate-500 font-bold">#{index + 1}</span>
                     <span className="text-xs font-mono text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-900/60">
                       Mulai {formatOffset(startOffset)}
                     </span>
@@ -102,8 +102,9 @@ export default function RundownTable({ items }: RundownTableProps) {
                 <button
                   onClick={() => handleDelete(item.id, item.title)}
                   disabled={isPending}
-                  className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition duration-150 min-w-[32px] min-h-[32px] flex items-center justify-center cursor-pointer select-none"
+                  className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition duration-150 min-w-[32px] min-h-[32px] flex items-center justify-center cursor-pointer select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-red-500"
                   title="Hapus Sesi"
+                  aria-label={`Hapus Sesi ${item.title}`}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -138,46 +139,47 @@ export default function RundownTable({ items }: RundownTableProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-900/30 text-sm">
-              {items.map((item, index) => {
-                const durationMinutes = item.durationSeconds / 60;
-                // Re-calculating for the table render list
+              {(() => {
                 let tableStartOffset = 0;
-                for (let i = 0; i < index; i++) {
-                  tableStartOffset += items[i].durationSeconds / 60;
-                }
+                return items.map((item, index) => {
+                  const durationMinutes = item.durationSeconds / 60;
+                  const currentOffset = tableStartOffset;
+                  tableStartOffset += durationMinutes;
 
-                return (
-                  <tr key={item.id} className="hover:bg-slate-900/40 transition duration-100">
-                    <td className="py-3 px-4 text-center text-slate-500 font-mono text-xs">
-                      {index + 1}
-                    </td>
-                    <td className="py-3 px-4 font-semibold text-slate-200">
-                      {item.title}
-                    </td>
-                    <td className="py-3 px-4 text-center font-medium text-slate-350">
-                      {durationMinutes} Menit
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className={`inline-block px-2.5 py-0.5 rounded border text-[10px] font-bold ${getRoleBadgeStyle(item.targetRole)}`}>
-                        {item.targetRole}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-center text-slate-400 font-mono text-xs">
-                      {formatOffset(tableStartOffset)}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={() => handleDelete(item.id, item.title)}
-                        disabled={isPending}
-                        className="p-1.5 text-slate-550 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition duration-150 cursor-pointer min-h-[32px] min-w-[32px] inline-flex items-center justify-center select-none"
-                        title="Hapus Sesi"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                  return (
+                    <tr key={item.id} className="hover:bg-slate-900/40 transition duration-100">
+                      <td className="py-3 px-4 text-center text-slate-500 font-mono text-xs tabular-nums">
+                        {index + 1}
+                      </td>
+                      <td className="py-3 px-4 font-semibold text-slate-200">
+                        {item.title}
+                      </td>
+                      <td className="py-3 px-4 text-center font-medium text-slate-300 tabular-nums">
+                        {durationMinutes} Menit
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-block px-2.5 py-0.5 rounded border text-[10px] font-bold ${getRoleBadgeStyle(item.targetRole)}`}>
+                          {item.targetRole}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-center text-slate-400 font-mono text-xs tabular-nums">
+                        {formatOffset(currentOffset)}
+                      </td>
+                      <td className="py-3 px-4 text-center">
+                        <button
+                          onClick={() => handleDelete(item.id, item.title)}
+                          disabled={isPending}
+                          className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition duration-150 cursor-pointer min-h-[32px] min-w-[32px] inline-flex items-center justify-center select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-red-500"
+                          title="Hapus Sesi"
+                          aria-label={`Hapus Sesi ${item.title}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                });
+              })()}
             </tbody>
           </table>
         </div>
