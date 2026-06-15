@@ -113,6 +113,12 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **Pembaruan Jendela Melayang (PiP):** Menyinkronkan perubahan warna ini pada Document PiP (`timerEl.className`) dan Canvas Fallback PiP (`ctx.fillStyle`) agar kru tetap mendapatkan isyarat visual yang sama saat menggunakan mode melayang.
 *   **Tujuan:** Memberikan isyarat visual yang instan dan intuitif bagi Show Caller dan vendor lapangan saat durasi sesi rundown mulai memasuki masa-masa kritis.
 
+### 15. 🛡️ Jendela Konfirmasi Aksi Kontrol Kritis (Critical Control Action Confirmation Dialogs)
+*   **Perubahan:**
+    *   **Konfirmasi Menghentikan Timer:** Menambahkan dialog konfirmasi Ya/Tidak pada aksi `handleStop` di [ControlPanel.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/ControlPanel.tsx) sebelum mematikan timer, guna mencegah tidak sengaja mereset sesi aktif kembali ke indeks `-1`.
+    *   **Konfirmasi Lompat Sesi:** Menambahkan dialog konfirmasi pada aksi `handleSelectSession` jika EO mengeklik baris rundown atau menekan tombol skip untuk melompat/memulai ulang sesi lain saat ada sesi yang sedang aktif.
+*   **Tujuan:** Melindungi jalannya acara dari ketidaksengajaan klik (*misclicks*) oleh Show Caller saat mengoperasikan dasbor panggung dari perangkat mobile.
+
 ---
 
 ## 📅 Pembaruan: 14 Juni 2026

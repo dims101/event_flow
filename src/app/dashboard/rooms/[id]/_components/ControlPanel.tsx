@@ -549,6 +549,19 @@ export default function ControlPanel({
   };
 
   const handleSelectSession = (index: number, status?: 'running' | 'paused' | 'stopped') => {
+    if (room.currentRundownIndex !== -1) {
+      if (room.currentRundownIndex === index) {
+        if (!confirm('Apakah Anda yakin ingin memulai ulang sesi aktif ini dari awal? Sisa waktu dan offset akan direset.')) {
+          return;
+        }
+      } else {
+        const targetItem = items[index];
+        const targetTitle = targetItem ? `"${targetItem.title}"` : `sesi indeks ${index}`;
+        if (!confirm(`Apakah Anda yakin ingin melompat ke sesi ${targetTitle}? Sesi aktif saat ini akan dihentikan.`)) {
+          return;
+        }
+      }
+    }
     const targetStatus = status || room.timerStatus;
     startTimerTransition(async () => {
       await updateTimerStatusAction(roomId, targetStatus as any, index);
@@ -556,6 +569,9 @@ export default function ControlPanel({
   };
 
   const handleStop = () => {
+    if (!confirm('Apakah Anda yakin ingin menghentikan timer? Sesi aktif saat ini akan direset.')) {
+      return;
+    }
     startTimerTransition(async () => {
       await updateTimerStatusAction(roomId, 'stopped');
     });
