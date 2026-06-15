@@ -14,6 +14,7 @@ EventFlow dirancang untuk mengatasi masalah klasik koordinasi event: miskomunika
 * Login dan Register khusus untuk akun Event Organizer (EO/WO).
 * Autentikasi aman berbasis enkripsi sesi pada cookie HTTP-only menggunakan `bcryptjs`.
 * Proteksi rute dasbor menggunakan Next.js Middleware.
+* **Otorisasi Ketat & Proteksi IDOR**: Menjamin keamanan akses data dengan validasi kepemilikan ruangan (`room.userId === user.id`) di semua kueri Server Actions dan halaman detail ruangan untuk mencegah manipulasi data antar-pengguna.
 
 ### 2. 🏢 Dashboard & Pembuatan Event (Rooms)
 * EO dapat mengelola banyak acara sekaligus dalam satu dasbor.
@@ -115,10 +116,10 @@ npm install
 ```
 
 ### 3. Setup Environment Variables
-Buat berkas `.env` di akar direktori dan lengkapi variabel berikut:
+Buat berkas `.env` di akar direktori dan lengkapi variabel berikut (lihat [.env.example](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/.env.example) sebagai templat):
 ```env
-# Database
-DATABASE_URL="file:db.sqlite"
+# Database Connection (Supabase PostgreSQL via Supavisor Pooler Port 6543)
+DATABASE_URL="postgresql://postgres.xxxx:[password]@aws-xxxx.pooler.supabase.com:6543/postgres?sslmode=require"
 
 # Upstash Redis Configuration
 REDIS_URL="https://your-redis-instance.upstash.io"
@@ -129,8 +130,8 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 SESSION_SECRET="gunakan_string_acak_dan_panjang_di_sini"
 ```
 
-### 4. Migrasi Database (SQLite)
-Jalankan perintah push skema Drizzle ke SQLite lokal:
+### 4. Push Skema ke Supabase
+Jalankan perintah push skema Drizzle ke database PostgreSQL Supabase Anda:
 ```bash
 npx drizzle-kit push
 ```
