@@ -14,7 +14,9 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
         *   **Mode Fallback (In-Memory):** Jika variabel lingkungan tidak dikonfigurasi atau masih berisi teks placeholder, sistem otomatis beralih ke implementasi *mock* berbasis `Map` in-process tanpa memerlukan konfigurasi apapun dari developer lokal.
     *   Menambahkan `upstashClient.publish(roomId, value)` setiap kali `redis.set()` dipanggil untuk meneruskan sinyal pembaruan ke seluruh SSE subscriber.
     *   Menggunakan `.unsubscribe()` pada objek *subscriber* Upstash di dalam cleanup callback `request.signal` untuk mencegah kebocoran koneksi saat klien memutus sambungan.
-*   **Tujuan:** Memungkinkan sinkronisasi status timer dan prompter secara real-time lintas instans server di lingkungan produksi (multi-instance/serverless), serta menjamin keandalan SSE broadcast ke semua klien yang terhubung dari manapun.
+    *   **Koreksi nama variabel `.env`:** Memperbaiki ketidakcocokan nama variabel lingkungan antara konvensi Upstash dashboard (`UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`) dengan nama yang dibaca kode (`REDIS_URL` / `REDIS_TOKEN`). Pemeriksaan placeholder otomatis di `isPlaceholder()` memastikan koneksi hanya diinisialisasi dengan token asli.
+    *   **Pembaruan [README.md](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/README.md):** Memperbaiki entri Tech Stack (SQLite → PostgreSQL/Supabase), menambahkan penjelasan dual-mode Redis, dan menambahkan panduan setup Upstash Redis opsional pada seksi *Cara Menjalankan Proyek*.
+*   **Tujuan:** Memungkinkan sinkronisasi status timer dan prompter secara real-time lintas instans server di lingkungan produksi (multi-instance/serverless), serta menjamin keandalan SSE broadcast ke semua klien yang terhubung dari manapun — tanpa mengorbankan kemudahan developer lokal yang tidak ingin mengkonfigurasi Redis.
 
 ### 1. 🗄️ Migrasi Database PostgreSQL Supabase
 *   **Perubahan:** 

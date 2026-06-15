@@ -73,8 +73,8 @@ Platform ini dibangun menggunakan teknologi modern yang memastikan performa ting
 
 * **Core Framework**: [Next.js](https://nextjs.org/) (App Router, TypeScript)
 * **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-* **Database Relasional**: [SQLite](https://www.sqlite.org/) (Local DB) & [Drizzle ORM](https://orm.drizzle.team/)
-* **Real-time State & Cache**: [Upstash Redis](https://upstash.com/) (Menyimpan offset waktu dan antrean pesan prompter)
+* **Database Relasional**: [PostgreSQL](https://www.postgresql.org/) via [Supabase](https://supabase.com/) & [Drizzle ORM](https://orm.drizzle.team/)
+* **Real-time State & Cache**: [Upstash Redis](https://upstash.com/) via `@upstash/redis` SDK — menyimpan offset waktu panggung dan antrean pesan prompter secara persisten lintas server instance. Mendukung **dual-mode** otomatis: terhubung ke Upstash Cloud jika `REDIS_URL` & `REDIS_TOKEN` dikonfigurasi, atau fallback ke in-memory mock untuk pengembangan lokal tanpa konfigurasi tambahan.
 * **Real-time Streaming**: **Server-Sent Events (SSE)** via Next.js API Routes (HTTP-Only Stream)
 * **Offline Database**: [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
 * **PWA Enabler**: `@ducanh2912/next-pwa`
@@ -108,7 +108,9 @@ eventflow/
 ## ⚙️ Cara Menjalankan Proyek Secara Lokal
 
 ### 1. Prasyarat
-Pastikan Anda sudah menginstal **Node.js** (v18+) dan memiliki akun **Upstash Redis** (atau Redis instance lokal).
+Pastikan Anda sudah menginstal **Node.js** (v18+) dan memiliki akun **Supabase** (untuk database PostgreSQL).
+
+> **Upstash Redis bersifat opsional untuk development lokal.** Jika `REDIS_URL` dan `REDIS_TOKEN` tidak diisi atau masih berisi nilai placeholder, sistem secara otomatis beralih ke mode in-memory mock sehingga aplikasi tetap bisa dijalankan tanpa konfigurasi Redis.
 
 ### 2. Kloning & Instal Dependency
 ```bash
@@ -121,14 +123,22 @@ Buat berkas `.env` di akar direktori dan lengkapi variabel berikut (lihat [.env.
 # Database Connection (Supabase PostgreSQL via Supavisor Pooler Port 6543)
 DATABASE_URL="postgresql://postgres.xxxx:[password]@aws-xxxx.pooler.supabase.com:6543/postgres?sslmode=require"
 
-# Upstash Redis Configuration
-REDIS_URL="https://your-redis-instance.upstash.io"
-REDIS_TOKEN="your_redis_token"
+# Upstash Redis — Opsional untuk dev lokal, wajib untuk produksi
+# Ambil dari: console.upstash.com → Database → REST API
+REDIS_URL="https://your-instance.upstash.io"
+REDIS_TOKEN="your_upstash_rest_token"
 
 # App Configuration
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 SESSION_SECRET="gunakan_string_acak_dan_panjang_di_sini"
 ```
+
+### 3a. (Opsional) Setup Upstash Redis untuk Produksi
+Jika ingin mengaktifkan sinkronisasi real-time lintas perangkat/server:
+1. Buat akun gratis di [upstash.com](https://upstash.com)
+2. Buat database baru → pilih region **`ap-southeast-1` (Singapore)**
+3. Buka tab **REST API** → salin `UPSTASH_REDIS_REST_URL` ke `REDIS_URL` dan `UPSTASH_REDIS_REST_TOKEN` ke `REDIS_TOKEN` di `.env`
+4. Jalankan ulang server — log `🔌 Upstash Redis initialized successfully.` akan muncul di konsol
 
 ### 4. Push Skema ke Supabase
 Jalankan perintah push skema Drizzle ke database PostgreSQL Supabase Anda:
