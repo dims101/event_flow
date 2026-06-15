@@ -62,7 +62,7 @@ export default function RoomList({ initialRooms }: RoomListProps) {
         return (
           <div
             key={room.id}
-            className="flex flex-col justify-between border border-slate-900/40 bg-slate-900 rounded-xl p-6 hover:border-slate-800 hover:bg-slate-900/60 transition-all duration-150"
+            className="flex flex-col justify-between border border-slate-900/40 bg-slate-900 rounded-xl p-6 hover:border-slate-800 hover:bg-slate-900/60 transition-[border-color,background-color] duration-150"
           >
             <div>
               <div className="flex items-start justify-between gap-4">

@@ -657,7 +657,7 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
       ctx.fillStyle = '#818cf8';
       ctx.font = 'bold 20px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Memulai PiP...', canvas.width / 2, 90);
+      ctx.fillText('Memulai PiP…', canvas.width / 2, 90);
 
       const video = document.createElement('video');
       video.muted = true;

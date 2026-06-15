@@ -36,13 +36,13 @@ export default async function Home() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 max-w-md mx-auto">
           <Link
             href="/login"
-            className="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-all duration-150 text-center shadow-sm select-none"
+            className="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-colors duration-150 text-center shadow-sm select-none"
           >
             Masuk Dasbor EO
           </Link>
           <Link
             href="/register"
-            className="w-full sm:w-auto px-6 py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 text-slate-200 font-semibold rounded-lg transition-all duration-150 text-center select-none"
+            className="w-full sm:w-auto px-6 py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 text-slate-200 font-semibold rounded-lg transition-colors duration-150 text-center select-none"
           >
             Buat Akun Baru
           </Link>

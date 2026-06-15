@@ -127,7 +127,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
       </div>
 
       {/* Tabs Layout */}
-      <Suspense fallback={<div className="py-12 text-center text-slate-500">Loading tabs...</div>}>
+      <Suspense fallback={<div className="py-12 text-center text-slate-500">Loading tabs…</div>}>
         <RoomTabs 
           rundownBuilder={rundownBuilder}
           controlCenter={controlCenter}

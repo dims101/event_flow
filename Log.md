@@ -146,6 +146,12 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   Menyesuaikan status warna (`--status-good`, `--status-bad`, `--status-warn`) dan latar belakang status subtil (`-bg`) dengan palet baru Atlassian untuk keselarasan visual (simetri mode terang/gelap).
 *   **Tujuan:** Memastikan antarmuka EventFlow memiliki skema warna profesional, konsisten, berpusat pada pengguna, serta memenuhi rasio kontras aksesibilitas WCAG 2.2 AA secara otomatis.
 
+### 2. 🔍 Audit UI & Perbaikan Ketentuan Desain (UI Audit & Design Guidelines Compliance)
+*   **Perubahan:**
+    *   **Standarisasi Tipografi:** Mengganti manual triple dots (`...`) dengan karakter unicode elipsis tunggal (`…`) pada pemuatan fallback tabs di [page.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/page.tsx) dan inisialisasi gambar kanvas PiP di [ControlPanel.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/ControlPanel.tsx) serta [VendorView.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/v/[token]/_components/VendorView.tsx).
+    *   **Optimalisasi Transisi:** Mengubah kelas `transition-all` yang terlalu luas menjadi transisi properti spesifik yang ramah terhadap compositor browser (seperti `transition-[border-color,background-color]`, `transition-colors`, dan `transition-[transform,background-color,border-color]`) pada tombol CTA di [page.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/page.tsx), kartu event di [RoomList.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/_components/RoomList.tsx), dan tombol tema di [ThemeToggle.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/_components/ThemeToggle.tsx).
+*   **Tujuan:** Memastikan kepatuhan penuh terhadap Vercel Web Interface Guidelines guna mencegah CLS (Cumulative Layout Shift) dan menjamin performa render yang efisien.
+
 ---
 
 ## 🛠️ Status Kompilasi Proyek

@@ -38,7 +38,7 @@ export default function ThemeToggle() {
     <button
       onClick={toggleTheme}
       title={theme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
-      className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full border border-slate-800 bg-slate-900/80 backdrop-blur-md text-slate-100 flex items-center justify-center shadow-lg hover:scale-110 active:scale-90 transition-all duration-200 cursor-pointer min-h-[48px] min-w-[48px]"
+      className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full border border-slate-800 bg-slate-900/80 backdrop-blur-md text-slate-100 flex items-center justify-center shadow-lg hover:scale-110 active:scale-90 transition-[transform,background-color,border-color] duration-200 cursor-pointer min-h-[48px] min-w-[48px]"
       aria-label="Toggle Theme"
     >
       {theme === 'dark' ? (
