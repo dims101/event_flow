@@ -152,6 +152,13 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **Optimalisasi Transisi:** Mengubah kelas `transition-all` yang terlalu luas menjadi transisi properti spesifik yang ramah terhadap compositor browser (seperti `transition-[border-color,background-color]`, `transition-colors`, dan `transition-[transform,background-color,border-color]`) pada tombol CTA di [page.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/page.tsx), kartu event di [RoomList.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/_components/RoomList.tsx), dan tombol tema di [ThemeToggle.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/_components/ThemeToggle.tsx).
 *   **Tujuan:** Memastikan kepatuhan penuh terhadap Vercel Web Interface Guidelines guna mencegah CLS (Cumulative Layout Shift) dan menjamin performa render yang efisien.
 
+### 3. ✍️ Perbaikan UX Copy Landing Page (Toss-Inspired UX Copy)
+*   **Perubahan:**
+    *   **Penyelarasan Nada Bicara:** Memperbaiki teks hero, CTA, dan grid fitur pada [page.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/page.tsx) agar lebih kasual, sopan, bernada aktif, dan langsung pada sasaran (*Toss-style microcopy*).
+    *   **Penyederhanaan Istilah:** Mengurangi istilah jargon teknis (*jargon-free*) seperti "Real-Time D-Day Event Coordinator" menjadi "⏱️ Asisten Koordinasi Rundown Hari-H", dan "offline-ready" menjadi "tetap lancar meski susah sinyal".
+    *   **Kejelasan Aksi (CTA):** Mengubah teks tombol primer menjadi "Masuk ke Dasbor" dan tombol sekunder menjadi "Mulai Gratis".
+*   **Tujuan:** Membantu pengguna baru memahami nilai dan manfaat aplikasi dengan lebih cepat serta meningkatkan konversi pendaftaran.
+
 ---
 
 ## 🛠️ Status Kompilasi Proyek

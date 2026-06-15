@@ -21,7 +21,7 @@ export default async function Home() {
       <div className="relative z-10 max-w-4xl w-full text-center space-y-8 py-16">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-indigo-500/25 bg-indigo-500/10 text-indigo-400 text-xs font-semibold tracking-wide">
           <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-          Real-Time D-Day Event Coordinator
+          ⏱️ Asisten Koordinasi Rundown Hari-H
         </div>
 
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-b from-white to-slate-300 bg-clip-text text-transparent font-sans">
@@ -29,7 +29,7 @@ export default async function Home() {
         </h1>
 
         <p className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          Sinkronisasi jadwal panggung (*rundown*) dan kirim instruksi instan ke kru lapangan secara *real-time* dan *offline-ready* langsung dari HP Anda.
+          Kelola jadwal panggung (*rundown*) secara *real-time* dan kirim instruksi instan ke kru lapangan. Aplikasi tetap berjalan lancar meski di area susah sinyal.
         </p>
 
         {/* CTA Buttons */}
@@ -38,13 +38,13 @@ export default async function Home() {
             href="/login"
             className="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-colors duration-150 text-center shadow-sm select-none"
           >
-            Masuk Dasbor EO
+            Masuk ke Dasbor
           </Link>
           <Link
             href="/register"
             className="w-full sm:w-auto px-6 py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 text-slate-200 font-semibold rounded-lg transition-colors duration-150 text-center select-none"
           >
-            Buat Akun Baru
+            Mulai Gratis
           </Link>
         </div>
 
@@ -52,33 +52,33 @@ export default async function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-16 text-left">
           <div className="p-6 rounded-xl border border-slate-900 bg-slate-900/20 backdrop-blur-sm space-y-3 hover:border-slate-800 transition duration-150">
             <div className="text-indigo-400"><Timer className="w-6 h-6" /></div>
-            <h3 className="text-base font-bold text-slate-100 font-sans">Timeline Dinamis</h3>
+            <h3 className="text-base font-bold text-slate-100 font-sans">Rundown Dinamis</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Show Caller dapat menyesuaikan waktu acara saat terjadi kendala panggung. Jadwal vendor otomatis bergeser dalam hitungan milidetik secara real-time.
+              Sesuaikan durasi acara secara real-time saat terjadi kendala di panggung. Jadwal rundown seluruh kru dan vendor otomatis bergeser seketika.
             </p>
           </div>
 
           <div className="p-6 rounded-xl border border-slate-900 bg-slate-900/20 backdrop-blur-sm space-y-3 hover:border-slate-800 transition duration-150">
             <div className="text-indigo-400"><MessageSquare className="w-6 h-6" /></div>
-            <h3 className="text-base font-bold text-slate-100 font-sans">Pocket Prompter (Pesan Instan)</h3>
+            <h3 className="text-base font-bold text-slate-100 font-sans">Prompter Saku Instan</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Kirim instruksi langsung ke gawai divisi tertentu (cth: MC atau Catering). Layar gawai target akan berkedip dan bergetar untuk menarik perhatian kru.
+              Kirim instruksi penting ke divisi tertentu (seperti MC atau Catering). Layar ponsel target akan berkedip dan bergetar agar instruksi langsung terbaca.
             </p>
           </div>
 
           <div className="p-6 rounded-xl border border-slate-900 bg-slate-900/20 backdrop-blur-sm space-y-3 hover:border-slate-800 transition duration-150">
             <div className="text-indigo-400"><Link2 className="w-6 h-6" /></div>
-            <h3 className="text-base font-bold text-slate-100 font-sans">Tautan Akses Tanpa Login</h3>
+            <h3 className="text-base font-bold text-slate-100 font-sans">Akses Instan Tanpa Login</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Cukup bagikan tautan peran kru via WhatsApp. Kru lapangan dan vendor luar bisa memantau jadwal live secara langsung tanpa perlu mendaftar akun.
+              Bagikan tautan khusus peran kru via WhatsApp. Kru lapangan dan vendor bisa langsung memantau rundown tanpa repot mendaftar akun.
             </p>
           </div>
 
           <div className="p-6 rounded-xl border border-slate-900 bg-slate-900/20 backdrop-blur-sm space-y-3 hover:border-slate-800 transition duration-150">
             <div className="text-indigo-400"><WifiOff className="w-6 h-6" /></div>
-            <h3 className="text-base font-bold text-slate-100 font-sans">Ketahanan Sinyal Buruk (Offline-Ready)</h3>
+            <h3 className="text-base font-bold text-slate-100 font-sans">Tetap Lancar Tanpa Sinyal</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Ballroom pernikahan tanpa sinyal? Aplikasi tetap berjalan lancar, memuat jadwal terakhir dari IndexedDB lokal, dan menghitung mundur waktu secara presisi.
+              Sinyal mendadak hilang di ballroom? Jangan khawatir. Aplikasi otomatis menyimpan data terbaru agar hitung mundur rundown tetap berjalan presisi.
             </p>
           </div>
         </div>
