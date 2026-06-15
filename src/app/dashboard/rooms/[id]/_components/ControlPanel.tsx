@@ -1459,6 +1459,7 @@ export default function ControlPanel({
                 className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm appearance-none cursor-pointer min-h-[40px]"
               >
                 <option value="All">Semua (All)</option>
+                <option value="Monitor">📺 Monitor Panggung</option>
                 {pics.map((pic) => (
                   <option key={pic.id} value={pic.name}>
                     {pic.name}

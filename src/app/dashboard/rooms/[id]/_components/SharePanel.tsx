@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Copy, Check, Send, Share2 } from 'lucide-react';
+import React, { useState, useEffect, useTransition } from 'react';
+import { Copy, Check, Send, Share2, Tv, Loader2, Plus } from 'lucide-react';
+import { generateMonitorTokenAction } from '@/app/actions/room';
 
 interface RoleToken {
   role: string;
@@ -11,15 +12,14 @@ interface RoleToken {
 interface SharePanelProps {
   tokens: RoleToken[];
   roomName: string;
+  roomId: string;
 }
 
-const getRoleDescription = (role: string) => {
-  return 'Tautan pantau rundown real-time terpadu untuk seluruh divisi vendor dan kru lapangan.';
-};
-
-export default function SharePanel({ tokens, roomName }: SharePanelProps) {
+export default function SharePanel({ tokens, roomName, roomId }: SharePanelProps) {
   const [origin, setOrigin] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [monitorTokens, setMonitorTokens] = useState<RoleToken[]>(tokens);
+  const [isGenerating, startGenerating] = useTransition();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -27,20 +27,36 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
     }
   }, []);
 
-  const handleCopy = (token: string, role: string) => {
-    const url = `${origin}/v/${token}`;
+  const handleCopy = (url: string, id: string) => {
     navigator.clipboard.writeText(url);
-    setCopiedId(role);
+    setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleWhatsApp = (token: string, role: string) => {
-    const url = `${origin}/v/${token}`;
-    const text = `Halo, berikut tautan pantau rundown real-time EventFlow untuk *${roomName}* (Divisi: *${role}*):\n\n${url}\n\n(Tautan ini tidak memerlukan login. Cukup klik untuk memantau waktu dan prompter)`;
+  const handleWhatsApp = (url: string, description: string) => {
+    const text = `Halo, berikut tautan EventFlow untuk *${roomName}* (${description}):\n\n${url}\n\n(Tautan ini tidak memerlukan login.)`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const sharedTokens = tokens.filter((t) => t.role === 'All');
+  const handleGenerateMonitorToken = () => {
+    startGenerating(async () => {
+      const res = await generateMonitorTokenAction(roomId);
+      if (res.success && res.token) {
+        setMonitorTokens((prev) => [
+          ...prev,
+          { role: 'Monitor', token: res.token as string },
+        ]);
+      } else if (res.error) {
+        alert(res.error);
+      }
+    });
+  };
+
+  const sharedToken = monitorTokens.find((t) => t.role === 'All');
+  const monitorToken = monitorTokens.find((t) => t.role === 'Monitor');
+
+  const sharedUrl = sharedToken ? `${origin}/v/${sharedToken.token}` : null;
+  const monitorUrl = monitorToken ? `${origin}/monitor/${monitorToken.token}` : null;
 
   return (
     <div className="bg-slate-900 border border-slate-900/40 rounded-xl p-6 space-y-6">
@@ -49,19 +65,17 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
           <Share2 className="w-5 h-5" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-slate-100 font-sans">Bagikan Tautan Akses Bersama</h3>
+          <h3 className="text-lg font-bold text-slate-100 font-sans">Distribusi Tautan Akses</h3>
           <p className="text-sm text-slate-400 mt-1">
-            Kru lapangan tidak perlu login. Cukup bagikan satu tautan terpadu ini untuk memantau waktu secara live.
+            Kru lapangan tidak perlu login. Bagikan tautan sesuai kebutuhan.
           </p>
         </div>
       </div>
 
-      <div className="max-w-md mx-auto">
-        {sharedTokens.map((token) => (
-          <div
-            key={token.role}
-            className="flex flex-col justify-between border border-slate-800/80 bg-slate-950/40 rounded-xl p-5 space-y-4 hover:border-slate-850 transition duration-150"
-          >
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* ── Shared Vendor Link (All) ── */}
+        {sharedToken && sharedUrl && (
+          <div className="flex flex-col justify-between border border-slate-800/80 bg-slate-950/40 rounded-xl p-5 space-y-4 hover:border-slate-700 transition duration-150">
             <div>
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-100 font-sans">Monitor Bersama (Shared Link)</span>
@@ -70,16 +84,16 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                {getRoleDescription(token.role)}
+                Tautan pantau rundown real-time terpadu untuk seluruh divisi vendor dan kru lapangan.
               </p>
             </div>
 
             <div className="flex items-center gap-2 pt-3 border-t border-slate-900/40">
               <button
-                onClick={() => handleCopy(token.token, token.role)}
+                onClick={() => handleCopy(sharedUrl, 'all')}
                 className="flex-1 py-2 text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-lg transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer min-h-[36px] select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400"
               >
-                {copiedId === token.role ? (
+                {copiedId === 'all' ? (
                   <>
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Tersalin</span>
@@ -92,16 +106,91 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
                 )}
               </button>
               <button
-                onClick={() => handleWhatsApp(token.token, token.role)}
+                onClick={() => handleWhatsApp(sharedUrl, 'Pantau Rundown Bersama')}
                 className="p-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150 text-xs flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px] select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500"
                 title="Kirim ke WhatsApp"
-                aria-label={`Bagikan tautan peran ${token.role} via WhatsApp`}
+                aria-label="Bagikan tautan vendor via WhatsApp"
               >
                 <Send className="w-4 h-4" />
               </button>
             </div>
           </div>
-        ))}
+        )}
+
+        {/* ── Monitor / Stage Display Link ── */}
+        {monitorToken && monitorUrl ? (
+          <div className="flex flex-col justify-between border border-slate-800/80 bg-slate-950/40 rounded-xl p-5 space-y-4 hover:border-slate-700 transition duration-150">
+            <div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Tv className="w-4 h-4 text-slate-400" />
+                  <span className="font-bold text-slate-100 font-sans">Monitor Panggung</span>
+                </div>
+                <span className="text-[10px] px-2.5 py-0.5 rounded border border-slate-800 bg-slate-900 text-slate-400 font-bold tracking-wider uppercase">
+                  Stage Display
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                Tampilkan di TV atau proyektor di panggung. Menampilkan nama sesi aktif dan timer besar secara real-time.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 pt-3 border-t border-slate-900/40">
+              <button
+                onClick={() => handleCopy(monitorUrl, 'monitor')}
+                className="flex-1 py-2 text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-lg transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer min-h-[36px] select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400"
+              >
+                {copiedId === 'monitor' ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Tersalin</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Salin Link Monitor</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => handleWhatsApp(monitorUrl, 'Tampilan Monitor Panggung')}
+                className="p-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150 text-xs flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px] select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500"
+                title="Kirim ke WhatsApp"
+                aria-label="Bagikan tautan monitor panggung via WhatsApp"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* ── Activate Monitor button for existing rooms ── */
+          <div className="flex flex-col border border-dashed border-slate-800/60 bg-slate-950/20 rounded-xl p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <Tv className="w-4 h-4 text-slate-500" />
+              <span className="font-bold text-slate-400 font-sans">Monitor Panggung</span>
+            </div>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Aktifkan fitur monitor untuk menampilkan timer di TV atau proyektor panggung.
+            </p>
+            <button
+              onClick={handleGenerateMonitorToken}
+              disabled={isGenerating}
+              className="w-full py-2 text-xs font-semibold bg-violet-600/20 hover:bg-violet-600/30 disabled:opacity-50 border border-violet-600/30 text-violet-300 rounded-lg transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer min-h-[36px] select-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-violet-500"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Mengaktifkan…</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Aktifkan Monitor Panggung</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

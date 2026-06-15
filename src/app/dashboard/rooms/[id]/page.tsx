@@ -95,7 +95,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
   );
 
   const sharePanel = (
-    <SharePanel tokens={tokens} roomName={room.name} />
+    <SharePanel tokens={tokens} roomName={room.name} roomId={roomId} />
   );
 
   return (

@@ -4,6 +4,43 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ---
 
+## 📅 Pembaruan: 15 Juni 2026 (Bagian 4 - Fitur Monitor Panggung)
+
+### 1. 📺 Monitor Panggung — Tampilan Timer Fullscreen untuk TV / Proyektor
+*   **Perubahan:**
+    *   **Token Role `'Monitor'` Otomatis:** Memperbarui `createRoomAction` di [room.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/room.ts) agar setiap room baru secara otomatis men-generate dua token: `'All'` (shared vendor link) dan `'Monitor'` (stage display link). Token `'Monitor'` memiliki URL terpisah di route `/monitor/[token]`, bukan `/v/[token]`.
+    *   **Server Action `generateMonitorTokenAction`:** Menambahkan action baru di [room.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/room.ts) yang memungkinkan room lama (yang belum memiliki token Monitor) untuk meng-generate token Monitor secara on-demand tanpa perlu membuat ulang room. Action bersifat idempoten — aman dipanggil berulang kali, mengembalikan token yang sudah ada jika sudah digenerate sebelumnya.
+    *   **Route `/monitor/[token]` (Server Component):** Membuat halaman baru [page.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/monitor/[token]/page.tsx) yang mem-resolve token Monitor dari database, memverifikasi bahwa role-nya adalah `'Monitor'`, mengambil data room dan rundown, lalu merender komponen `MonitorView`. Menampilkan halaman error informatif jika token tidak valid.
+    *   **Komponen `MonitorView.tsx` (Client Component):** Membuat komponen tampilan fullscreen [MonitorView.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/monitor/[token]/_components/MonitorView.tsx) dengan spesifikasi desain TV/proyektor:
+        *   Latar hitam penuh (`background: #000`) dengan grain texture subtle untuk tampilan premium.
+        *   Logo EventFlow (ikon SVG + teks) di bagian atas.
+        *   Nama sesi aktif dalam huruf kapital, letter-spacing lebar.
+        *   Timer besar berbasis `vw` (font-size `26vw`) yang mengisi hampir seluruh layar, berubah merah dan berdenyut saat overtime.
+        *   Semua elemen menggunakan unit `vw/vh` sehingga otomatis menyesuaikan ukuran layar TV apapun.
+        *   **Tidak ada elemen UI lain** (tidak ada tombol, tidak ada status koneksi, tidak ada header).
+    *   **Real-time via Supabase Realtime:** Monitor berlangganan dua channel Supabase Realtime:
+        *   `UPDATE` pada tabel `rooms` untuk memperbarui timer dan nama sesi aktif secara live.
+        *   `INSERT` pada tabel `prompter_messages` — **hanya memproses pesan dengan `target_role = 'Monitor'`**. Pesan dengan target `'All'` diabaikan sepenuhnya di sisi klien tanpa perlu filter server.
+    *   **Tidak ada Push Notification:** Monitor Panggung tidak mendaftarkan service worker, tidak meminta izin notifikasi, dan tidak memiliki fitur getar/suara. Penerimaan pesan murni melalui WebSocket Supabase Realtime.
+    *   **Animasi Pesan Masuk (15 Detik):** Saat pesan bertarget `'Monitor'` masuk, timer mengecil dari `26vw` ke `14vw` (transisi CSS cubic-bezier), dan di bawahnya muncul kotak pesan dengan animasi slide-up. Pesan mulai fade-out pada detik ke-13.5 dan hilang sepenuhnya pada detik ke-15 (timer kembali besar otomatis).
+    *   **Web Worker Timer:** Menggunakan Web Worker inline (Blob URL) untuk tick 200ms yang sama seperti `ControlPanel.tsx` — tahan terhadap throttling tab background.
+
+### 2. 🔗 Pembaruan SharePanel — Card Monitor Panggung
+*   **Perubahan:**
+    *   Menambahkan prop `roomId` pada [SharePanel.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/SharePanel.tsx) dan meneruskannya dari [page.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/page.tsx).
+    *   **Card Monitor Panggung:** Menampilkan card kedua di sebelah kanan card "Monitor Bersama" dengan label "Stage Display", URL `/monitor/[token]`, tombol salin link, dan tombol kirim WhatsApp.
+    *   **Tombol Aktifkan Monitor (room lama):** Jika room belum punya token Monitor, menampilkan card dashed dengan tombol "Aktifkan Monitor Panggung". Setelah diklik, memanggil `generateMonitorTokenAction` dan memperbarui state lokal secara optimistis — card langsung berubah menjadi card Monitor lengkap tanpa reload halaman.
+    *   **Layout Dua Kolom:** Mengubah layout dari stack vertikal menjadi `grid grid-cols-1 sm:grid-cols-2 gap-4` — kedua card berdampingan kiri-kanan di desktop, atas-bawah di mobile.
+    *   **Gaya Seragam:** Card Monitor Panggung menggunakan gaya identik dengan card Monitor Bersama (slate/dark), tidak ada aksen violet mencolok.
+
+### 3. 📡 Pembaruan ControlPanel — Opsi Target Prompter Monitor
+*   **Perubahan:**
+    *   Menambahkan opsi `📺 Monitor Panggung` (value: `'Monitor'`) pada dropdown "Divisi Target" di [ControlPanel.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/ControlPanel.tsx), ditempatkan tepat di bawah opsi "Semua (All)".
+    *   EO harus **secara eksplisit memilih "Monitor Panggung"** untuk mengirim pesan ke layar monitor — pesan dengan target "Semua (All)" tidak tampil di monitor.
+*   **Tujuan:** Memungkinkan Show Caller mengirim instruksi khusus ke layar monitor panggung (TV/proyektor) secara eksklusif, terpisah dari instruksi yang dikirim ke kru lapangan.
+
+---
+
 ## 📅 Pembaruan: 15 Juni 2026 (Bagian 3 - Sidebar Playlist Rundown di Picture-in-Picture)
 
 ### 1. 📋 Jendela Samping Playlist Rundown di Jendela Melayang (PiP Sidebar Playlist)
