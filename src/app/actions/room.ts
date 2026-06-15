@@ -3,7 +3,7 @@
 import { db } from '@/db';
 import { rooms, roleTokens } from '@/db/schema';
 import { getCurrentUser } from './auth';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 export async function createRoomAction(prevState: any, formData: FormData) {
   const name = formData.get('name') as string;
@@ -71,7 +71,7 @@ export async function deleteRoomAction(roomId: string) {
     const user = await getCurrentUser();
     if (!user) return { error: 'Unauthorized' };
 
-    await db.delete(rooms).where(eq(rooms.id, roomId));
+    await db.delete(rooms).where(and(eq(rooms.id, roomId), eq(rooms.userId, user.id)));
     return { success: true };
   } catch (error) {
     console.error('Delete room error:', error);

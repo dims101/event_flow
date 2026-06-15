@@ -1,9 +1,10 @@
 'use server';
 
 import { db } from '@/db';
-import { rundownItems } from '@/db/schema';
+import { rundownItems, rooms } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { logActivity } from './roomControl';
+import { getCurrentUser } from './auth';
 
 export async function addRundownItemAction(prevState: any, formData: FormData) {
   const roomId = formData.get('roomId') as string;
@@ -21,6 +22,14 @@ export async function addRundownItemAction(prevState: any, formData: FormData) {
   }
 
   try {
+    const user = await getCurrentUser();
+    if (!user) return { error: 'Unauthorized' };
+
+    const room = await db.query.rooms.findFirst({
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, user.id)),
+    });
+    if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
+
     // Calculate the next order index
     const existingItems = await db.query.rundownItems.findMany({
       where: eq(rundownItems.roomId, roomId),
@@ -55,11 +64,19 @@ export async function addRundownItemAction(prevState: any, formData: FormData) {
 
 export async function deleteRundownItemAction(itemId: string) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { error: 'Unauthorized' };
+
     const item = await db.query.rundownItems.findFirst({
       where: eq(rundownItems.id, itemId),
     });
 
     if (!item) return { error: 'Item tidak ditemukan' };
+
+    const room = await db.query.rooms.findFirst({
+      where: and(eq(rooms.id, item.roomId), eq(rooms.userId, user.id)),
+    });
+    if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
 
     await db.delete(rundownItems).where(eq(rundownItems.id, itemId));
 

@@ -1,13 +1,13 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { pgTable, text, integer, bigint } from 'drizzle-orm/pg-core';
 
-export const users = sqliteTable('users', {
+export const users = pgTable('users', {
   id: text('id').primaryKey(),
   email: text('email').notNull().unique(),
   passwordHash: text('password_hash').notNull(),
   companyName: text('company_name').notNull(),
 });
 
-export const rooms = sqliteTable('rooms', {
+export const rooms = pgTable('rooms', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   eventDate: text('event_date').notNull(),
@@ -15,18 +15,18 @@ export const rooms = sqliteTable('rooms', {
   currentOffsetSeconds: integer('current_offset_seconds').notNull().default(0),
   currentRundownIndex: integer('current_rundown_index').notNull().default(-1),
   timerStatus: text('timer_status').notNull().default('stopped'), // 'running', 'paused', 'stopped'
-  timerStartTime: integer('timer_start_time'), // unix timestamp in ms
+  timerStartTime: bigint('timer_start_time', { mode: 'number' }), // unix timestamp in ms
   timerElapsedSeconds: integer('timer_elapsed_seconds').notNull().default(0),
 });
 
-export const roleTokens = sqliteTable('role_tokens', {
+export const roleTokens = pgTable('role_tokens', {
   id: text('id').primaryKey(),
   roomId: text('room_id').notNull().references(() => rooms.id, { onDelete: 'cascade' }),
   token: text('token').notNull().unique(),
   role: text('role').notNull(), // 'MC', 'Catering', 'MUA', 'All'
 });
 
-export const rundownItems = sqliteTable('rundown_items', {
+export const rundownItems = pgTable('rundown_items', {
   id: text('id').primaryKey(),
   roomId: text('room_id').notNull().references(() => rooms.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
@@ -35,19 +35,18 @@ export const rundownItems = sqliteTable('rundown_items', {
   orderIndex: integer('order_index').notNull(),
 });
 
-export const prompterMessages = sqliteTable('prompter_messages', {
+export const prompterMessages = pgTable('prompter_messages', {
   id: text('id').primaryKey(),
   roomId: text('room_id').notNull().references(() => rooms.id, { onDelete: 'cascade' }),
   targetRole: text('target_role').notNull(), // 'All', 'MC', 'Catering', 'MUA'
   message: text('message').notNull(),
-  createdAt: integer('created_at').notNull(),
+  createdAt: bigint('created_at', { mode: 'number' }).notNull(),
 });
 
-export const activityLogs = sqliteTable('activity_logs', {
+export const activityLogs = pgTable('activity_logs', {
   id: text('id').primaryKey(),
   roomId: text('room_id').notNull().references(() => rooms.id, { onDelete: 'cascade' }),
   actionType: text('action_type').notNull(), // 'timer', 'offset', 'prompter', 'rundown'
   description: text('description').notNull(),
-  createdAt: integer('created_at').notNull(),
+  createdAt: bigint('created_at', { mode: 'number' }).notNull(),
 });
-

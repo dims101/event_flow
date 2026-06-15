@@ -4,6 +4,7 @@ import { db } from '@/db';
 import { rooms, prompterMessages, rundownItems, activityLogs } from '@/db/schema';
 import { redis } from '@/lib/redis';
 import { eq, and } from 'drizzle-orm';
+import { getCurrentUser } from './auth';
 
 export async function logActivity(
   roomId: string,
@@ -33,11 +34,14 @@ export async function updateTimerStatusAction(
   targetIndex?: number
 ) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { error: 'Unauthorized' };
+
     const room = await db.query.rooms.findFirst({
-      where: eq(rooms.id, roomId),
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, user.id)),
     });
 
-    if (!room) return { error: 'Event tidak ditemukan' };
+    if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
 
     let timerStartTime = room.timerStartTime;
     let timerElapsedSeconds = room.timerElapsedSeconds;
@@ -134,11 +138,14 @@ export async function updateTimerStatusAction(
 
 export async function adjustRoomOffsetAction(roomId: string, seconds: number) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { error: 'Unauthorized' };
+
     const room = await db.query.rooms.findFirst({
-      where: eq(rooms.id, roomId),
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, user.id)),
     });
 
-    if (!room) return { error: 'Event tidak ditemukan' };
+    if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
 
     const newOffset = room.currentOffsetSeconds + seconds;
 
@@ -190,6 +197,14 @@ export async function sendPrompterMessageAction(
   }
 
   try {
+    const user = await getCurrentUser();
+    if (!user) return { error: 'Unauthorized' };
+
+    const room = await db.query.rooms.findFirst({
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, user.id)),
+    });
+    if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
+
     await db.insert(prompterMessages).values({
       id: crypto.randomUUID(),
       roomId,
@@ -210,6 +225,14 @@ export async function sendPrompterMessageAction(
 
 export async function clearPrompterMessagesAction(roomId: string) {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { error: 'Unauthorized' };
+
+    const room = await db.query.rooms.findFirst({
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, user.id)),
+    });
+    if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
+
     await db.delete(prompterMessages).where(eq(prompterMessages.roomId, roomId));
     
     await logActivity(roomId, 'prompter', 'Semua pesan prompter dibersihkan');

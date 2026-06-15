@@ -6,6 +6,8 @@ import { rooms, rundownItems, roleTokens, prompterMessages, activityLogs } from 
 import { eq } from 'drizzle-orm';
 
 
+import { getCurrentUser } from '@/app/actions/auth';
+
 import AddRundownForm from './_components/AddRundownForm';
 import RundownTable from './_components/RundownTable';
 import ControlPanel from './_components/ControlPanel';
@@ -20,13 +22,18 @@ interface RoomPageProps {
 
 export default async function RoomPage({ params }: RoomPageProps) {
   const { id: roomId } = await params;
+  
+  const user = await getCurrentUser();
+  if (!user) {
+    notFound();
+  }
 
   // 1. Fetch Room Details
   const room = await db.query.rooms.findFirst({
     where: eq(rooms.id, roomId),
   });
 
-  if (!room) {
+  if (!room || room.userId !== user.id) {
     notFound();
   }
 
