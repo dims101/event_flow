@@ -527,11 +527,11 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
             </div>
 
             <div id="pip-alert-view" class="flex flex-col items-center justify-center text-center px-2 py-1.5 bg-indigo-950 border border-indigo-600 rounded my-1 w-full hidden animate-pulse-fast">
-              <span class="text-[8px] font-extrabold text-amber-400 uppercase tracking-wider">PESAN BARU!</span>
-              <div id="pip-alert-text" class="text-[11px] font-extrabold text-white leading-snug line-clamp-2"></div>
+              <span class="text-[8px] font-extrabold text-rose-500 uppercase tracking-wider">PESAN BARU!</span>
+              <div id="pip-alert-text" class="text-[11px] font-extrabold text-slate-50 leading-snug line-clamp-2"></div>
             </div>
 
-            <div id="pip-message" class="text-[9px] text-indigo-300 font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate hidden"></div>
+            <div id="pip-message" class="text-[9px] text-indigo-600 font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-700 pt-1 w-full truncate hidden"></div>
           </div>
         `;
         pipWindow.document.body.appendChild(pipDiv);
