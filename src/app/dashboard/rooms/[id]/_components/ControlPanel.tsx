@@ -100,6 +100,12 @@ export default function ControlPanel({
   const lastProcessedMessageId = useRef<string | null>(null);
   const isInitialLoad = useRef(true);
   const sentAlertsRef = useRef<{ [itemIndex: number]: { '5m'?: boolean; '1m'?: boolean } }>({});
+  const isTransitioningRef = useRef(false);
+
+  // Reset auto-advance lock when the room index or status changes
+  useEffect(() => {
+    isTransitioningRef.current = false;
+  }, [state.room?.currentRundownIndex, state.room?.timerStatus]);
 
   // Refs to prevent useEffect teardown on state changes, bypassing background throttle issues
   const stateRef = useRef(state);
@@ -327,6 +333,37 @@ export default function ControlPanel({
       
       setTimerDisplay(formatted);
       setIsOvertime(over);
+
+      // Auto-advance session when timer runs out
+      if (room.timerStatus === 'running' && diff <= 0 && !isTransitioningRef.current) {
+        isTransitioningRef.current = true;
+        const nextIndex = room.currentRundownIndex + 1;
+        if (nextIndex < items.length) {
+          updateTimerStatusAction(roomId, 'running', nextIndex, true)
+            .then((res) => {
+              if (res && res.error) {
+                console.error('Failed to auto-advance to next session:', res.error);
+                isTransitioningRef.current = false;
+              }
+            })
+            .catch((err) => {
+              console.error('Failed to auto-advance to next session:', err);
+              isTransitioningRef.current = false;
+            });
+        } else {
+          updateTimerStatusAction(roomId, 'stopped', undefined, true)
+            .then((res) => {
+              if (res && res.error) {
+                console.error('Failed to stop timer at end of rundown:', res.error);
+                isTransitioningRef.current = false;
+              }
+            })
+            .catch((err) => {
+              console.error('Failed to stop timer at end of rundown:', err);
+              isTransitioningRef.current = false;
+            });
+        }
+      }
 
       // Auto push warning check for remaining 5 minutes and 1 minute
       if (room.timerStatus === 'running' && !over) {

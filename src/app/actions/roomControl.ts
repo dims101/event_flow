@@ -31,7 +31,8 @@ export async function logActivity(
 export async function updateTimerStatusAction(
   roomId: string,
   status: 'running' | 'paused' | 'stopped',
-  targetIndex?: number
+  targetIndex?: number,
+  isAutoAdvance?: boolean
 ) {
   try {
     const userId = await getSessionUserId();
@@ -42,6 +43,22 @@ export async function updateTimerStatusAction(
     });
 
     if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
+
+    // Prevent double auto-advance trigger and only advance if currently on the expected state
+    if (isAutoAdvance) {
+      if (status === 'stopped') {
+        if (room.timerStatus === 'stopped') {
+          return { success: true, reason: 'Already stopped' };
+        }
+      } else if (targetIndex !== undefined) {
+        if (room.currentRundownIndex >= targetIndex) {
+          return { success: true, reason: 'Already advanced' };
+        }
+        if (room.currentRundownIndex !== targetIndex - 1) {
+          return { success: true, reason: 'Out of sequence auto-advance blocked' };
+        }
+      }
+    }
 
     let timerStartTime = room.timerStartTime;
     let timerElapsedSeconds = room.timerElapsedSeconds;
@@ -193,7 +210,7 @@ export async function sendPrompterMessageAction(
       createdAt: Date.now(),
     });
 
-    // Fire-and-forget push notification trigger to target vendors
+    // Dispatch push notification to target vendors (awaited to prevent serverless event-loop freeze)
     try {
       // Find the specific role token to generate direct redirect link
       const roleToken = await db.query.roleTokens.findFirst({
@@ -203,13 +220,13 @@ export async function sendPrompterMessageAction(
         ),
       });
 
-      sendPushNotification(roomId, targetRole, {
+      await sendPushNotification(roomId, targetRole, {
         title: `📢 Prompter: [${targetRole}]`,
         body: message.trim(),
         url: roleToken ? `/v/${roleToken.token}` : '/',
       });
     } catch (pushErr) {
-      console.error('Failed to dispatch push notification in background:', pushErr);
+      console.error('Failed to dispatch push notification:', pushErr);
     }
 
     // Fire-and-forget log + SSE trigger
@@ -297,9 +314,9 @@ export async function sendTimeAlertNotificationAction(
       ),
     });
 
-    // Fire-and-forget push notification trigger
+    // Push notification trigger (awaited to prevent serverless event-loop freeze)
     try {
-      sendPushNotification(roomId, targetRole, {
+      await sendPushNotification(roomId, targetRole, {
         title,
         body,
         url: roleToken ? `/v/${roleToken.token}` : '/',

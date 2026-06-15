@@ -228,7 +228,13 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **Ekspansi Driver Redis:** Menyempurnakan method `set` pada helper [redis.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/lib/redis.ts) agar mendukung opsi TTL `{ ex: seconds }` bawaan Upstash Redis.
 *   **Tujuan:** Mempermudah kesiapan kru di belakang panggung dengan mengirim notifikasi push langsung ke HP/smartwatch mereka saat waktu rundown sesi aktif akan segera habis.
 
+### 12. 🐛 Perbaikan Bug Delay Notifikasi Push (Serverless Event Loop Freeze Fix)
+*   **Perubahan:**
+    *   **Awaiting Push Dispatch:** Menambahkan kata kunci `await` sebelum pemanggilan `sendPushNotification()` pada Server Actions `sendPrompterMessageAction` dan `sendTimeAlertNotificationAction` di [roomControl.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/roomControl.ts).
+*   **Tujuan:** Menghentikan bug "delay satu pesan" pada push notification. Sebelumnya, fungsi asinkron dijalankan secara *fire-and-forget* tanpa `await` yang menyebabkan *event loop* Node.js dibekukan (*frozen*) seketika oleh lingkungan serverless setelah respons HTTP dikirim, dan baru mencair serta mengirimkan notifikasi tertunda saat ada request baru masuk.
+
 ---
+
 
 ## 🛠️ Status Kompilasi Proyek
 *   **Uji Coba Build:** Berhasil dijalankan via `npm run build` pada 15 Juni 2026.
