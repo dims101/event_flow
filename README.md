@@ -131,6 +131,15 @@ REDIS_TOKEN="your_upstash_rest_token"
 # App Configuration
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 SESSION_SECRET="gunakan_string_acak_dan_panjang_di_sini"
+
+# Supabase Public Credentials (Wajib untuk Realtime WebSocket)
+NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-supabase-anon-key"
+
+# Web Push VAPID Keys (Generate dengan 'npx web-push generate-vapid-keys')
+VAPID_SUBJECT="mailto:your-email@example.com"
+NEXT_PUBLIC_VAPID_PUBLIC_KEY="your-public-vapid-key"
+VAPID_PRIVATE_KEY="your-private-vapid-key"
 ```
 
 ### 3a. (Opsional) Setup Upstash Redis untuk Produksi
@@ -140,14 +149,30 @@ Jika ingin mengaktifkan sinkronisasi real-time lintas perangkat/server:
 3. Buka tab **REST API** → salin `UPSTASH_REDIS_REST_URL` ke `REDIS_URL` dan `UPSTASH_REDIS_REST_TOKEN` ke `REDIS_TOKEN` di `.env`
 4. Jalankan ulang server — log `🔌 Upstash Redis initialized successfully.` akan muncul di konsol
 
-### 4. Push Skema ke Supabase
+### 4. Sinkronisasi Skema Database ke Supabase
 Jalankan perintah push skema Drizzle ke database PostgreSQL Supabase Anda:
 ```bash
 npx drizzle-kit push
 ```
+
+> [!IMPORTANT]
+> Jika proses `drizzle-kit push` gagal karena pembatasan port pooler `6543` di sandbox lokal Anda, silakan jalankan query SQL berikut secara manual di **SQL Editor** pada dashboard Supabase Anda untuk membuat tabel langganan push:
+> ```sql
+> CREATE TABLE IF NOT EXISTS push_subscriptions (
+>   id TEXT PRIMARY KEY,
+>   room_id TEXT NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+>   role TEXT NOT NULL,
+>   endpoint TEXT NOT NULL UNIQUE,
+>   p256dh TEXT NOT NULL,
+>   auth TEXT NOT NULL,
+>   device_info TEXT,
+>   created_at BIGINT NOT NULL
+> );
+> ```
 
 ### 5. Jalankan Server Development
 ```bash
 npm run dev
 ```
 Buka [http://localhost:3000](http://localhost:3000) pada browser Anda.
+

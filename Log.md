@@ -203,6 +203,13 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **UI Lonceng & Banner Prompt:** Menambahkan Bell Icon (Opsi 1) dan Banner Prompt interaktif (Opsi 2) di [VendorView.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/v/[token]/_components/VendorView.tsx) agar kru dapat dengan mudah menyalakan/mematikan notifikasi.
 *   **Tujuan:** Memperluas jangkauan notifikasi real-time panggung langsung ke HP dan smartwatch pergelangan tangan kru di lapangan secara andal tanpa memakan daya HP yang besar.
 
+### 8. 🔑 Konfigurasi Kunci VAPID & Penyempurnaan Dokumentasi (VAPID Keys Configuration & Documentation Update)
+*   **Perubahan:**
+    *   **Penyediaan Kunci VAPID:** Men-generate pasangan kunci VAPID publik dan privat baru untuk protokol Web Push.
+    *   **Pembaruan Berkas Env:** Mendaftarkan variabel `VAPID_SUBJECT`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, dan `VAPID_PRIVATE_KEY` ke berkas konfigurasi lokal `.env` dan menyelaraskannya ke `.env.example`.
+    *   **Pembaruan Panduan Setup:** Memperbarui [README.md](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/README.md) dengan panduan pembuatan kunci VAPID serta instruksi pembuatan manual tabel `push_subscriptions` di dasbor Supabase SQL Editor apabila terhambat port pooler Drizzle.
+*   **Tujuan:** Menjamin keutuhan instruksi instalasi dan mempermudah pengembang lain untuk mengonfigurasi fitur push notification secara mandiri di lingkungan lokal maupun produksi.
+
 ---
 
 ## 🛠️ Status Kompilasi Proyek
