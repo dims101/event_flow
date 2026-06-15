@@ -31,6 +31,7 @@ export const rundownItems = pgTable('rundown_items', {
   roomId: text('room_id').notNull().references(() => rooms.id, { onDelete: 'cascade' }),
   title: text('title').notNull(),
   durationSeconds: integer('duration_seconds').notNull(),
+  appliedOffsetSeconds: integer('applied_offset_seconds').notNull().default(0),
   targetRole: text('target_role').notNull(), // 'All', 'MC', 'Catering', 'MUA', 'Dokumentasi'
   targetPics: text('target_pics'), // Stores JSON array of PIC names e.g. '["MC", "MUA"]'
   orderIndex: integer('order_index').notNull(),

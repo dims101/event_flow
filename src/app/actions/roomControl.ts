@@ -79,6 +79,17 @@ export async function updateTimerStatusAction(
         ),
       });
 
+      if (item) {
+        try {
+          await db
+            .update(rundownItems)
+            .set({ appliedOffsetSeconds: 0 })
+            .where(eq(rundownItems.id, item.id));
+        } catch (itemErr) {
+          console.error('Failed to reset target rundown item offset:', itemErr);
+        }
+      }
+
       description = item
         ? `Pindah ke sesi "${item.title}" (${status === 'running' ? 'Timer dimulai' : 'Timer dijeda'})`
         : `Pindah ke sesi indeks ${targetIndex}`;
@@ -123,10 +134,21 @@ export async function updateTimerStatusAction(
       currentRundownIndex = -1;
     }
 
+    const updateData: any = {
+      timerStatus: status,
+      timerStartTime,
+      timerElapsedSeconds,
+      currentRundownIndex,
+    };
+
+    if (targetIndex !== undefined || status === 'stopped') {
+      updateData.currentOffsetSeconds = 0;
+    }
+
     // Await only the critical DB update — log runs in background
     await db
       .update(rooms)
-      .set({ timerStatus: status, timerStartTime, timerElapsedSeconds, currentRundownIndex })
+      .set(updateData)
       .where(eq(rooms.id, roomId));
 
     // Fire-and-forget: does not block response
@@ -157,6 +179,28 @@ export async function adjustRoomOffsetAction(roomId: string, seconds: number) {
       .update(rooms)
       .set({ currentOffsetSeconds: newOffset })
       .where(eq(rooms.id, roomId));
+
+    // Update the active rundown item's appliedOffsetSeconds in the database
+    if (room.currentRundownIndex !== -1) {
+      try {
+        const activeItem = await db.query.rundownItems.findFirst({
+          where: and(
+            eq(rundownItems.roomId, roomId),
+            eq(rundownItems.orderIndex, room.currentRundownIndex)
+          ),
+        });
+
+        if (activeItem) {
+          const newAppliedOffset = (activeItem.appliedOffsetSeconds || 0) + seconds;
+          await db
+            .update(rundownItems)
+            .set({ appliedOffsetSeconds: newAppliedOffset })
+            .where(eq(rundownItems.id, activeItem.id));
+        }
+      } catch (itemErr) {
+        console.error('Failed to update active rundown item offset:', itemErr);
+      }
+    }
 
     // Build description string
     const absSeconds = Math.abs(seconds);

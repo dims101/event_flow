@@ -147,6 +147,13 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **Konfirmasi Lompat Sesi:** Menambahkan dialog konfirmasi pada aksi `handleSelectSession` jika EO mengeklik baris rundown atau menekan tombol skip untuk melompat/memulai ulang sesi lain saat ada sesi yang sedang aktif.
 *   **Tujuan:** Melindungi jalannya acara dari ketidaksengajaan klik (*misclicks*) oleh Show Caller saat mengoperasikan dasbor panggung dari perangkat mobile.
 
+### 16. 📊 Pemisahan Waktu Asli dan Waktu Offset untuk Analitik (Analytical Offset & Original Duration Separation)
+*   **Perubahan:**
+    *   **Kolom Skema Database:** Menambahkan kolom `appliedOffsetSeconds` pada tabel `rundownItems` di [schema.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/db/schema.ts) untuk menyimpan riwayat akumulasi offset secara terpisah untuk setiap sesi.
+    *   **Perekaman Offset Aktif:** Memperbarui Server Action `adjustRoomOffsetAction` di [roomControl.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/roomControl.ts) agar ikut mengakumulasikan nilai detik offset ke kolom `appliedOffsetSeconds` sesi yang sedang aktif saat itu.
+    *   **Reset Transisi Sesi:** Memperbarui Server Action `updateTimerStatusAction` di [roomControl.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/roomControl.ts) agar otomatis mereset `appliedOffsetSeconds` target sesi kembali ke `0` saat dimasuki/dimulai ulang, serta mereset `rooms.currentOffsetSeconds` kembali ke `0`.
+*   **Tujuan:** Memisahkan waktu asli rundown dengan waktu offset secara terstruktur untuk analitik keterlambatan (*post-event evaluation*), sekaligus memastikan perpindahan atau lompatan sesi selalu dimulai dengan durasi orisinil (tanpa mewarisi offset sesi sebelumnya).
+
 ---
 
 ## 📅 Pembaruan: 14 Juni 2026
