@@ -45,6 +45,19 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   Merespons perubahan tema di [globals.css](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/globals.css) menggunakan CSS variables `:root` (Light Mode) dan `:root.dark` (Dark Mode), lengkap dengan *custom overrides* untuk kontras gradasi tulisan utama, modal backdrop, serta warna garis pembatas (border) agar tetap tajam dan mudah dibaca di kedua mode.
 *   **Tujuan:** Memberikan keleluasaan bagi kru untuk memilih tema terang yang jelas di bawah terik matahari lapangan atau tema gelap bertingkat tinggi kontras di dalam ballroom yang minim cahaya.
 
+### 7. 🎨 Perbaikan Kontras Warna & Estetika Light Mode
+*   **Perubahan:**
+    *   Mengganti kelas `text-white` statis menjadi `text-slate-100` (yang dipetakan secara dinamis) pada seluruh judul halaman, card, modal, dan teks statis yang sebelumnya tidak terbaca di Light Mode.
+    *   Menambahkan aturan CSS dengan selektor wildcard atribut (`[class*="border-slate-"]`, `[class*="divide-slate-"]`, dan `[class*="bg-slate-900/"]`) di [globals.css](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/globals.css) agar garis batas, pembatas tabel, dan highlight kontainer yang sebelumnya menggunakan opacities tidak menjadi putih transparan yang tidak terlihat, melainkan menggunakan warna arang Atlassian (`rgba(9, 30, 66, 0.08)`).
+    *   Memasang spesifikasi override gradasi warna vertikal (`bg-gradient-to-b from-white to-slate-300`) untuk judul halaman landing utama agar beralih ke warna gradasi gelap berdaya kontras tinggi di Light Mode.
+*   **Tujuan:** Menghadirkan tampilan Light Mode yang tajam, bersih, memiliki batasan visual yang jelas, dan nyaman dibaca oleh pengguna.
+
+### 8. ⚙️ Perbaikan Bug CSRF Server Action & Pencegahan Caching Redirect
+*   **Perubahan:**
+    *   Menambahkan konfigurasi `allowedOrigins` untuk Server Actions di [next.config.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/next.config.ts) guna mengizinkan host pengujian dan tunneling lokal (`*.ngrok-free.app`, `*.trycloudflare.com`, `*.localtunnel.me`), yang sebelumnya memblokir aksi login/register dengan galat "Invalid Server Action" saat diuji melalui gawai seluler.
+    *   Menyuntikkan header `Cache-Control: no-store, max-age=0, must-revalidate` ke seluruh respon pengalihan (*redirect*) pada middleware [proxy.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/proxy.ts) dan API clear auth di [route.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/api/auth/clear/route.ts).
+*   **Tujuan:** Menutup celah bug kegagalan enkripsi Server Action saat pengujian lintas perangkat, serta menghilangkan *infinite loading* akibat *redirect loop* yang disimpan di dalam cache peramban.
+
 ---
 
 ## 📅 Pembaruan: 14 Juni 2026

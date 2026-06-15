@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Timer, MessageSquare, Link2, WifiOff, Sparkles } from "lucide-react";
+import { Timer, MessageSquare, Link2, WifiOff } from "lucide-react";
 
 export default async function Home() {
   const cookieStore = await cookies();
@@ -13,72 +13,72 @@ export default async function Home() {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-slate-950 text-slate-100 px-6">
-      {/* Background gradients */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.15),transparent_50%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(168,85,247,0.1),transparent_50%)]" />
+      {/* Atlassian Blue dynamic background glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(12,102,228,0.12),transparent_55%)] animate-in fade-in duration-1000" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(12,102,228,0.04),transparent_50%)]" />
 
       {/* Hero section */}
-      <div className="relative z-10 max-w-4xl w-full text-center space-y-8 py-12">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 text-sm font-medium">
-          <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-          Hari-H Event Control Panel
+      <div className="relative z-10 max-w-4xl w-full text-center space-y-8 py-16">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-indigo-500/25 bg-indigo-500/10 text-indigo-400 text-xs font-semibold tracking-wide">
+          <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+          Real-Time D-Day Event Coordinator
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent">
+        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-b from-white to-slate-300 bg-clip-text text-transparent font-sans">
           EventFlow<span className="text-indigo-500">.</span>
         </h1>
 
-        <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-          Kendalikan linimasa acara (*rundown*) dan komunikasi tim kru lapangan secara *real-time*, ultra-cepat, dan *offline-resilient* langsung dari gawai Anda.
+        <p className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+          Sinkronisasi jadwal panggung (*rundown*) dan kirim instruksi instan ke kru lapangan secara *real-time* dan *offline-ready* langsung dari HP Anda.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 max-w-md mx-auto">
           <Link
             href="/login"
-            className="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/25 text-center"
+            className="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-all duration-150 text-center shadow-sm select-none"
           >
-            Masuk sebagai EO
+            Masuk Dasbor EO
           </Link>
           <Link
             href="/register"
-            className="w-full sm:w-auto px-8 py-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 font-semibold rounded-xl transition-all duration-200 text-center"
+            className="w-full sm:w-auto px-6 py-3.5 bg-slate-900 border border-slate-800 hover:bg-slate-800 hover:border-slate-700 text-slate-200 font-semibold rounded-lg transition-all duration-150 text-center select-none"
           >
-            Daftar Akun Baru
+            Buat Akun Baru
           </Link>
         </div>
 
         {/* Feature Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-16 text-left">
-          <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/40 backdrop-blur-sm space-y-3">
-            <div className="text-indigo-500"><Timer className="w-8 h-8" /></div>
-            <h3 className="text-lg font-bold text-slate-100 font-sans">Smart Dynamic Rundown</h3>
+          <div className="p-6 rounded-xl border border-slate-900 bg-slate-900/20 backdrop-blur-sm space-y-3 hover:border-slate-800 transition duration-150">
+            <div className="text-indigo-400"><Timer className="w-6 h-6" /></div>
+            <h3 className="text-base font-bold text-slate-100 font-sans">Timeline Dinamis</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Show Caller dapat memajukan, memundurkan, atau menunda jadwal acara secara instan. Jadwal kru otomatis bergeser dalam hitungan milidetik.
+              Show Caller dapat menyesuaikan waktu acara saat terjadi kendala panggung. Jadwal vendor otomatis bergeser dalam hitungan milidetik secara real-time.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/40 backdrop-blur-sm space-y-3">
-            <div className="text-indigo-500"><MessageSquare className="w-8 h-8" /></div>
-            <h3 className="text-lg font-bold text-slate-100 font-sans">Pocket Prompter & Haptic Cues</h3>
+          <div className="p-6 rounded-xl border border-slate-900 bg-slate-900/20 backdrop-blur-sm space-y-3 hover:border-slate-800 transition duration-150">
+            <div className="text-indigo-400"><MessageSquare className="w-6 h-6" /></div>
+            <h3 className="text-base font-bold text-slate-100 font-sans">Pocket Prompter (Pesan Instan)</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Kirim instruksi teks senyap ke divisi tertentu (cth: MC, Catering). Layar berkedip dan memicu getaran haptic secara instan.
+              Kirim instruksi langsung ke gawai divisi tertentu (cth: MC atau Catering). Layar gawai target akan berkedip dan bergetar untuk menarik perhatian kru.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/40 backdrop-blur-sm space-y-3">
-            <div className="text-indigo-500"><Link2 className="w-8 h-8" /></div>
-            <h3 className="text-lg font-bold text-slate-100 font-sans">Vendor Links (No-Login)</h3>
+          <div className="p-6 rounded-xl border border-slate-900 bg-slate-900/20 backdrop-blur-sm space-y-3 hover:border-slate-800 transition duration-150">
+            <div className="text-indigo-400"><Link2 className="w-6 h-6" /></div>
+            <h3 className="text-base font-bold text-slate-100 font-sans">Tautan Akses Tanpa Login</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Cukup bagikan tautan unik via WhatsApp. Kru & vendor luar langsung masuk ke dasbor pantau sesuai perannya tanpa perlu register.
+              Cukup bagikan tautan peran kru via WhatsApp. Kru lapangan dan vendor luar bisa memantau jadwal live secara langsung tanpa perlu mendaftar akun.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/40 backdrop-blur-sm space-y-3">
-            <div className="text-indigo-500"><WifiOff className="w-8 h-8" /></div>
-            <h3 className="text-lg font-bold text-slate-100 font-sans">Offline-Sync Resilient</h3>
+          <div className="p-6 rounded-xl border border-slate-900 bg-slate-900/20 backdrop-blur-sm space-y-3 hover:border-slate-800 transition duration-150">
+            <div className="text-indigo-400"><WifiOff className="w-6 h-6" /></div>
+            <h3 className="text-base font-bold text-slate-100 font-sans">Ketahanan Sinyal Buruk (Offline-Ready)</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
-              Koneksi terputus di dalam ballroom? Aplikasi tetap berjalan, menampilkan jadwal, dan menghitung mundur waktu secara lokal via IndexedDB.
+              Ballroom pernikahan tanpa sinyal? Aplikasi tetap berjalan lancar, memuat jadwal terakhir dari IndexedDB lokal, dan menghitung mundur waktu secara presisi.
             </p>
           </div>
         </div>

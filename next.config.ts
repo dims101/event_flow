@@ -10,6 +10,19 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   /* config options here */
   turbopack: {},
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        'localhost:3000',
+        '127.0.0.1:3000',
+        '*.ngrok-free.app',
+        '*.ngrok.io',
+        '*.trycloudflare.com',
+        '*.localtunnel.me',
+        '*.gitpod.io'
+      ],
+    },
+  },
 };
 
 export default withPWA(nextConfig);

@@ -4,42 +4,43 @@
   --background: var(--bg-1);
   --foreground: var(--text-1);
 
-  /* Light Mode CSS variables based on frontend-ui-dark-ts, ui-tokens, and ui-a11y */
-  --bg-1: #F8FAFC;          /* Main page background */
-  --bg-2: #FFFFFF;          /* Card / Modal surface */
-  --bg-3: #F1F5F9;          /* Inner panels / inputs */
-  --bg-4: #E2E8F0;          /* Muted items */
-  --bg-5: #CBD5E1;          /* Intermediate borders */
-  --bg-6: #94A3B8;          /* Strong borders */
+  /* Light Mode CSS variables based on Atlassian Design System */
+  --bg-1: #FAFBFC;          /* Atlassian neutral page background */
+  --bg-2: #FFFFFF;          /* Card / Modal surface background */
+  --bg-3: #F4F5F7;          /* Inputs / Inner panels / Table headers */
+  --bg-4: #EBECF0;          /* Hover / Item highlights */
+  --bg-5: #DFE1E6;          /* Standard borders / Dividers */
+  --bg-6: #C1C7D0;          /* Disabled states / Strong borders */
 
-  --text-1: #0F172A;        /* Primary text */
-  --text-2: #334155;        /* Secondary text */
-  --text-3: #64748B;        /* Muted text / metadata */
+  --text-1: #091E42;        /* Atlassian Charcoal primary text */
+  --text-2: #42526E;        /* Secondary text / labels */
+  --text-3: #5E6C84;        /* Muted text / metadata */
 
-  --brand-base: #8251EE;
-  --brand-hover: #9366F5;
-  --brand-light: #693CD2;   /* Adjusted for light mode contrast */
-  --brand-subtle: rgba(130, 81, 238, 0.08);
+  --brand-base: #0C66E4;    /* Atlassian Blue */
+  --brand-hover: #0052CC;   /* Darker Atlassian Blue for hover */
+  --brand-light: #388BFF;   /* Active border highlight */
+  --brand-subtle: #DEEBFF;  /* Light blue surface background */
 }
 
 :root.dark {
-  /* Dark Mode CSS variables */
-  --bg-1: #09090B;
-  --bg-2: #121214;
-  --bg-3: #1C1C1F;
-  --bg-4: #2E2E33;
-  --bg-5: #44444A;
-  --bg-6: #5C5C64;
+  /* Dark Mode CSS variables based on Atlassian Design System */
+  --bg-1: #1D2125;          /* Atlassian dark neutral page background */
+  --bg-2: #22272B;          /* Card / Modal surface background */
+  --bg-3: #2C333A;          /* Inputs / Inner panels / Table headers */
+  --bg-4: #3C444E;          /* Hover / Item highlights */
+  --bg-5: #454F59;          /* Standard borders / Dividers */
+  --bg-6: #5A6673;          /* Disabled states / Strong borders */
 
-  --text-1: #FFFFFF;
-  --text-2: #E4E4E9;
-  --text-3: #A1A1AA;
+  --text-1: #E4E6EA;        /* Atlassian dark primary text */
+  --text-2: #9FADBC;        /* Secondary text / labels */
+  --text-3: #8C9BAB;        /* Muted text / metadata */
 
-  --brand-base: #8251EE;
-  --brand-hover: #9366F5;
-  --brand-light: #B497FF;
-  --brand-subtle: rgba(130, 81, 238, 0.20);
+  --brand-base: #579DFF;    /* Bright Atlassian Blue in dark mode */
+  --brand-hover: #85B8FF;   /* Lighter blue for hover */
+  --brand-light: #0C66E4;   /* Active border highlight */
+  --brand-subtle: #1C2B41;  /* Dark blue surface background */
 }
+
 
 @theme {
   /* Map Tailwind slate classes to dynamic CSS variables */
@@ -93,21 +94,47 @@ body {
     background-image: linear-gradient(to right, var(--color-slate-950), var(--color-slate-700), var(--color-indigo-600)) !important;
   }
 
-  /* 2. Border contrast normalization (map dark borders to clean, semi-transparent light borders) */
-  .border-slate-950, .border-b-slate-950, .border-t-slate-950, .border-r-slate-950, .border-l-slate-950,
-  .border-slate-900, .border-b-slate-900, .border-t-slate-900, .border-r-slate-900, .border-l-slate-900,
-  .border-slate-850, .border-b-slate-850, .border-t-slate-850, .border-r-slate-850, .border-l-slate-850,
-  .border-slate-800, .border-b-slate-800, .border-t-slate-800, .border-r-slate-800, .border-l-slate-800 {
-    border-color: rgba(15, 23, 42, 0.08) !important;
+  h1.bg-gradient-to-b.from-white.to-slate-300 {
+    background-image: linear-gradient(to bottom, var(--color-slate-950), var(--color-slate-700)) !important;
   }
 
-  .border-slate-700, .border-b-slate-700, .border-t-slate-700, .border-r-slate-700, .border-l-slate-700 {
-    border-color: rgba(15, 23, 42, 0.16) !important;
+  /* 2. Border & Divider contrast normalization (handles all sides, opacities, and divides) */
+  [class*="border-slate-"],
+  [class*="border-t-slate-"],
+  [class*="border-b-slate-"],
+  [class*="border-r-slate-"],
+  [class*="border-l-slate-"],
+  [class*="divide-slate-"] > :not([hidden]) ~ :not([hidden]) {
+    border-color: rgba(9, 30, 66, 0.08) !important;
   }
 
-  /* 3. Modal backdrop visibility */
+  [class*="border-slate-700"],
+  [class*="border-t-slate-700"],
+  [class*="border-b-slate-700"],
+  [class*="border-r-slate-700"],
+  [class*="border-l-slate-700"],
+  [class*="border-slate-600"],
+  [class*="border-t-slate-600"],
+  [class*="border-b-slate-600"],
+  [class*="border-r-slate-600"],
+  [class*="border-l-slate-600"] {
+    border-color: rgba(9, 30, 66, 0.16) !important;
+  }
+
+  /* 3. Background opacity normalization (resolves transparent slate overlays to subtle grey) */
+  [class*="bg-slate-900/"],
+  [class*="bg-slate-950/"] {
+    background-color: rgba(9, 30, 66, 0.04) !important;
+  }
+
+  [class*="hover:bg-slate-900/"]:hover,
+  [class*="hover:bg-slate-950/"]:hover {
+    background-color: rgba(9, 30, 66, 0.08) !important;
+  }
+
+  /* 4. Modal backdrop visibility */
   .bg-slate-950\/80 {
-    background-color: rgba(15, 23, 42, 0.40) !important;
+    background-color: rgba(9, 30, 66, 0.40) !important;
   }
 }
 

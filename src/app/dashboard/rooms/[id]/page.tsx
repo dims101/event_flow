@@ -74,7 +74,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
   const rundownBuilder = (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       <div className="lg:col-span-2 space-y-4">
-        <h4 className="text-md font-bold text-white uppercase tracking-wider font-sans">
+        <h4 className="text-md font-bold text-slate-100 uppercase tracking-wider font-sans">
           Jadwal Acara ({items.length} Sesi)
         </h4>
         <RundownTable items={items} />
@@ -109,7 +109,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
             <span>/</span>
             <span className="text-slate-400">Manage Room</span>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white font-sans">{room.name}</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-100 font-sans">{room.name}</h1>
           <p className="text-slate-400 text-sm mt-1 flex items-center gap-1.5 font-mono">
             <Calendar className="w-4 h-4 text-indigo-400" />
             <span>{formattedDate}</span>

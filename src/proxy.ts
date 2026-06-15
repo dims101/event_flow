@@ -6,11 +6,15 @@ export function proxy(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   if (path.startsWith('/dashboard') && !session) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    const res = NextResponse.redirect(new URL('/login', request.url));
+    res.headers.set('Cache-Control', 'no-store, max-age=0, must-revalidate');
+    return res;
   }
 
   if ((path === '/login' || path === '/register' || path === '/') && session) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    const res = NextResponse.redirect(new URL('/dashboard', request.url));
+    res.headers.set('Cache-Control', 'no-store, max-age=0, must-revalidate');
+    return res;
   }
 
   return NextResponse.next();

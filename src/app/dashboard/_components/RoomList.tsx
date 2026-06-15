@@ -37,13 +37,13 @@ export default function RoomList({ initialRooms }: RoomListProps) {
 
   if (initialRooms.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center border border-dashed border-slate-800 rounded-2xl p-16 text-center bg-slate-900/10">
-        <div className="mx-auto w-12 h-12 rounded-xl bg-slate-850 flex items-center justify-center text-slate-500 mb-4">
+      <div className="flex flex-col items-center justify-center border border-dashed border-slate-800 rounded-xl p-16 text-center bg-slate-900/5">
+        <div className="mx-auto w-12 h-12 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 mb-4">
           <CalendarDays className="w-6 h-6" />
         </div>
-        <h3 className="text-lg font-semibold text-slate-300 font-sans">Belum Ada Event</h3>
-        <p className="text-sm text-slate-500 max-w-sm mt-1 leading-relaxed">
-          Buat event baru dengan mengklik tombol di atas untuk mulai menyusun rundown dan mengontrol D-Day.
+        <h3 className="text-base font-bold text-slate-200 font-sans">Belum ada event yang dibuat</h3>
+        <p className="text-sm text-slate-400 max-w-sm mt-1 leading-relaxed">
+          Mulai kelola rundown panggung Anda. Klik tombol "Buat Event Baru" di atas untuk membuat ruangan event pertama Anda.
         </p>
       </div>
     );
@@ -62,38 +62,38 @@ export default function RoomList({ initialRooms }: RoomListProps) {
         return (
           <div
             key={room.id}
-            className="flex flex-col justify-between border border-slate-900 bg-slate-900/20 rounded-2xl p-6 hover:border-slate-800 hover:bg-slate-900/40 transition-all duration-200"
+            className="flex flex-col justify-between border border-slate-900/40 bg-slate-900 rounded-xl p-6 hover:border-slate-800 hover:bg-slate-900/60 transition-all duration-150"
           >
             <div>
               <div className="flex items-start justify-between gap-4">
-                <h3 className="font-bold text-lg text-white group-hover:text-indigo-400 transition duration-150 font-sans">
+                <h3 className="font-bold text-base text-slate-100 hover:text-indigo-400 transition duration-150 font-sans">
                   {room.name}
                 </h3>
-                <span className="shrink-0 text-xs px-2.5 py-0.5 rounded-full border border-slate-800 bg-slate-950 text-slate-400">
+                <span className="shrink-0 text-[10px] px-2 py-0.5 rounded border border-slate-800 bg-slate-950 text-slate-400 font-bold uppercase tracking-wider">
                   Room
                 </span>
               </div>
-              <p className="text-sm text-slate-400 mt-2 flex items-center gap-1.5 font-mono">
-                <Calendar className="w-4 h-4 text-indigo-400" />
+              <p className="text-xs text-slate-400 mt-3 flex items-center gap-1.5 font-mono">
+                <Calendar className="w-3.5 h-3.5 text-indigo-400" />
                 <span>{formattedDate}</span>
               </p>
             </div>
 
-            <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-900">
+            <div className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-900/40">
               <Link
                 href={`/dashboard/rooms/${room.id}`}
-                className="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-sm font-semibold rounded-xl text-center transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px]"
+                className="flex-1 py-2 bg-slate-850 hover:bg-slate-800 text-slate-200 hover:text-slate-100 text-xs font-semibold rounded-lg text-center transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer min-h-[36px] select-none"
               >
                 <span>Kelola Event</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
               <button
                 onClick={() => handleDelete(room.id, room.name)}
                 disabled={isPending}
-                className="p-2.5 text-slate-500 hover:text-red-400 hover:bg-red-500/10 border border-slate-800 hover:border-red-500/20 rounded-xl transition duration-150 cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 border border-slate-800 hover:border-red-500/20 rounded-lg transition duration-150 cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center select-none"
                 title="Hapus Event"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

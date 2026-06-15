@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Copy, Check, Send, ShieldAlert, Share2 } from 'lucide-react';
+import { Copy, Check, Send, Share2 } from 'lucide-react';
 
 interface RoleToken {
   role: string;
@@ -16,13 +16,13 @@ interface SharePanelProps {
 const getRoleDescription = (role: string) => {
   switch (role) {
     case 'All':
-      return 'Melihat semua aktivitas dan rundown lengkap secara umum.';
+      return 'Melihat rundown lengkap dan seluruh pembaruan aktivitas secara umum.';
     case 'MC':
-      return 'Melihat rundown dengan fokus prompter dan instruksi MC.';
+      return 'Melihat rundown dengan fokus instruksi panggung khusus untuk MC.';
     case 'Catering':
-      return 'Melihat waktu pelayanan hidangan dan pesan divisi katering.';
+      return 'Memantau kesiapan hidangan dan waktu pelayanan katering lapangan.';
     case 'MUA':
-      return 'Memantau kesiapan rias pengantin dan jadwal ganti baju.';
+      return 'Memantau jadwal rias pengantin dan waktu ganti busana di lokasi.';
     default:
       return 'Tautan pantau tim lapangan.';
   }
@@ -52,13 +52,13 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
   };
 
   return (
-    <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm space-y-6">
+    <div className="bg-slate-900 border border-slate-900/40 rounded-xl p-6 space-y-6">
       <div className="flex items-start gap-2.5">
         <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 shrink-0">
           <Share2 className="w-5 h-5" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-white font-sans">Bagikan Tautan Akses Kru</h3>
+          <h3 className="text-lg font-bold text-slate-100 font-sans">Bagikan Tautan Akses Kru</h3>
           <p className="text-sm text-slate-400 mt-1">
             Kru lapangan tidak perlu login. Cukup klik tautan unik ini untuk memantau waktu secara live.
           </p>
@@ -69,12 +69,12 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
         {tokens.map((token) => (
           <div
             key={token.role}
-            className="flex flex-col justify-between border border-slate-800 bg-slate-950/40 rounded-xl p-5 space-y-4 hover:border-slate-700 transition duration-150"
+            className="flex flex-col justify-between border border-slate-800/80 bg-slate-950/40 rounded-xl p-5 space-y-4 hover:border-slate-850 transition duration-150"
           >
             <div>
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-100 font-sans">{token.role} Role</span>
-                <span className="text-[10px] px-2.5 py-0.5 rounded-full border border-slate-800 bg-slate-900 text-slate-400 font-bold tracking-wider uppercase">
+                <span className="text-[10px] px-2.5 py-0.5 rounded border border-slate-800 bg-slate-900 text-slate-400 font-bold tracking-wider uppercase">
                   Live View
                 </span>
               </div>
@@ -83,10 +83,10 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 pt-3 border-t border-slate-900">
+            <div className="flex items-center gap-2 pt-3 border-t border-slate-900/40">
               <button
                 onClick={() => handleCopy(token.token, token.role)}
-                className="flex-1 py-2.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-lg transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px]"
+                className="flex-1 py-2 text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-lg transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer min-h-[36px] select-none"
               >
                 {copiedId === token.role ? (
                   <>
@@ -102,7 +102,7 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
               </button>
               <button
                 onClick={() => handleWhatsApp(token.token, token.role)}
-                className="p-2.5 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150 text-xs flex items-center justify-center cursor-pointer min-h-[44px] min-w-[44px]"
+                className="p-2 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150 text-xs flex items-center justify-center cursor-pointer min-h-[36px] min-w-[36px] select-none"
                 title="Kirim ke WhatsApp"
               >
                 <Send className="w-4 h-4" />

@@ -6,5 +6,7 @@ export async function GET(request: Request) {
   cookieStore.delete('session');
   
   const { origin } = new URL(request.url);
-  return NextResponse.redirect(new URL('/login', origin));
+  const res = NextResponse.redirect(new URL('/login', origin));
+  res.headers.set('Cache-Control', 'no-store, max-age=0, must-revalidate');
+  return res;
 }

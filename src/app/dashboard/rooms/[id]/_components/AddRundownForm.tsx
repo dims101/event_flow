@@ -32,16 +32,19 @@ export default function AddRundownForm({ roomId }: AddRundownFormProps) {
   };
 
   return (
-    <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm">
-      <h3 className="text-lg font-bold text-white mb-4 font-sans flex items-center gap-2">
-        <Sparkles className="w-5 h-5 text-indigo-400" />
+    <div className="bg-slate-900 border border-slate-900/40 rounded-xl p-6">
+      <h3 className="text-base font-bold text-slate-100 mb-4 font-sans flex items-center gap-2">
+        <Sparkles className="w-5 h-5 text-indigo-450" />
         <span>Tambah Sesi Rundown</span>
       </h3>
 
       {error && (
-        <div className="mb-4 p-3 rounded-xl border border-red-500/20 bg-red-500/10 text-red-400 text-xs flex items-start gap-1.5 animate-in fade-in duration-150">
+        <div className="mb-4 p-3 rounded-lg border border-red-500/20 bg-red-500/10 text-red-400 text-xs flex items-start gap-1.5 animate-in fade-in duration-150">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-          <span>{error}</span>
+          <div className="flex-1">
+            <span className="font-semibold block mb-0.5">Gagal menambahkan sesi</span>
+            <span>{error}</span>
+          </div>
         </div>
       )}
 
@@ -49,7 +52,7 @@ export default function AddRundownForm({ roomId }: AddRundownFormProps) {
         <input type="hidden" name="roomId" value={roomId} />
 
         <div className="space-y-1">
-          <label htmlFor="title" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          <label htmlFor="title" className="text-xs font-bold text-slate-400 tracking-wide">
             Nama Sesi / Kegiatan
           </label>
           <input
@@ -57,14 +60,14 @@ export default function AddRundownForm({ roomId }: AddRundownFormProps) {
             name="title"
             type="text"
             required
-            placeholder="e.g. Sambutan Pihak Keluarga"
-            className="w-full px-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-650 focus:outline-none focus:border-indigo-500 transition duration-150 text-base"
+            placeholder="Contoh: Sambutan Pihak Keluarga"
+            className="w-full px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-655 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label htmlFor="durationMinutes" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label htmlFor="durationMinutes" className="text-xs font-bold text-slate-400 tracking-wide">
               Durasi (Menit)
             </label>
             <input
@@ -73,20 +76,20 @@ export default function AddRundownForm({ roomId }: AddRundownFormProps) {
               type="number"
               min="1"
               required
-              placeholder="e.g. 15"
-              className="w-full px-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-650 focus:outline-none focus:border-indigo-500 transition duration-150 text-base"
+              placeholder="Contoh: 15"
+              className="w-full px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-655 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm"
             />
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="targetRole" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Target Divisi / Peran
+            <label htmlFor="targetRole" className="text-xs font-bold text-slate-400 tracking-wide">
+              Target Divisi
             </label>
             <select
               id="targetRole"
               name="targetRole"
               required
-              className="w-full px-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 focus:outline-none focus:border-indigo-500 transition duration-150 text-base appearance-none"
+              className="w-full px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm appearance-none cursor-pointer"
             >
               <option value="All">Semua Kru (All)</option>
               <option value="MC">Master of Ceremony (MC)</option>
@@ -100,7 +103,7 @@ export default function AddRundownForm({ roomId }: AddRundownFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white text-sm font-semibold rounded-lg transition duration-150 flex items-center justify-center gap-2 mt-2 cursor-pointer min-h-[48px]"
+          className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white text-xs font-semibold rounded-lg transition duration-150 flex items-center justify-center gap-1.5 mt-2 cursor-pointer min-h-[36px] select-none"
         >
           {isPending ? (
             <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
