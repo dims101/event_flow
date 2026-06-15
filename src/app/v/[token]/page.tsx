@@ -1,7 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
-import { roleTokens, rooms } from '@/db/schema';
+import { roleTokens, rooms, rundownItems, prompterMessages } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import VendorView from './_components/VendorView';
 import { AlertCircle } from 'lucide-react';
@@ -32,10 +32,21 @@ export default async function VendorPage({ params }: VendorPageProps) {
     );
   }
 
-  // 2. Fetch room details
-  const room = await db.query.rooms.findFirst({
-    where: eq(rooms.id, tokenData.roomId),
-  });
+  // 2. Fetch room details, items, and messages in parallel on the server
+  const [room, items, messages] = await Promise.all([
+    db.query.rooms.findFirst({
+      where: eq(rooms.id, tokenData.roomId),
+    }),
+    db.query.rundownItems.findMany({
+      where: eq(rundownItems.roomId, tokenData.roomId),
+      orderBy: (rundownItems, { asc }) => [asc(rundownItems.orderIndex)],
+    }),
+    db.query.prompterMessages.findMany({
+      where: eq(prompterMessages.roomId, tokenData.roomId),
+      orderBy: (prompterMessages, { desc }) => [desc(prompterMessages.createdAt)],
+      limit: 15,
+    }),
+  ]);
 
   if (!room) {
     notFound();
@@ -47,6 +58,9 @@ export default async function VendorPage({ params }: VendorPageProps) {
       roomName={room.name}
       vendorRole={tokenData.role}
       token={token}
+      initialRoom={room}
+      initialItems={items}
+      initialMessages={messages}
     />
   );
 }

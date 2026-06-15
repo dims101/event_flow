@@ -14,6 +14,9 @@ interface VendorViewProps {
   roomName: string;
   vendorRole: string;
   token: string;
+  initialRoom: any;
+  initialItems: any[];
+  initialMessages: any[];
 }
 
 interface RoomState {
@@ -83,16 +86,61 @@ const playSound = (type: 'message' | 'timer') => {
   }
 };
 
-export default function VendorView({ roomId, roomName, vendorRole, token }: VendorViewProps) {
+const mapRoom = (dbRoom: any) => {
+  if (!dbRoom) return null;
+  return {
+    id: dbRoom.id,
+    name: dbRoom.name,
+    eventDate: dbRoom.event_date || dbRoom.eventDate,
+    userId: dbRoom.user_id || dbRoom.userId,
+    currentOffsetSeconds: dbRoom.current_offset_seconds !== undefined ? dbRoom.current_offset_seconds : dbRoom.currentOffsetSeconds,
+    currentRundownIndex: dbRoom.current_rundown_index !== undefined ? dbRoom.current_rundown_index : dbRoom.currentRundownIndex,
+    timerStatus: dbRoom.timer_status || dbRoom.timerStatus,
+    timerStartTime: dbRoom.timer_start_time !== undefined ? dbRoom.timer_start_time : dbRoom.timerStartTime,
+    timerElapsedSeconds: dbRoom.timer_elapsed_seconds !== undefined ? dbRoom.timer_elapsed_seconds : dbRoom.timerElapsedSeconds,
+  };
+};
+
+const mapMessage = (dbMsg: any) => {
+  if (!dbMsg) return null;
+  return {
+    id: dbMsg.id,
+    roomId: dbMsg.room_id || dbMsg.roomId,
+    targetRole: dbMsg.target_role || dbMsg.targetRole,
+    message: dbMsg.message,
+    createdAt: dbMsg.created_at !== undefined ? Number(dbMsg.created_at) : dbMsg.createdAt,
+  };
+};
+
+const mapLog = (dbLog: any) => {
+  if (!dbLog) return null;
+  return {
+    id: dbLog.id,
+    roomId: dbLog.room_id || dbLog.roomId,
+    actionType: dbLog.action_type || dbLog.actionType,
+    description: dbLog.description,
+    createdAt: dbLog.created_at !== undefined ? Number(dbLog.createdAt) : dbLog.createdAt,
+  };
+};
+
+export default function VendorView({ 
+  roomId, 
+  roomName, 
+  vendorRole, 
+  token,
+  initialRoom,
+  initialItems,
+  initialMessages 
+}: VendorViewProps) {
   // 1. Core States
   const [state, setState] = useState<{
     room: RoomState | null;
     items: RundownItem[];
     messages: PrompterMessage[];
   }>({
-    room: null,
-    items: [],
-    messages: [],
+    room: mapRoom(initialRoom),
+    items: initialItems,
+    messages: initialMessages.map(mapMessage).filter(Boolean) as any[],
   });
 
   const [isOnline, setIsOnline] = useState(true);
@@ -196,43 +244,7 @@ export default function VendorView({ roomId, roomName, vendorRole, token }: Vend
     prevStatus.current = state.room.timerStatus;
   }, [state.room]);
 
-  // Helper mapper functions to convert database snake_case keys to camelCase models
-  const mapRoom = (dbRoom: any) => {
-    if (!dbRoom) return null;
-    return {
-      id: dbRoom.id,
-      name: dbRoom.name,
-      eventDate: dbRoom.event_date || dbRoom.eventDate,
-      userId: dbRoom.user_id || dbRoom.userId,
-      currentOffsetSeconds: dbRoom.current_offset_seconds !== undefined ? dbRoom.current_offset_seconds : dbRoom.currentOffsetSeconds,
-      currentRundownIndex: dbRoom.current_rundown_index !== undefined ? dbRoom.current_rundown_index : dbRoom.currentRundownIndex,
-      timerStatus: dbRoom.timer_status || dbRoom.timerStatus,
-      timerStartTime: dbRoom.timer_start_time !== undefined ? dbRoom.timer_start_time : dbRoom.timerStartTime,
-      timerElapsedSeconds: dbRoom.timer_elapsed_seconds !== undefined ? dbRoom.timer_elapsed_seconds : dbRoom.timerElapsedSeconds,
-    };
-  };
 
-  const mapMessage = (dbMsg: any) => {
-    if (!dbMsg) return null;
-    return {
-      id: dbMsg.id,
-      roomId: dbMsg.room_id || dbMsg.roomId,
-      targetRole: dbMsg.target_role || dbMsg.targetRole,
-      message: dbMsg.message,
-      createdAt: dbMsg.created_at !== undefined ? Number(dbMsg.created_at) : dbMsg.createdAt,
-    };
-  };
-
-  const mapLog = (dbLog: any) => {
-    if (!dbLog) return null;
-    return {
-      id: dbLog.id,
-      roomId: dbLog.room_id || dbLog.roomId,
-      actionType: dbLog.action_type || dbLog.actionType,
-      description: dbLog.description,
-      createdAt: dbLog.created_at !== undefined ? Number(dbLog.created_at) : dbLog.createdAt,
-    };
-  };
 
   // 3. Supabase Realtime Connection (Only when online)
   useEffect(() => {
