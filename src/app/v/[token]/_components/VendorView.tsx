@@ -996,7 +996,7 @@ export default function VendorView({
             if (frameRoom.timerStatus === 'running' && frameRoom.timerStartTime) {
               elapsed += (Date.now() - frameRoom.timerStartTime) / 1000;
             }
-            const totalAllowed = frameActiveItem.durationSeconds + frameRoom.currentOffsetSeconds;
+            const totalAllowed = frameActiveItem.durationSeconds + (frameRoom.currentOffsetSeconds || 0);
             isFrameOvertime = (totalAllowed - elapsed) < 0;
           }
 
