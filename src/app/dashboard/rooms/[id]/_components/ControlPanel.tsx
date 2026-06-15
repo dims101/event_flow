@@ -446,7 +446,7 @@ export default function ControlPanel({
         const activeMsg = activeAlertRef.current;
 
         if (container) {
-          container.className = `relative min-h-screen grid grid-cols-[1.2fr_1fr] gap-2 font-sans p-2 select-none transition-colors duration-300 ${
+          container.className = `relative min-h-screen grid grid-cols-[0.8fr_1.2fr] gap-2 font-sans p-2 select-none transition-colors duration-300 ${
             over ? 'bg-rose-950 animate-pulse-slow' : 'bg-slate-950'
           }`;
         }
@@ -475,8 +475,7 @@ export default function ControlPanel({
             const isActive = index === curIdx;
             html += `
               <div class="pip-item ${isActive ? 'pip-item-active' : 'pip-item-inactive'}">
-                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px;">${index + 1}. ${item.title}</span>
-                <span style="font-family: monospace; font-size: 8px; opacity: 0.8; margin-left: 4px;">${item.durationSeconds / 60}m</span>
+                <span class="pip-item-text">${index + 1}. ${item.title}</span>
               </div>
             `;
           }
@@ -710,7 +709,7 @@ export default function ControlPanel({
         // Initialize PiP structure
         const pipDiv = pipWindow.document.createElement('div');
         pipDiv.innerHTML = `
-          <div id="pip-container" class="relative min-h-screen grid grid-cols-[1.2fr_1fr] gap-2 font-sans p-2 select-none bg-slate-950 text-slate-100">
+          <div id="pip-container" class="relative min-h-screen grid grid-cols-[0.8fr_1.2fr] gap-2 font-sans p-2 select-none bg-slate-950 text-slate-100">
             <!-- Left: Rundown List -->
             <div id="pip-rundown-list" class="flex flex-col gap-1 pr-1.5 border-r border-slate-900/60 overflow-hidden text-[9px] justify-center">
               <!-- Items will be injected here dynamically -->
@@ -766,24 +765,30 @@ export default function ControlPanel({
           .pip-item {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 1px 4px;
+            padding: 2px 4px;
             border-radius: 4px;
             margin: 1px 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
             transition: all 0.15s ease;
+            white-space: normal;
+          }
+          .pip-item-text {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            word-break: break-word;
+            line-height: 1.1;
           }
           .pip-item-active {
             font-weight: 800;
-            font-size: 10px;
+            font-size: 9.5px;
             color: #818cf8;
             background-color: rgba(99, 102, 241, 0.1);
             border-left: 2px solid #6366f1;
             padding-left: 3px;
           }
           .pip-item-inactive {
+            font-size: 8.5px;
             color: #94a3b8;
           }
         `;
@@ -848,8 +853,7 @@ export default function ControlPanel({
             const isActive = index === curIdx;
             html += `
               <div class="pip-item ${isActive ? 'pip-item-active' : 'pip-item-inactive'}">
-                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px;">${index + 1}. ${item.title}</span>
-                <span style="font-family: monospace; font-size: 8px; opacity: 0.8; margin-left: 4px;">${item.durationSeconds / 60}m</span>
+                <span class="pip-item-text">${index + 1}. ${item.title}</span>
               </div>
             `;
           }
@@ -1028,8 +1032,8 @@ export default function ControlPanel({
           }
         } else {
           // Draw vertical separator
-          const leftWidth = 165;
-          const rightStart = 175;
+          const leftWidth = 130;
+          const rightStart = 140;
           const rightCenterX = rightStart + (canvas.width - rightStart) / 2;
 
           ctx.strokeStyle = isDark ? '#1e293b' : '#e2e8f0';
@@ -1052,7 +1056,7 @@ export default function ControlPanel({
             
             let yOffset = 15;
             ctx.textAlign = 'left';
-            ctx.textBaseline = 'middle';
+            ctx.textBaseline = 'top';
             
             for (let index = start; index < end; index++) {
               const item = frameItems[index];
@@ -1060,41 +1064,50 @@ export default function ControlPanel({
               const isActive = index === curIdx;
               
               if (isActive) {
-                ctx.font = 'bold 10px sans-serif';
+                ctx.font = 'bold 9.5px sans-serif';
                 ctx.fillStyle = isDark ? '#818cf8' : '#0c66e4'; // Mencolok
-                // Draw small active indicator bar
-                ctx.fillStyle = isDark ? '#6366f1' : '#0c66e4';
-                ctx.fillRect(2, yOffset - 6, 2, 12);
-                ctx.fillStyle = isDark ? '#818cf8' : '#0c66e4';
               } else {
                 ctx.font = '9px sans-serif';
                 ctx.fillStyle = colorTextMuted;
               }
               
-              // Draw title
+              // Wrap text dynamically for canvas
               const itemNum = `${index + 1}. `;
-              const titleText = item.title;
-              const fullText = itemNum + titleText;
-              const maxTextWidth = leftWidth - 25;
-              let drawText = fullText;
-              if (ctx.measureText(fullText).width > maxTextWidth) {
-                while (ctx.measureText(drawText + '…').width > maxTextWidth && drawText.length > 0) {
-                  drawText = drawText.slice(0, -1);
+              const fullText = itemNum + item.title;
+              const maxTextWidth = leftWidth - 10;
+              
+              const words = fullText.split(' ');
+              const lines: string[] = [];
+              let currentLine = '';
+              for (let w = 0; w < words.length; w++) {
+                const testLine = currentLine ? currentLine + ' ' + words[w] : words[w];
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxTextWidth && currentLine) {
+                  lines.push(currentLine);
+                  currentLine = words[w];
+                } else {
+                  currentLine = testLine;
                 }
-                drawText += '…';
+              }
+              if (currentLine) {
+                lines.push(currentLine);
               }
               
-              ctx.fillText(drawText, isActive ? 8 : 6, yOffset);
+              const displayLines = lines.slice(0, 3);
               
-              // Draw duration on the right of the left column
-              ctx.textAlign = 'right';
-              ctx.font = '8px monospace';
-              ctx.fillText(`${item.durationSeconds / 60}m`, leftWidth - 2, yOffset);
+              // Draw active indicator bar
+              if (isActive) {
+                ctx.fillStyle = isDark ? '#6366f1' : '#0c66e4';
+                ctx.fillRect(2, yOffset, 2, displayLines.length * 10);
+                ctx.fillStyle = isDark ? '#818cf8' : '#0c66e4';
+              }
               
-              // Restore align
-              ctx.textAlign = 'left';
+              displayLines.forEach((line, lineIdx) => {
+                ctx.fillText(line, isActive ? 8 : 6, yOffset + lineIdx * 10);
+              });
               
-              yOffset += 18;
+              yOffset += displayLines.length * 10 + 6;
+              if (yOffset > canvas.height - 5) break;
             }
           }
 

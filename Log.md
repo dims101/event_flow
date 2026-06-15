@@ -8,11 +8,13 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ### 1. 📋 Jendela Samping Playlist Rundown di Jendela Melayang (PiP Sidebar Playlist)
 *   **Perubahan:**
-    *   **Document PiP Grid Layout (`ControlPanel.tsx` & `VendorView.tsx`):** Memperluas dimensi viewport Document PiP menjadi `480px × 200px` dan mendesain ulang antarmuka HTML dengan CSS Grid dua kolom (kiri: rundown playlist, kanan: kontrol timer dan wall clock).
+    *   **Document PiP Grid Layout & Optimization (`ControlPanel.tsx` & `VendorView.tsx`):** Memperluas dimensi viewport Document PiP menjadi `480px × 200px` dan mengoptimalkan pembagian ruang kolom dengan proporsi `grid-cols-[0.8fr_1.2fr]` (lebar playlist dipersempit untuk memaksimalkan area tampilan timer utama).
+    *   **Penyederhanaan Sesi & Wrapping Teks:** Menghapus durasi sesi (`m`) dari daftar playlist rundown dan mengizinkan nama sesi yang panjang untuk melakukan pembungkusan teks (*text wrapping*) otomatis hingga maksimal 2-3 baris menggunakan CSS `-webkit-line-clamp: 3`.
     *   **Sliding Window Karaoke Algorithm:** Mengimplementasikan pagination geser otomatis (sliding window) berkapasitas 8 baris sesi rundown. Jika indeks sesi aktif berada di baris ke-7 atau lebih (`curIdx >= 7`), daftar rundown akan tergeser ke atas (`start = Math.max(0, Math.min(total - 8, curIdx - 1))`) untuk memastikan sesi aktif selalu terlihat di dekat bagian atas daftar (seperti subtitle karaoke).
-    *   **Indikator Sesi Aktif Visual:** Menandai sesi aktif dengan teks lebih tebal (`font-weight: 800`), ukuran font lebih besar (`10px`), warna teks mencolok (`#818cf8`), highlight latar belakang, dan border penunjuk khusus di sebelah kiri. Sesi tidak aktif menggunakan visual redup (`#94a3b8`).
-    *   **Canvas Fallback PiP Partitioning (`ControlPanel.tsx` & `VendorView.tsx`):** Membagi area canvas fallback PiP (`400px × 160px`) menjadi dua bagian menggunakan garis pembatas vertikal. Di kolom kiri (X: 0 s.d. 165), rundown playlist digambar lengkap dengan active indicator bar dan kalkulasi auto-crop elipsis judul sesi. Di kolom kanan (centered pada `rightCenterX = 287`), status dot, timer (ukuran font disesuaikan menjadi `44px`), jam dinding, dan pesan prompter digambar secara dinamis.
-*   **Tujuan:** Mempermudah kru lapangan dan show caller memantau jalannya lini masa acara (sebelum dan sesudah sesi aktif) secara real-time langsung dari mode melayang (PiP) tanpa menutup window lain.
+    *   **Indikator Sesi Aktif Visual:** Menandai sesi aktif dengan teks lebih tebal (`font-weight: 800`), ukuran font `9.5px` (dan `8.5px` untuk sesi tidak aktif), warna teks mencolok (`#818cf8`), highlight latar belakang, dan border penunjuk khusus di sebelah kiri.
+    *   **Canvas Fallback PiP Partitioning (`ControlPanel.tsx` & `VendorView.tsx`):** Membagi area canvas fallback PiP (`400px × 160px`) menjadi dua bagian dengan memosisikan garis separator vertikal lebih ke kiri (`leftWidth = 130` dari sebelumnya `165`) untuk memaksimalkan lebar area timer (centered pada `rightCenterX = 270`).
+    *   **Canvas Text Wrapping:** Mengimplementasikan pemotong kata dinamis berbasis lebar piksel teks (`ctx.measureText`) pada Canvas fallback untuk membungkus judul sesi secara otomatis hingga maksimal 3 baris di dalam batas area playlist kiri ($120\text{px}$).
+*   **Tujuan:** Memaksimalkan keterbacaan digit angka timer utama dalam jendela melayang (PiP) serta memastikan seluruh nama sesi yang panjang tetap terbaca seutuhnya tanpa terpotong elipsis satu baris.
 
 ---
 
