@@ -183,7 +183,9 @@ export default function VendorView({
   useEffect(() => {
     return () => {
       if (pipWindowRef.current) {
-        pipWindowRef.current.close();
+        try {
+          pipWindowRef.current.close();
+        } catch (e) {}
       }
     };
   }, []);
@@ -389,13 +391,27 @@ export default function VendorView({
         
         // Update Document PiP if active
         if (pipWindowRef.current) {
-          const doc = pipWindowRef.current.document;
-          const timerEl = doc.getElementById('pip-timer');
-          const statusEl = doc.getElementById('pip-status');
-          const titleEl = doc.getElementById('pip-title');
-          if (timerEl) timerEl.innerText = '00:00';
-          if (statusEl) statusEl.innerText = 'STOPPED';
-          if (titleEl) titleEl.innerText = '(BELUM DIMULAI)';
+          try {
+            const doc = pipWindowRef.current.document;
+            if (doc) {
+              const timerEl = doc.getElementById('pip-timer');
+              const statusEl = doc.getElementById('pip-status');
+              const titleEl = doc.getElementById('pip-title');
+              if (timerEl) timerEl.innerText = '00:00';
+              if (statusEl) statusEl.innerText = 'STOPPED';
+              if (titleEl) titleEl.innerText = '(BELUM DIMULAI)';
+            } else {
+              pipWindowRef.current = null;
+              setIsPipActive(false);
+            }
+          } catch (pipErr) {
+            console.error('Error updating PiP window document on stop:', pipErr);
+            try {
+              pipWindowRef.current.close();
+            } catch (e) {}
+            pipWindowRef.current = null;
+            setIsPipActive(false);
+          }
         }
         return;
       }
@@ -412,7 +428,7 @@ export default function VendorView({
         elapsed += (Date.now() - room.timerStartTime) / 1000;
       }
 
-      const totalAllowed = currentItem.durationSeconds + room.currentOffsetSeconds;
+      const totalAllowed = currentItem.durationSeconds + (room.currentOffsetSeconds || 0);
       const diff = totalAllowed - elapsed;
 
       const over = diff < 0;
@@ -427,79 +443,93 @@ export default function VendorView({
 
       // Update Document PiP if active
       if (pipWindowRef.current) {
-        const doc = pipWindowRef.current.document;
-        const container = doc.getElementById('pip-container');
-        const titleEl = doc.getElementById('pip-title');
-        const timerEl = doc.getElementById('pip-timer');
-        const dotEl = doc.getElementById('pip-status-dot');
-        const wallTimeEl = doc.getElementById('pip-wall-time');
-        const msgEl = doc.getElementById('pip-message');
-        const clockView = doc.getElementById('pip-clock-view');
-        const alertView = doc.getElementById('pip-alert-view');
-        const alertText = doc.getElementById('pip-alert-text');
-
-        const { messages: frameMessages } = stateRef.current;
-        const relevantMsgs = frameMessages.filter(
-          (m) => m.targetRole === 'All' || m.targetRole === vendorRole
-        );
-        const latestMsg = relevantMsgs[0];
-        const isFreshAlert = activeAlertRef.current !== null;
-        const activeMsg = activeAlertRef.current;
-
-        if (container) {
-          container.className = `relative min-h-screen flex flex-col items-center justify-center font-sans p-2 select-none transition-colors duration-300 ${
-            over ? 'bg-rose-950 animate-pulse-slow' : 'bg-slate-950'
-          }`;
-        }
-        if (titleEl) {
-          const sessionTitle = currentItem ? currentItem.title : 'EventFlow';
-          const maxTitleLength = 35;
-          titleEl.innerText = (sessionTitle.length > maxTitleLength 
-            ? sessionTitle.substring(0, maxTitleLength) + '…'
-            : sessionTitle).toUpperCase();
-        }
-
-        if (isFreshAlert && activeMsg) {
-          // Hide clock, show big alert
-          if (clockView) clockView.style.display = 'none';
-          if (alertView) {
-            alertView.style.display = 'flex';
-            alertView.className = "flex flex-col items-center justify-center text-center px-2 py-1.5 bg-indigo-950 border border-indigo-600 rounded my-1 w-full animate-pulse-fast";
+        try {
+          const doc = pipWindowRef.current.document;
+          if (!doc) {
+            pipWindowRef.current = null;
+            setIsPipActive(false);
+            return;
           }
-          if (alertText) alertText.innerText = activeMsg.message;
-          if (msgEl) msgEl.className = 'hidden';
-        } else {
-          // Show clock, hide big alert
-          if (clockView) clockView.style.display = 'flex';
-          if (alertView) alertView.style.display = 'none';
-          
-          if (timerEl) {
-            timerEl.innerText = formatted;
-            timerEl.className = `font-mono text-4xl font-extrabold tracking-tighter text-center ${
-              over ? 'text-rose-500' : room.timerStatus === 'running' ? 'text-indigo-400' : 'text-slate-300'
+          const container = doc.getElementById('pip-container');
+          const titleEl = doc.getElementById('pip-title');
+          const timerEl = doc.getElementById('pip-timer');
+          const dotEl = doc.getElementById('pip-status-dot');
+          const wallTimeEl = doc.getElementById('pip-wall-time');
+          const msgEl = doc.getElementById('pip-message');
+          const clockView = doc.getElementById('pip-clock-view');
+          const alertView = doc.getElementById('pip-alert-view');
+          const alertText = doc.getElementById('pip-alert-text');
+
+          const { messages: frameMessages } = stateRef.current;
+          const relevantMsgs = frameMessages.filter(
+            (m) => m.targetRole === 'All' || m.targetRole === vendorRole
+          );
+          const latestMsg = relevantMsgs[0];
+          const isFreshAlert = activeAlertRef.current !== null;
+          const activeMsg = activeAlertRef.current;
+
+          if (container) {
+            container.className = `relative min-h-screen flex flex-col items-center justify-center font-sans p-2 select-none transition-colors duration-300 ${
+              over ? 'bg-rose-950 animate-pulse-slow' : 'bg-slate-950'
             }`;
           }
-          if (dotEl) {
-            const currentStatus = room.timerStatus;
-            if (currentStatus === 'running') {
-              dotEl.className = "absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-500 animate-dot-pulse";
-            } else if (currentStatus === 'paused') {
-              dotEl.className = "absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-500";
-            } else {
-              dotEl.className = "absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500";
+          if (titleEl) {
+            const sessionTitle = currentItem ? currentItem.title : 'EventFlow';
+            const maxTitleLength = 35;
+            titleEl.innerText = (sessionTitle.length > maxTitleLength 
+              ? sessionTitle.substring(0, maxTitleLength) + '…'
+              : sessionTitle).toUpperCase();
+          }
+
+          if (isFreshAlert && activeMsg) {
+            // Hide clock, show big alert
+            if (clockView) clockView.style.display = 'none';
+            if (alertView) {
+              alertView.style.display = 'flex';
+              alertView.className = "flex flex-col items-center justify-center text-center px-2 py-1.5 bg-indigo-950 border border-indigo-600 rounded my-1 w-full animate-pulse-fast";
+            }
+            if (alertText) alertText.innerText = activeMsg.message;
+            if (msgEl) msgEl.className = 'hidden';
+          } else {
+            // Show clock, hide big alert
+            if (clockView) clockView.style.display = 'flex';
+            if (alertView) alertView.style.display = 'none';
+            
+            if (timerEl) {
+              timerEl.innerText = formatted;
+              timerEl.className = `font-mono text-4xl font-extrabold tracking-tighter text-center ${
+                over ? 'text-rose-500' : room.timerStatus === 'running' ? 'text-indigo-400' : 'text-slate-300'
+              }`;
+            }
+            if (dotEl) {
+              const currentStatus = room.timerStatus;
+              if (currentStatus === 'running') {
+                dotEl.className = "absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-500 animate-dot-pulse";
+              } else if (currentStatus === 'paused') {
+                dotEl.className = "absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-500";
+              } else {
+                dotEl.className = "absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500";
+              }
+            }
+            if (wallTimeEl) {
+              wallTimeEl.innerText = new Date().toTimeString().split(' ')[0];
+            }
+            if (msgEl) {
+              if (latestMsg) {
+                msgEl.innerText = latestMsg.message;
+                msgEl.className = `text-[9px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
+              } else {
+                msgEl.className = 'hidden';
+              }
             }
           }
-          if (wallTimeEl) {
-            wallTimeEl.innerText = new Date().toTimeString().split(' ')[0];
-          }
-          if (msgEl) {
-            if (latestMsg) {
-              msgEl.innerText = latestMsg.message;
-              msgEl.className = `text-[9px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
-            } else {
-              msgEl.className = 'hidden';
-            }
-          }
+        } catch (pipErr) {
+          console.error('Error updating PiP window document, closing PiP:', pipErr);
+          try {
+            pipWindowRef.current.close();
+          } catch (e) {}
+          pipWindowRef.current = null;
+          setIsPipActive(false);
         }
       }
     };
