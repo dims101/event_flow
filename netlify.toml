@@ -2,5 +2,10 @@
   command = "npm run build"
   publish = ".next"
 
+# NEXT_PUBLIC_APP_URL is a public URL, not a secret.
+# Netlify's scanner falsely flags it because the value appears in README and build output.
+[build.environment]
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_APP_URL"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
