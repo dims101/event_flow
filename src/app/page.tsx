@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Timer, MessageSquare, Link2, WifiOff, Sparkles } from "lucide-react";
 
 export default async function Home() {
   const cookieStore = await cookies();
@@ -50,32 +51,32 @@ export default async function Home() {
         {/* Feature Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-16 text-left">
           <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/40 backdrop-blur-sm space-y-3">
-            <div className="text-3xl">⏱️</div>
-            <h3 className="text-lg font-bold text-slate-100">Smart Dynamic Rundown</h3>
+            <div className="text-indigo-500"><Timer className="w-8 h-8" /></div>
+            <h3 className="text-lg font-bold text-slate-100 font-sans">Smart Dynamic Rundown</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
               Show Caller dapat memajukan, memundurkan, atau menunda jadwal acara secara instan. Jadwal kru otomatis bergeser dalam hitungan milidetik.
             </p>
           </div>
 
           <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/40 backdrop-blur-sm space-y-3">
-            <div className="text-3xl">📳</div>
-            <h3 className="text-lg font-bold text-slate-100">Pocket Prompter & Haptic Cues</h3>
+            <div className="text-indigo-500"><MessageSquare className="w-8 h-8" /></div>
+            <h3 className="text-lg font-bold text-slate-100 font-sans">Pocket Prompter & Haptic Cues</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
               Kirim instruksi teks senyap ke divisi tertentu (cth: MC, Catering). Layar berkedip dan memicu getaran haptic secara instan.
             </p>
           </div>
 
           <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/40 backdrop-blur-sm space-y-3">
-            <div className="text-3xl">🔗</div>
-            <h3 className="text-lg font-bold text-slate-100">Vendor Links (No-Login)</h3>
+            <div className="text-indigo-500"><Link2 className="w-8 h-8" /></div>
+            <h3 className="text-lg font-bold text-slate-100 font-sans">Vendor Links (No-Login)</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
               Cukup bagikan tautan unik via WhatsApp. Kru & vendor luar langsung masuk ke dasbor pantau sesuai perannya tanpa perlu register.
             </p>
           </div>
 
           <div className="p-6 rounded-2xl border border-slate-900 bg-slate-900/40 backdrop-blur-sm space-y-3">
-            <div className="text-3xl">✈️</div>
-            <h3 className="text-lg font-bold text-slate-100">Offline-Sync Resilient</h3>
+            <div className="text-indigo-500"><WifiOff className="w-8 h-8" /></div>
+            <h3 className="text-lg font-bold text-slate-100 font-sans">Offline-Sync Resilient</h3>
             <p className="text-sm text-slate-400 leading-relaxed">
               Koneksi terputus di dalam ballroom? Aplikasi tetap berjalan, menampilkan jadwal, dan menghitung mundur waktu secara lokal via IndexedDB.
             </p>

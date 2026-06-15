@@ -22,8 +22,28 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 *   **Tujuan:** Menutup celah bypass logika yang memungkinkan pengguna luar untuk menghapus room, memanipulasi waktu timer panggung, mengirim pesan prompter palsu, atau mengubah rundown acara milik EO lain hanya dengan mengirimkan/menebak parameter `roomId`.
 
 ### 3. 📝 Berkas Templat Lingkungan (.env.example)
-*   **Perubahan:** Membuat berkas templat [.env.example](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/.env.example) yang berisi konfigurasi kosong standar untuk database PostgreSQL Supabase dan Upstash Redis.
+*   **Perubahan:** Membuat berkas templat [.env.example](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/.env.example) yang berisi konfigurasi kosong standar untuk database PostgreSQL Supabase and Upstash Redis.
 *   **Tujuan:** Mempermudah standardisasi konfigurasi *environment variables* lokal bagi kolaborator proyek lain.
+
+### 4. 📱 Redesign UI Mobile-Friendly & Migrasi Emojis ke Lucide Icons
+*   **Perubahan:**
+    *   Memasang dependensi `lucide-react` dan mengganti seluruh visualisasi emoji di aplikasi dengan ikon vektor modern.
+    *   Mengoptimalkan ukuran viewport, area sentuh (*touch target* minimum 44x44px), dan tata letak responsif pada seluruh halaman utama (Landing, Login, Register, Detail Room, Vendor View).
+    *   Mendesain ulang [RundownTable.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/RundownTable.tsx) dan [VendorView.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/v/[token]/_components/VendorView.tsx) agar menampilkan daftar kartu (card list) yang kompak pada tampilan layar kecil (mobile) dan tabel lengkap pada desktop.
+*   **Tujuan:** Meningkatkan kegunaan (*usability*) dan kenyamanan kru lapangan dalam mengoperasikan linimasa acara langsung dari ponsel pintar saat hari-H.
+
+### 5. 🔄 Perbaikan Bug Redirect Loop Sesi Kedaluwarsa/Terhapus
+*   **Perubahan:**
+    *   Membuat API handler khusus di [route.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/api/auth/clear/route.ts) untuk menghapus cookie sesi HTTP-only dari server sebelum mengalihkan pengguna ke `/login`.
+    *   Menambahkan validasi status akun pengguna ke database di dalam [layout.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/layout.tsx). Jika sesi cookie masih ada tetapi akun pengguna sudah terhapus di database, sistem langsung mengalihkan ke API clear cookie untuk mencegah jebakan pengalihan tanpa akhir (*infinite redirect loop*).
+*   **Tujuan:** Meningkatkan ketahanan otentikasi sistem dan mencegah aplikasi terkunci dalam siklus redirect saat token/sesi pengguna kedaluwarsa atau tidak lagi valid di database.
+
+### 6. 🌗 Fitur Manual Switch Light Mode & Dark Mode
+*   **Perubahan:**
+    *   Membuat komponen [ThemeToggle.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/_components/ThemeToggle.tsx) untuk menyimpan preferensi tema pengguna di `localStorage` dan melakukan toggle kelas `.dark` di elemen HTML.
+    *   Memodifikasi [layout.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/layout.tsx) dengan menambahkan atribut `suppressHydrationWarning` untuk menghilangkan pesan eror hidrasi konsol, serta menyuntikkan skrip inisialisasi tema di dalam `<head>` guna mencegah kedipan warna putih (*flash of unstyled content*).
+    *   Merespons perubahan tema di [globals.css](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/globals.css) menggunakan CSS variables `:root` (Light Mode) dan `:root.dark` (Dark Mode), lengkap dengan *custom overrides* untuk kontras gradasi tulisan utama, modal backdrop, serta warna garis pembatas (border) agar tetap tajam dan mudah dibaca di kedua mode.
+*   **Tujuan:** Memberikan keleluasaan bagi kru untuk memilih tema terang yang jelas di bawah terik matahari lapangan atau tema gelap bertingkat tinggi kontras di dalam ballroom yang minim cahaya.
 
 ---
 

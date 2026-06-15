@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { db } from '@/db';
 import { rooms, rundownItems, roleTokens, prompterMessages, activityLogs } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { Calendar, ArrowLeft } from 'lucide-react';
 
 
 import { getCurrentUser } from '@/app/actions/auth';
@@ -73,7 +74,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
   const rundownBuilder = (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
       <div className="lg:col-span-2 space-y-4">
-        <h4 className="text-md font-bold text-white uppercase tracking-wider">
+        <h4 className="text-md font-bold text-white uppercase tracking-wider font-sans">
           Jadwal Acara ({items.length} Sesi)
         </h4>
         <RundownTable items={items} />
@@ -103,23 +104,24 @@ export default async function RoomPage({ params }: RoomPageProps) {
       {/* Breadcrumb & Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 font-mono">
             <Link href="/dashboard" className="hover:text-indigo-400 transition">Dashboard</Link>
             <span>/</span>
             <span className="text-slate-400">Manage Room</span>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">{room.name}</h1>
-          <p className="text-slate-400 text-sm mt-1 flex items-center gap-1.5">
-            <span>📅</span>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white font-sans">{room.name}</h1>
+          <p className="text-slate-400 text-sm mt-1 flex items-center gap-1.5 font-mono">
+            <Calendar className="w-4 h-4 text-indigo-400" />
             <span>{formattedDate}</span>
           </p>
         </div>
         <div>
           <Link
             href="/dashboard"
-            className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-850 hover:border-slate-800 text-slate-300 text-sm font-semibold rounded-xl transition duration-150 inline-block"
+            className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-850 hover:border-slate-800 text-slate-300 text-sm font-semibold rounded-xl transition duration-150 flex items-center gap-1.5 cursor-pointer min-h-[44px]"
           >
-            ← Kembali ke Event
+            <ArrowLeft className="w-4 h-4" />
+            <span>Kembali ke Event</span>
           </Link>
         </div>
       </div>

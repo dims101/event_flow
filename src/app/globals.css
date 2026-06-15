@@ -1,8 +1,72 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: var(--bg-1);
+  --foreground: var(--text-1);
+
+  /* Light Mode CSS variables based on frontend-ui-dark-ts, ui-tokens, and ui-a11y */
+  --bg-1: #F8FAFC;          /* Main page background */
+  --bg-2: #FFFFFF;          /* Card / Modal surface */
+  --bg-3: #F1F5F9;          /* Inner panels / inputs */
+  --bg-4: #E2E8F0;          /* Muted items */
+  --bg-5: #CBD5E1;          /* Intermediate borders */
+  --bg-6: #94A3B8;          /* Strong borders */
+
+  --text-1: #0F172A;        /* Primary text */
+  --text-2: #334155;        /* Secondary text */
+  --text-3: #64748B;        /* Muted text / metadata */
+
+  --brand-base: #8251EE;
+  --brand-hover: #9366F5;
+  --brand-light: #693CD2;   /* Adjusted for light mode contrast */
+  --brand-subtle: rgba(130, 81, 238, 0.08);
+}
+
+:root.dark {
+  /* Dark Mode CSS variables */
+  --bg-1: #09090B;
+  --bg-2: #121214;
+  --bg-3: #1C1C1F;
+  --bg-4: #2E2E33;
+  --bg-5: #44444A;
+  --bg-6: #5C5C64;
+
+  --text-1: #FFFFFF;
+  --text-2: #E4E4E9;
+  --text-3: #A1A1AA;
+
+  --brand-base: #8251EE;
+  --brand-hover: #9366F5;
+  --brand-light: #B497FF;
+  --brand-subtle: rgba(130, 81, 238, 0.20);
+}
+
+@theme {
+  /* Map Tailwind slate classes to dynamic CSS variables */
+  --color-slate-950: var(--bg-1);
+  --color-slate-900: var(--bg-2);
+  --color-slate-850: var(--bg-3);
+  --color-slate-800: var(--bg-4);
+  --color-slate-700: var(--bg-5);
+  --color-slate-600: var(--bg-6);
+
+  /* Map text slate colors dynamically */
+  --color-slate-50: var(--text-1);
+  --color-slate-100: var(--text-1);
+  --color-slate-200: var(--text-1);
+  --color-slate-300: var(--text-2);
+  --color-slate-400: var(--text-2);
+  --color-slate-500: var(--text-3);
+
+  /* Map indigo brand classes dynamically */
+  --color-indigo-950: var(--brand-subtle);
+  --color-indigo-900: rgba(130, 81, 238, 0.30);
+  --color-indigo-800: #6d3dd9;
+  --color-indigo-700: #7c3aed;
+  --color-indigo-600: var(--brand-base);
+  --color-indigo-500: var(--brand-hover);
+  --color-indigo-400: var(--brand-light);
+  --color-indigo-300: #C084FC;
 }
 
 @theme inline {
@@ -12,15 +76,38 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Custom Accessibility & Legibility Enhancements for Light Mode */
+:root:not(.dark) {
+  /* 1. Gradient Text overrides (since from-white to-indigo becomes invisible on light bg) */
+  h1.bg-gradient-to-r {
+    background-image: linear-gradient(to right, var(--color-slate-950), var(--color-indigo-600)) !important;
+  }
+  
+  h1.bg-gradient-to-r.from-white.via-slate-100 {
+    background-image: linear-gradient(to right, var(--color-slate-950), var(--color-slate-700), var(--color-indigo-600)) !important;
+  }
+
+  /* 2. Border contrast normalization (map dark borders to clean, semi-transparent light borders) */
+  .border-slate-950, .border-b-slate-950, .border-t-slate-950, .border-r-slate-950, .border-l-slate-950,
+  .border-slate-900, .border-b-slate-900, .border-t-slate-900, .border-r-slate-900, .border-l-slate-900,
+  .border-slate-850, .border-b-slate-850, .border-t-slate-850, .border-r-slate-850, .border-l-slate-850,
+  .border-slate-800, .border-b-slate-800, .border-t-slate-800, .border-r-slate-800, .border-l-slate-800 {
+    border-color: rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .border-slate-700, .border-b-slate-700, .border-t-slate-700, .border-r-slate-700, .border-l-slate-700 {
+    border-color: rgba(15, 23, 42, 0.16) !important;
+  }
+
+  /* 3. Modal backdrop visibility */
+  .bg-slate-950\/80 {
+    background-color: rgba(15, 23, 42, 0.40) !important;
+  }
+}
+

@@ -8,6 +8,11 @@ import {
   sendPrompterMessageAction,
   clearPrompterMessagesAction 
 } from '@/app/actions/roomControl';
+import { 
+  Play, Pause, Square, SkipBack, SkipForward, Plus, Minus, Send, 
+  Trash2, Clock, Activity, MessageSquare, Monitor, Check, Calendar, 
+  ChevronRight, Sparkles, AlertCircle, Hourglass, HelpCircle 
+} from 'lucide-react';
 
 interface Room {
   id: string;
@@ -292,7 +297,7 @@ export default function ControlPanel({
           }
           if (msgEl) {
             if (latestMsg) {
-              msgEl.innerText = `💬 [To: ${latestMsg.targetRole}] ${latestMsg.message}`;
+              msgEl.innerText = `[To: ${latestMsg.targetRole}] ${latestMsg.message}`;
               msgEl.className = `text-[9px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
             } else {
               msgEl.className = 'hidden';
@@ -554,7 +559,7 @@ export default function ControlPanel({
           if (alertView) alertView.style.display = 'none';
           if (msgEl) {
             if (latestInitMsg) {
-              msgEl.innerText = `💬 [To: ${latestInitMsg.targetRole}] ${latestInitMsg.message}`;
+              msgEl.innerText = `[To: ${latestInitMsg.targetRole}] ${latestInitMsg.message}`;
               msgEl.className = `text-[9px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
             } else {
               msgEl.className = 'hidden';
@@ -766,7 +771,7 @@ export default function ControlPanel({
             ctx.font = 'bold 11px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
-            const msgText = `💬 [To: ${latestMsg.targetRole}] ${latestMsg.message}`;
+            const msgText = `[To: ${latestMsg.targetRole}] ${latestMsg.message}`;
             const maxMsgLength = 45;
             const truncatedMsg = msgText.length > maxMsgLength 
               ? msgText.substring(0, maxMsgLength) + '...'
@@ -775,7 +780,6 @@ export default function ControlPanel({
           }
         }
       };
-
       pipIntervalId = setInterval(draw, 250);
 
     } catch (error: any) {
@@ -788,53 +792,58 @@ export default function ControlPanel({
       {/* LEFT: MASTER TIMER & CONTROLS (2 Columns on large screens) */}
       <div className="lg:col-span-2 space-y-6">
         
-        {/* Status Indicator */}
-        <div className="flex items-center justify-between px-4 py-2 border border-slate-900 bg-slate-900/40 rounded-xl text-xs text-slate-400">
+        {/* Status Connection Indicator */}
+        <div className="flex items-center justify-between px-4 py-2.5 border border-slate-900 bg-slate-900/40 rounded-xl text-xs text-slate-400">
           <div className="flex items-center gap-2">
             <span className={`w-2.5 h-2.5 rounded-full ${connected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-            <span>{connected ? 'Koneksi Live SSE Terhubung' : 'Mencoba Menghubungkan...'}</span>
+            <span className="font-medium">{connected ? 'Koneksi Live Terhubung' : 'Mencoba Menghubungkan...'}</span>
           </div>
-          <span className="font-mono text-slate-500">Room ID: {roomId}</span>
+          <span className="font-mono text-slate-500 hidden sm:inline">Room ID: {roomId}</span>
         </div>
 
         {/* Master LCD Time Display */}
-        <div className="relative border border-slate-900 bg-slate-900/60 backdrop-blur-md rounded-3xl p-8 flex flex-col items-center justify-center overflow-hidden shadow-2xl">
+        <div className="relative border border-slate-900 bg-slate-900/60 backdrop-blur-md rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center overflow-hidden shadow-2xl">
           <button
             onClick={togglePiP}
             type="button"
-            className="absolute top-4 right-4 p-2 rounded-lg bg-slate-800/40 border border-slate-800 hover:bg-slate-850 hover:text-white transition text-xs flex items-center gap-1 z-20"
+            className="absolute top-4 right-4 p-2.5 rounded-lg bg-slate-800/40 border border-slate-800 hover:bg-slate-850 hover:text-white transition text-xs flex items-center gap-1.5 z-20 cursor-pointer min-h-[38px] select-none"
             title="Kecilkan ke Picture-in-Picture (Selalu di atas)"
           >
-            🖥️ {isPipActive ? 'Close PiP' : 'Float (PiP)'}
+            <Monitor className="w-4 h-4 text-indigo-400" />
+            <span className="font-semibold">{isPipActive ? 'Close PiP' : 'Float (PiP)'}</span>
           </button>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.05),transparent_60%)]" />
           
-          <span className="relative z-10 text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+          <span className="relative z-10 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 font-mono">
             Master Timer Sesi Aktif
           </span>
 
-          <h2 className="relative z-10 text-lg md:text-2xl font-bold text-center text-slate-200 line-clamp-1 max-w-full">
+          <h2 className="relative z-10 text-lg md:text-2xl font-bold text-center text-slate-200 line-clamp-1 max-w-full font-sans">
             {currentItem ? currentItem.title : '(Sesi Belum Dimulai)'}
           </h2>
 
           {/* TIMER DIGITS */}
-          <div className={`relative z-10 font-mono text-7xl md:text-9xl font-extrabold tracking-tighter my-6 select-none ${
-            isOvertime ? 'text-rose-500' : room.timerStatus === 'running' ? 'text-indigo-400' : 'text-slate-300'
+          <div className={`relative z-10 font-mono text-7xl md:text-9xl font-extrabold tracking-tighter my-4 sm:my-6 select-none ${
+            isOvertime ? 'text-rose-500' : room.timerStatus === 'running' ? 'text-indigo-400' : 'text-slate-400'
           }`}>
             {timerDisplay}
           </div>
 
-          <div className="relative z-10 flex items-center gap-4 text-sm text-slate-400">
-            <span className={`px-2.5 py-0.5 rounded-md text-xs font-semibold ${
+          <div className="relative z-10 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm text-slate-400">
+            <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider flex items-center gap-1.5 ${
               room.timerStatus === 'running' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
               room.timerStatus === 'paused' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
               'bg-slate-800 text-slate-400 border border-slate-700'
             }`}>
-              {room.timerStatus === 'running' ? '⏱️ RUNNING' : room.timerStatus === 'paused' ? '⏸️ PAUSED' : '⏹️ STOPPED'}
+              <span className={`w-1.5 h-1.5 rounded-full ${
+                room.timerStatus === 'running' ? 'bg-emerald-400 animate-ping' :
+                room.timerStatus === 'paused' ? 'bg-amber-400' : 'bg-slate-500'
+              }`} />
+              <span>{room.timerStatus.toUpperCase()}</span>
             </span>
 
             {currentItem && (
-              <span className="font-mono">
+              <span className="font-mono text-slate-500">
                 Asli: {currentItem.durationSeconds / 60}m | Offset:{' '}
                 {room.currentOffsetSeconds >= 0 ? '+' : ''}
                 {Math.floor(room.currentOffsetSeconds / 60)}m
@@ -844,33 +853,45 @@ export default function ControlPanel({
         </div>
 
         {/* MASTER TIMELINE NAVIGATION CONTROLS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <button
             onClick={() => handleSelectSession(Math.max(0, room.currentRundownIndex - 1))}
             disabled={room.currentRundownIndex <= 0 || items.length === 0 || isTimerPending}
-            className="py-3 px-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-slate-900 text-slate-200 text-sm font-semibold rounded-xl transition duration-150"
+            className="py-3 px-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-slate-900 text-slate-200 text-xs sm:text-sm font-semibold rounded-xl transition duration-150 cursor-pointer min-h-[48px] flex items-center justify-center gap-1.5"
           >
-            ⏮️ Sesi Sebelumnnya
+            <SkipBack className="w-4 h-4" />
+            <span>Sebelumnya</span>
           </button>
 
           <button
             onClick={handlePlayPause}
             disabled={items.length === 0 || isTimerPending}
-            className={`py-3 px-4 text-white text-sm font-bold rounded-xl transition duration-150 shadow-lg ${
+            className={`py-3 px-4 text-white text-xs sm:text-sm font-bold rounded-xl transition duration-150 shadow-lg cursor-pointer min-h-[48px] flex items-center justify-center gap-1.5 ${
               room.timerStatus === 'running'
                 ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/10'
                 : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/10'
             }`}
           >
-            {room.timerStatus === 'running' ? '⏸️ Jeda (Pause)' : '▶️ Mulai (Play)'}
+            {room.timerStatus === 'running' ? (
+              <>
+                <Pause className="w-4 h-4" />
+                <span>Pause</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4" />
+                <span>Mulai (Play)</span>
+              </>
+            )}
           </button>
 
           <button
             onClick={handleStop}
             disabled={room.currentRundownIndex === -1 || isTimerPending}
-            className="py-3 px-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 disabled:opacity-40 text-slate-200 text-sm font-semibold rounded-xl transition duration-150"
+            className="py-3 px-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 disabled:opacity-40 text-slate-200 text-xs sm:text-sm font-semibold rounded-xl transition duration-150 cursor-pointer min-h-[48px] flex items-center justify-center gap-1.5"
           >
-            ⏹️ Reset/Hentikan
+            <Square className="w-4 h-4" />
+            <span>Reset</span>
           </button>
 
           <button
@@ -882,78 +903,89 @@ export default function ControlPanel({
               }
             }}
             disabled={room.currentRundownIndex >= items.length - 1 || items.length === 0 || isTimerPending}
-            className="py-3 px-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-slate-900 text-slate-200 text-sm font-semibold rounded-xl transition duration-150"
+            className="py-3 px-4 bg-slate-900 border border-slate-800 hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-slate-900 text-slate-200 text-xs sm:text-sm font-semibold rounded-xl transition duration-150 cursor-pointer min-h-[48px] flex items-center justify-center gap-1.5"
           >
-            ⏭️ Sesi Berikutnya
+            <span>Berikutnya</span>
+            <SkipForward className="w-4 h-4" />
           </button>
         </div>
 
         {/* TIME OFFSET INTERVENTION (MACRO ADJUSTMENT) */}
-        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm space-y-4">
-          <div>
-            <h3 className="text-md font-bold text-white">Intervensi Durasi Sesi</h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Tambah atau kurangi durasi sesi aktif secara real-time. Linimasa vendor akan langsung terupdate.
-            </p>
+        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-5 sm:p-6 backdrop-blur-sm space-y-4">
+          <div className="flex items-start gap-2">
+            <Clock className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
+            <div>
+              <h3 className="text-sm sm:text-md font-bold text-white font-sans">Intervensi Durasi Sesi</h3>
+              <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                Tambah atau kurangi durasi sesi aktif secara real-time. Linimasa vendor akan langsung terupdate.
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5">
             <button
               onClick={() => handleAdjustOffset(-60)}
               disabled={!currentItem || isOffsetPending}
-              className="px-4 py-2 text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 rounded-lg transition duration-150"
+              className="px-4 py-3 text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 rounded-lg transition duration-150 cursor-pointer min-h-[44px] flex items-center justify-center gap-1"
             >
-              -1 Menit
+              <Minus className="w-3.5 h-3.5" />
+              <span>1m</span>
             </button>
             <button
               onClick={() => handleAdjustOffset(-300)}
               disabled={!currentItem || isOffsetPending}
-              className="px-4 py-2 text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 rounded-lg transition duration-150"
+              className="px-4 py-3 text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 rounded-lg transition duration-150 cursor-pointer min-h-[44px] flex items-center justify-center gap-1"
             >
-              -5 Menit
+              <Minus className="w-3.5 h-3.5" />
+              <span>5m</span>
             </button>
             <button
               onClick={() => handleAdjustOffset(60)}
               disabled={!currentItem || isOffsetPending}
-              className="px-4 py-2 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150"
+              className="px-4 py-3 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150 cursor-pointer min-h-[44px] flex items-center justify-center gap-1"
             >
-              +1 Menit
+              <Plus className="w-3.5 h-3.5" />
+              <span>1m</span>
             </button>
             <button
               onClick={() => handleAdjustOffset(300)}
               disabled={!currentItem || isOffsetPending}
-              className="px-4 py-2 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150"
+              className="px-4 py-3 text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150 cursor-pointer min-h-[44px] flex items-center justify-center gap-1"
             >
-              +5 Menit
+              <Plus className="w-3.5 h-3.5" />
+              <span>5m</span>
             </button>
           </div>
         </div>
 
         {/* SEQUENCE/RUNDOWN LIST SELECTOR */}
-        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm space-y-4">
-          <h3 className="text-md font-bold text-white">Lompat Ke Sesi</h3>
-          <div className="divide-y divide-slate-800 border border-slate-850 rounded-xl overflow-hidden">
+        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-5 sm:p-6 backdrop-blur-sm space-y-4">
+          <div className="flex items-center gap-2">
+            <Activity className="w-5 h-5 text-indigo-400" />
+            <h3 className="text-sm sm:text-md font-bold text-white font-sans">Lompat Ke Sesi</h3>
+          </div>
+          <div className="divide-y divide-slate-850 border border-slate-850 rounded-xl overflow-hidden bg-slate-950/20">
             {items.map((item, index) => {
               const isActive = room.currentRundownIndex === index;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleSelectSession(index)}
-                  className={`w-full text-left p-3.5 flex items-center justify-between text-sm transition duration-150 ${
+                  className={`w-full text-left p-3.5 flex items-center justify-between text-xs sm:text-sm transition duration-150 cursor-pointer min-h-[48px] ${
                     isActive 
-                      ? 'bg-indigo-600/10 text-indigo-400 border-l-2 border-l-indigo-500 font-semibold' 
+                      ? 'bg-indigo-600/15 text-indigo-400 border-l-2 border-l-indigo-500 font-semibold' 
                       : 'hover:bg-slate-900/40 text-slate-300'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <span className="font-mono text-xs text-slate-500 w-5">{index + 1}</span>
-                    <span className="truncate">{item.title}</span>
+                    <span className="truncate max-w-[150px] sm:max-w-xs">{item.title}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs px-2 py-0.5 rounded border border-slate-800 text-slate-400">
+                    <span className="text-[10px] px-2 py-0.5 rounded border border-slate-800 text-slate-400 font-mono">
                       {item.durationSeconds / 60}m
                     </span>
-                    <span className="text-xs text-slate-400 font-semibold w-16 text-right">
+                    <span className="text-[10px] text-slate-400 font-bold w-16 text-right truncate">
                       {item.targetRole}
                     </span>
                   </div>
@@ -968,34 +1000,39 @@ export default function ControlPanel({
       <div className="space-y-6">
         
         {/* Prompter Sender Card */}
-        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm space-y-4">
-          <div>
-            <h3 className="text-md font-bold text-white">Pocket Prompter (Pesan Kru)</h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Kirim pesan instan. Perangkat target akan berkedip dan bergetar (haptic) di lapangan.
-            </p>
+        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-5 sm:p-6 backdrop-blur-sm space-y-4">
+          <div className="flex items-start gap-2.5">
+            <MessageSquare className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
+            <div>
+              <h3 className="text-sm sm:text-md font-bold text-white font-sans">Pocket Prompter (Pesan Kru)</h3>
+              <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                Kirim pesan instan. Perangkat target akan berkedip dan bergetar (haptic) di lapangan.
+              </p>
+            </div>
           </div>
 
           <form onSubmit={handleSendPrompter} className="space-y-4">
             <div className="space-y-1">
-              <label htmlFor="target" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label htmlFor="target" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Divisi Target
               </label>
-              <select
-                id="target"
-                value={targetRole}
-                onChange={(e) => setTargetRole(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 focus:outline-none focus:border-indigo-500 transition duration-150 text-sm appearance-none"
-              >
-                <option value="All">Semua Kru (All)</option>
-                <option value="MC">Master of Ceremony (MC)</option>
-                <option value="Catering">Katering (Catering)</option>
-                <option value="MUA">Make-Up Artist (MUA)</option>
-              </select>
+              <div className="relative">
+                <select
+                  id="target"
+                  value={targetRole}
+                  onChange={(e) => setTargetRole(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 focus:outline-none focus:border-indigo-500 transition duration-150 text-sm appearance-none cursor-pointer min-h-[44px]"
+                >
+                  <option value="All">Semua Kru (All)</option>
+                  <option value="MC">Master of Ceremony (MC)</option>
+                  <option value="Catering">Katering (Catering)</option>
+                  <option value="MUA">Make-Up Artist (MUA)</option>
+                </select>
+              </div>
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="message" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <label htmlFor="message" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Isi Instruksi Singkat
               </label>
               <textarea
@@ -1005,29 +1042,33 @@ export default function ControlPanel({
                 maxLength={120}
                 required
                 placeholder="e.g. MC silakan buka acara. Pengantin siap masuk."
-                className="w-full h-24 px-4 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-650 focus:outline-none focus:border-indigo-500 transition duration-150 text-sm resize-none"
+                className="w-full h-24 px-4 py-3 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 placeholder-slate-650 focus:outline-none focus:border-indigo-500 transition duration-150 text-sm resize-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={isMsgPending || !prompterText.trim()}
-              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white text-sm font-semibold rounded-lg transition duration-150 flex items-center justify-center gap-2"
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/50 text-white text-sm font-semibold rounded-lg transition duration-150 flex items-center justify-center gap-2 cursor-pointer min-h-[48px]"
             >
-              {isMsgPending && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-              💬 Kirim Instruksi Live
+              {isMsgPending ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+              <span>Kirim Instruksi Live</span>
             </button>
           </form>
         </div>
 
         {/* Message Broadcast History */}
-        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm space-y-4">
+        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-5 sm:p-6 backdrop-blur-sm space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Riwayat Pesan</h3>
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider font-sans">Riwayat Pesan</h3>
             {messages.length > 0 && (
               <button
                 onClick={handleClearPrompter}
-                className="text-xs text-slate-500 hover:text-red-400 font-semibold"
+                className="text-xs text-slate-500 hover:text-red-400 font-semibold cursor-pointer py-1 px-2.5 rounded-md hover:bg-red-500/5"
               >
                 Bersihkan
               </button>
@@ -1054,7 +1095,7 @@ export default function ControlPanel({
                     className="border border-slate-800 bg-slate-950/30 rounded-lg p-3 space-y-1.5"
                   >
                     <div className="flex items-center justify-between text-xs">
-                      <span className={`px-2 py-0.2 rounded font-bold border ${
+                      <span className={`px-2 py-0.2 rounded font-bold border text-[10px] tracking-wide ${
                         msg.targetRole === 'All' ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400' :
                         msg.targetRole === 'MC' ? 'border-amber-500/20 bg-amber-500/10 text-amber-400' :
                         msg.targetRole === 'Catering' ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' :
@@ -1062,9 +1103,9 @@ export default function ControlPanel({
                       }`}>
                         To: {msg.targetRole}
                       </span>
-                      <span className="font-mono text-slate-500">{time}</span>
+                      <span className="font-mono text-slate-500 text-[10px]">{time}</span>
                     </div>
-                    <p className="text-sm text-slate-200 leading-relaxed break-words font-medium">
+                    <p className="text-xs sm:text-sm text-slate-200 leading-relaxed break-words font-medium">
                       {msg.message}
                     </p>
                   </div>
@@ -1075,12 +1116,13 @@ export default function ControlPanel({
         </div>
 
         {/* Log Aktivitas Card */}
-        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm space-y-4">
+        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-5 sm:p-6 backdrop-blur-sm space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              📋 Log Aktivitas
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2 font-sans">
+              <Activity className="w-4 h-4 text-indigo-400" />
+              <span>Log Aktivitas</span>
             </h3>
-            <span className="text-xs text-slate-500 font-semibold font-mono">
+            <span className="text-[10px] text-slate-500 font-semibold font-mono uppercase tracking-wider">
               Live updates
             </span>
           </div>
@@ -1104,12 +1146,12 @@ export default function ControlPanel({
                     key={log.id}
                     className="border border-slate-850 bg-slate-950/20 rounded-lg p-2.5 flex gap-2.5 items-start text-xs text-slate-350"
                   >
-                    <span className="font-mono text-slate-500 shrink-0">{time}</span>
-                    <span className="shrink-0" title={log.actionType}>
-                      {log.actionType === 'timer' && '⏱️'}
-                      {log.actionType === 'offset' && '⏳'}
-                      {log.actionType === 'prompter' && '💬'}
-                      {log.actionType === 'rundown' && '📅'}
+                    <span className="font-mono text-slate-500 text-[10px] shrink-0 mt-0.5">{time}</span>
+                    <span className="shrink-0 mt-0.5" title={log.actionType}>
+                      {log.actionType === 'timer' && <Clock className="w-3.5 h-3.5 text-indigo-400 shrink-0" />}
+                      {log.actionType === 'offset' && <Hourglass className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
+                      {log.actionType === 'prompter' && <MessageSquare className="w-3.5 h-3.5 text-purple-400 shrink-0" />}
+                      {log.actionType === 'rundown' && <Calendar className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
                     </span>
                     <span className="leading-relaxed font-medium break-words">
                       {log.description}

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { FileText, Sliders } from 'lucide-react';
 
 interface RoomTabsProps {
   rundownBuilder: React.ReactNode;
@@ -25,26 +26,28 @@ export default function RoomTabs({ rundownBuilder, controlCenter, sharePanel }: 
   return (
     <div className="space-y-6">
       {/* Tab Selectors */}
-      <div className="border-b border-slate-900 flex items-center gap-1">
+      <div className="border-b border-slate-900 flex items-center gap-1 w-full overflow-x-auto scrollbar-none">
         <button
           onClick={() => setTab('builder')}
-          className={`px-5 py-3 text-sm font-semibold border-b-2 transition duration-150 ${
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition duration-150 shrink-0 cursor-pointer min-h-[44px] ${
             currentTab === 'builder'
               ? 'border-indigo-500 text-indigo-400 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          📝 Susun Rundown
+          <FileText className="w-4 h-4" />
+          <span>Susun Rundown</span>
         </button>
         <button
           onClick={() => setTab('control')}
-          className={`px-5 py-3 text-sm font-semibold border-b-2 transition duration-150 ${
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition duration-150 shrink-0 cursor-pointer min-h-[44px] ${
             currentTab === 'control'
               ? 'border-indigo-500 text-indigo-400 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          🎛️ Pusat Kendali Hari-H
+          <Sliders className="w-4 h-4" />
+          <span>Pusat Kendali Hari-H</span>
         </button>
       </div>
 

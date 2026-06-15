@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Copy, Check, Send, ShieldAlert, Share2 } from 'lucide-react';
 
 interface RoleToken {
   role: string;
@@ -52,11 +53,16 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
 
   return (
     <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-6 backdrop-blur-sm space-y-6">
-      <div>
-        <h3 className="text-lg font-bold text-white">Bagikan Tautan Akses Kru</h3>
-        <p className="text-sm text-slate-400 mt-1">
-          Kru lapangan tidak perlu login. Cukup klik tautan unik ini untuk memantau waktu secara live.
-        </p>
+      <div className="flex items-start gap-2.5">
+        <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 shrink-0">
+          <Share2 className="w-5 h-5" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-white font-sans">Bagikan Tautan Akses Kru</h3>
+          <p className="text-sm text-slate-400 mt-1">
+            Kru lapangan tidak perlu login. Cukup klik tautan unik ini untuk memantau waktu secara live.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -67,8 +73,8 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className="font-bold text-slate-100">{token.role} Role</span>
-                <span className="text-xs px-2 py-0.5 rounded-full border border-slate-800 bg-slate-900 text-slate-400 font-mono">
+                <span className="font-bold text-slate-100 font-sans">{token.role} Role</span>
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full border border-slate-800 bg-slate-900 text-slate-400 font-bold tracking-wider uppercase">
                   Live View
                 </span>
               </div>
@@ -77,19 +83,29 @@ export default function SharePanel({ tokens, roomName }: SharePanelProps) {
               </p>
             </div>
 
-            <div className="flex items-center gap-2 pt-2 border-t border-slate-900">
+            <div className="flex items-center gap-2 pt-3 border-t border-slate-900">
               <button
                 onClick={() => handleCopy(token.token, token.role)}
-                className="flex-1 py-2 text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-lg transition duration-150 flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 rounded-lg transition duration-150 flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px]"
               >
-                {copiedId === token.role ? '✅ Tersalin' : '📋 Salin Link'}
+                {copiedId === token.role ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Tersalin</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5" />
+                    <span>Salin Link</span>
+                  </>
+                )}
               </button>
               <button
                 onClick={() => handleWhatsApp(token.token, token.role)}
-                className="p-2 bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/10 text-emerald-400 rounded-lg transition duration-150 text-xs flex items-center justify-center"
+                className="p-2.5 bg-emerald-600/10 hover:bg-emerald-600/20 border border-emerald-500/20 text-emerald-400 rounded-lg transition duration-150 text-xs flex items-center justify-center cursor-pointer min-h-[44px] min-w-[44px]"
                 title="Kirim ke WhatsApp"
               >
-                💬
+                <Send className="w-4 h-4" />
               </button>
             </div>
           </div>

@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { getCurrentUser, logoutAction } from '@/app/actions/auth';
+import { Activity, LogOut } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 export default async function DashboardLayout({
   children,
@@ -8,7 +10,11 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const user = await getCurrentUser();
-  const companyName = user?.companyName || 'Event Organizer';
+  if (!user) {
+    redirect('/api/auth/clear');
+  }
+
+  const companyName = user.companyName || 'Event Organizer';
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
@@ -17,8 +23,8 @@ export default async function DashboardLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/dashboard" className="text-xl font-bold tracking-tight text-white flex items-center gap-2 hover:opacity-95">
+              <Activity className="w-6 h-6 text-indigo-500" />
               <span>EventFlow</span>
-              <span className="text-indigo-500 font-mono text-lg">⏱️</span>
             </Link>
             <span className="hidden sm:inline-block w-px h-5 bg-slate-800" />
             <span className="hidden sm:inline-block text-sm font-medium text-slate-400">
@@ -33,9 +39,10 @@ export default async function DashboardLayout({
             <form action={logoutAction}>
               <button
                 type="submit"
-                className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg transition duration-150"
+                className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-850 rounded-lg transition duration-150 flex items-center gap-1.5 cursor-pointer min-h-[38px]"
               >
-                Keluar
+                <LogOut className="w-4 h-4" />
+                <span>Keluar</span>
               </button>
             </form>
           </div>
