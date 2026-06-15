@@ -8,7 +8,8 @@ import {
   updateTimerStatusAction, 
   adjustRoomOffsetAction, 
   sendPrompterMessageAction,
-  clearPrompterMessagesAction 
+  clearPrompterMessagesAction,
+  sendTimeAlertNotificationAction
 } from '@/app/actions/roomControl';
 import { 
   Play, Pause, Square, SkipBack, SkipForward, Plus, Minus, Send, 
@@ -98,6 +99,7 @@ export default function ControlPanel({
 
   const lastProcessedMessageId = useRef<string | null>(null);
   const isInitialLoad = useRef(true);
+  const sentAlertsRef = useRef<{ [itemIndex: number]: { '5m'?: boolean; '1m'?: boolean } }>({});
 
   // Refs to prevent useEffect teardown on state changes, bypassing background throttle issues
   const stateRef = useRef(state);
@@ -325,6 +327,37 @@ export default function ControlPanel({
       
       setTimerDisplay(formatted);
       setIsOvertime(over);
+
+      // Auto push warning check for remaining 5 minutes and 1 minute
+      if (room.timerStatus === 'running' && !over) {
+        const remainingSeconds = Math.floor(diff);
+        const itemIndex = room.currentRundownIndex;
+        
+        // Initialize tracker for this item index if not exists
+        if (!sentAlertsRef.current[itemIndex]) {
+          sentAlertsRef.current[itemIndex] = {};
+        }
+
+        // Check for 5 minutes (300 seconds) warning — trigger window between 240s and 300s
+        if (remainingSeconds <= 300 && remainingSeconds > 240) {
+          if (!sentAlertsRef.current[itemIndex]['5m']) {
+            sentAlertsRef.current[itemIndex]['5m'] = true;
+            sendTimeAlertNotificationAction(roomId, itemIndex, '5m').catch((err) => {
+              console.error('Failed to trigger 5m alert:', err);
+            });
+          }
+        }
+
+        // Check for 1 minute (60 seconds) warning — trigger window between 10s and 60s
+        if (remainingSeconds <= 60 && remainingSeconds > 10) {
+          if (!sentAlertsRef.current[itemIndex]['1m']) {
+            sentAlertsRef.current[itemIndex]['1m'] = true;
+            sendTimeAlertNotificationAction(roomId, itemIndex, '1m').catch((err) => {
+              console.error('Failed to trigger 1m alert:', err);
+            });
+          }
+        }
+      }
 
       // Update Document PiP if active
       if (pipWindowRef.current) {

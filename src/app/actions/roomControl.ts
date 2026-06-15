@@ -247,3 +247,78 @@ export async function clearPrompterMessagesAction(roomId: string) {
     return { error: 'Gagal membersihkan pesan' };
   }
 }
+
+export async function sendTimeAlertNotificationAction(
+  roomId: string,
+  itemIndex: number,
+  alertType: '5m' | '1m'
+) {
+  try {
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
+
+    const room = await db.query.rooms.findFirst({
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, userId)),
+    });
+    if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
+
+    // Deduplicate on server using Redis to prevent double notifications (TTL = 2 hours)
+    const lockKey = `time_alert:${roomId}:${itemIndex}:${alertType}`;
+    const alreadySent = await redis.get(lockKey);
+    if (alreadySent) {
+      return { success: false, reason: 'Already sent' };
+    }
+
+    // Lock the alert immediately
+    await redis.set(lockKey, '1', { ex: 7200 });
+
+    // Find the rundown item to know the target role and title
+    const item = await db.query.rundownItems.findFirst({
+      where: and(
+        eq(rundownItems.roomId, roomId),
+        eq(rundownItems.orderIndex, itemIndex)
+      ),
+    });
+
+    if (!item) {
+      return { error: 'Sesi rundown tidak ditemukan' };
+    }
+
+    const targetRole = item.targetRole || 'All';
+    const alertLabel = alertType === '5m' ? '5 menit' : '1 menit';
+    const title = alertType === '5m' ? `⏱️ Sisa Waktu: Sesi "${item.title}"` : `🚨 Bersiap! Sesi "${item.title}"`;
+    const body = `Sesi "${item.title}" tersisa kurang dari ${alertLabel}! Harap bersiap.`;
+
+    // Find the specific role token to generate direct redirect link
+    const roleToken = await db.query.roleTokens.findFirst({
+      where: and(
+        eq(roleTokens.roomId, roomId),
+        eq(roleTokens.role, targetRole)
+      ),
+    });
+
+    // Fire-and-forget push notification trigger
+    try {
+      sendPushNotification(roomId, targetRole, {
+        title,
+        body,
+        url: roleToken ? `/v/${roleToken.token}` : '/',
+      });
+    } catch (pushErr) {
+      console.error('Failed to dispatch background time alert push notification:', pushErr);
+    }
+
+    // Log the activity to DB and SSE
+    logActivityBackground(
+      roomId,
+      'timer',
+      `Peringatan sisa ${alertLabel} dikirim untuk sesi "${item.title}" (Tujuan: ${targetRole})`
+    );
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Send time alert error:', error);
+    return { error: 'Gagal mengirim peringatan waktu' };
+  }
+}
+

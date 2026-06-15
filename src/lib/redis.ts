@@ -42,13 +42,17 @@ export const redis = {
     return globalStore.redisMockDb.get(key) || null;
   },
 
-  set: async (key: string, value: string): Promise<void> => {
+  set: async (key: string, value: string, options?: { ex?: number }): Promise<void> => {
     // key format: "room:{roomId}" or "prompter:{roomId}"
     const parts = key.split(":");
     const roomId = parts[1];
 
     if (upstashClient) {
-      await upstashClient.set(key, value);
+      if (options?.ex) {
+        await upstashClient.set(key, value, { ex: options.ex });
+      } else {
+        await upstashClient.set(key, value);
+      }
       if (roomId) {
         // Publish to notify all SSE subscribers watching this room
         await upstashClient.publish(roomId, value);
