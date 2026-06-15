@@ -344,28 +344,6 @@ export default function VendorView({
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'activity_logs',
-          filter: `room_id=eq.${roomId}`,
-        },
-        (payload: any) => {
-          const mappedLog = mapLog(payload.new);
-          if (!mappedLog) return;
-          setState((prev: any) => {
-            if (prev.logs.some((l: any) => l.id === mappedLog.id)) return prev;
-            const nextState = {
-              ...prev,
-              logs: [mappedLog, ...prev.logs].slice(0, 30),
-            };
-            updateDexieCache(nextState);
-            return nextState;
-          });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
           event: '*',
           schema: 'public',
           table: 'rundown_items',
