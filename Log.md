@@ -210,6 +210,24 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **Pembaruan Panduan Setup:** Memperbarui [README.md](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/README.md) dengan panduan pembuatan kunci VAPID serta instruksi pembuatan manual tabel `push_subscriptions` di dasbor Supabase SQL Editor apabila terhambat port pooler Drizzle.
 *   **Tujuan:** Menjamin keutuhan instruksi instalasi dan mempermudah pengembang lain untuk mengonfigurasi fitur push notification secara mandiri di lingkungan lokal maupun produksi.
 
+### 9. 🛡️ Penanganan Error Tangguh pada Jendela Picture-in-Picture (Robust DOM Exception Handling in Document PiP)
+*   **Perubahan:** Membungkus seluruh logika manipulasi DOM Document PiP di dalam ticker interval `tick()` menggunakan blok `try/catch` pada [VendorView.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/v/[token]/_components/VendorView.tsx).
+*   **Tujuan:** Mencegah terjadinya *unhandled DOM Exception* atau *TypeError* ketika jendela PiP ditutup secara eksternal oleh OS/browser atau saat terjadi update state offset asinkron dari EO, sehingga menghindari error boundary Next.js ("*This page needs to be reloaded*").
+
+### 10. 🍎 Kompatibilitas Picture-in-Picture pada iOS Safari iPhone (Safari iOS PiP Compatibility API)
+*   **Perubahan:**
+    *   **Adaptasi API:** Mengintegrasikan deteksi dan pemanggilan API webkit non-standar (`webkitSupportsPresentationMode` dan `webkitSetPresentationMode`) untuk menjalankan Canvas Fallback PiP di iOS Safari (iPhone).
+    *   **Daur Hidup Event:** Menambahkan event listener `webkitpresentationmodechanged` untuk memicu pembersihan DOM video secara otomatis saat user menutup PiP secara manual di iPhone.
+    *   **Optimasi Pemuatan Video:** Menghilangkan asinkronisasi `onloadedmetadata` yang lambat/tidak andal di Safari iOS, lalu memicu play stream secara sinkron dengan jeda mikro `requestAnimationFrame` sebelum mengaktifkan PiP.
+*   **Tujuan:** Memastikan kru/vendor lapangan yang menggunakan perangkat iPhone/iOS tetap dapat memanfaatkan fitur jendela melayang PiP secara andal di bawah peramban Safari.
+
+### 11. ⏱️ Peringatan Auto Push Notifikasi Sisa Waktu Rundown (Automated Time-Remaining Push Notification Alerts)
+*   **Perubahan:**
+    *   **Otomatisasi Ticker:** Mengintegrasikan pemicu sisa waktu di `ControlPanel.tsx` untuk memicu push alert ketika rundown aktif tersisa kurang dari 5 menit dan kurang dari 1 menit.
+    *   **Server Action & Redis Lock:** Membuat Server Action `sendTimeAlertNotificationAction` di [roomControl.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/roomControl.ts) untuk mengirim push notification ke divisi penanggung jawab, lengkap dengan deduplikasi ganda (pelacakan client-side `sentAlertsRef` dan server-side Redis lock dengan TTL 2 jam).
+    *   **Ekspansi Driver Redis:** Menyempurnakan method `set` pada helper [redis.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/lib/redis.ts) agar mendukung opsi TTL `{ ex: seconds }` bawaan Upstash Redis.
+*   **Tujuan:** Mempermudah kesiapan kru di belakang panggung dengan mengirim notifikasi push langsung ke HP/smartwatch mereka saat waktu rundown sesi aktif akan segera habis.
+
 ---
 
 ## 🛠️ Status Kompilasi Proyek
