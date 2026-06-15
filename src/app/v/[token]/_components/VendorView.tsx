@@ -455,10 +455,7 @@ export default function VendorView({
           const alertText = doc.getElementById('pip-alert-text');
 
           const { messages: frameMessages } = stateRef.current;
-          const relevantMsgs = frameMessages.filter(
-            (m) => m.targetRole === 'All' || m.targetRole === vendorRole
-          );
-          const latestMsg = relevantMsgs[0];
+          const latestMsg = frameMessages[0];
           const isFreshAlert = activeAlertRef.current !== null;
           const activeMsg = activeAlertRef.current;
 
@@ -482,7 +479,7 @@ export default function VendorView({
               alertView.style.display = 'flex';
               alertView.className = "flex flex-col items-center justify-center text-center px-2 py-1.5 bg-indigo-950 border border-indigo-600 rounded my-1 w-full animate-pulse-fast";
             }
-            if (alertText) alertText.innerText = activeMsg.message;
+            if (alertText) alertText.innerText = `[to ${activeMsg.targetRole}] : ${activeMsg.message}`;
             if (msgEl) msgEl.className = 'hidden';
           } else {
             // Show clock, hide big alert
@@ -518,7 +515,7 @@ export default function VendorView({
             }
             if (msgEl) {
               if (latestMsg) {
-                msgEl.innerText = latestMsg.message;
+                msgEl.innerText = `[to ${latestMsg.targetRole}] : ${latestMsg.message}`;
                 msgEl.className = `text-[9px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
               } else {
                 msgEl.className = 'hidden';
@@ -589,18 +586,8 @@ export default function VendorView({
       isInitialLoad.current = false;
       return;
     }
-
-    // Get latest message targeting this role (or 'All')
-    const relevantMsgs = messages.filter(
-      (m) => m.targetRole === 'All' || m.targetRole === vendorRole
-    );
     
-    if (relevantMsgs.length === 0) {
-      isInitialLoad.current = false;
-      return;
-    }
-    
-    const latest = relevantMsgs[0];
+    const latest = messages[0];
 
     // On initial load, just record the latest message ID so we don't alert on historical messages
     if (isInitialLoad.current) {
@@ -629,7 +616,7 @@ export default function VendorView({
 
       return () => clearTimeout(timer);
     }
-  }, [state.messages, vendorRole]);
+  }, [state.messages]);
 
   const togglePiP = async () => {
     if (typeof window === 'undefined') return;
@@ -768,10 +755,7 @@ export default function VendorView({
         }
 
         const { messages: initMsgs } = stateRef.current;
-        const relevantInitMsgs = initMsgs.filter(
-          (m) => m.targetRole === 'All' || m.targetRole === vendorRole
-        );
-        const latestInitMsg = relevantInitMsgs[0];
+        const latestInitMsg = initMsgs[0];
         const isFresh = activeAlertRef.current !== null;
         const activeMsg = activeAlertRef.current || latestInitMsg;
 
@@ -781,14 +765,14 @@ export default function VendorView({
             alertView.style.display = 'flex';
             alertView.className = "flex flex-col items-center justify-center text-center px-2 py-1.5 bg-indigo-950 border border-indigo-600 rounded my-1 w-full animate-pulse-fast";
           }
-          if (alertText) alertText.innerText = activeMsg.message;
+          if (alertText) alertText.innerText = `[to ${activeMsg.targetRole}] : ${activeMsg.message}`;
           if (msgEl) msgEl.className = 'hidden';
         } else {
           if (clockView) clockView.style.display = 'flex';
           if (alertView) alertView.style.display = 'none';
           if (msgEl) {
             if (latestInitMsg) {
-              msgEl.innerText = `💬 ${latestInitMsg.message}`;
+              msgEl.innerText = `💬 [to ${latestInitMsg.targetRole}] : ${latestInitMsg.message}`;
               msgEl.className = `text-[9px] font-bold text-center mt-1.5 px-2 line-clamp-1 border-t border-slate-900 pt-1 w-full truncate block text-indigo-300`;
             } else {
               msgEl.className = 'hidden';
@@ -917,10 +901,7 @@ export default function VendorView({
         // Fetch fresh state from ref on each draw frame
         const { room: frameRoom, items: frameItems, messages: frameMessages } = stateRef.current;
         const frameActiveItem = frameRoom && frameItems[frameRoom.currentRundownIndex];
-        const relevantMsgs = frameMessages.filter(
-          (m) => m.targetRole === 'All' || m.targetRole === vendorRole
-        );
-        const latestMsg = relevantMsgs[0];
+        const latestMsg = frameMessages[0];
         const isFreshAlert = activeAlertRef.current !== null;
         const activeMsg = activeAlertRef.current;
 
@@ -939,7 +920,7 @@ export default function VendorView({
           ctx.font = 'bold 12px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'top';
-          ctx.fillText('INSTRUKSI BARU!', canvas.width / 2, 34);
+          ctx.fillText(`INSTRUKSI BARU!`, canvas.width / 2, 34);
 
           ctx.fillStyle = colorTextWhite;
           ctx.font = 'bold 22px sans-serif';
@@ -947,7 +928,7 @@ export default function VendorView({
           ctx.textBaseline = 'middle';
           
           // Wrap text if needed (max 2 lines)
-          const msgText = `"${activeMsg.message}"`;
+          const msgText = `"[to ${activeMsg.targetRole}] : ${activeMsg.message}"`;
           const words = msgText.split(' ');
           let line1 = '';
           let line2 = '';
@@ -1054,7 +1035,7 @@ export default function VendorView({
             ctx.font = 'bold 11px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
-            const msgText = latestMsg.message;
+            const msgText = `[to ${latestMsg.targetRole}] : ${latestMsg.message}`;
             const maxMsgLength = 45;
             const truncatedMsg = msgText.length > maxMsgLength 
               ? msgText.substring(0, maxMsgLength) + '…'
@@ -1157,10 +1138,8 @@ export default function VendorView({
   const currentItem = room && items[room.currentRundownIndex];
   const nextItem = room && items[room.currentRundownIndex + 1];
 
-  // Filtering messages for this specific vendor view
-  const myMessages = messages.filter(
-    (m) => m.targetRole === 'All' || m.targetRole === vendorRole
-  );
+  // Show all messages since this is a shared screen
+  const allMessages = messages;
 
   return (
     <div className={`min-h-screen flex flex-col justify-between transition-colors duration-350 p-4 pb-6 select-none ${
@@ -1291,19 +1270,19 @@ export default function VendorView({
         <div className="border border-slate-900/40 bg-slate-900 rounded-xl p-4 min-h-[96px] flex flex-col justify-center">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5 font-mono flex items-center gap-1">
             <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Instruksi Terakhir Divisi Anda:</span>
+            <span>Instruksi Terakhir Prompter:</span>
           </span>
-          {myMessages.length === 0 ? (
+          {allMessages.length === 0 ? (
             <p className="text-xs text-slate-500 italic">
-              Belum ada instruksi khusus untuk divisi Anda. Tetap ikuti rundown acara.
+              Belum ada instruksi prompter. Tetap ikuti rundown acara.
             </p>
           ) : (
             <div className="space-y-1">
               <p className="text-sm text-indigo-300 font-bold leading-relaxed animate-in fade-in duration-300 font-sans">
-                &ldquo;{myMessages[0].message}&rdquo;
+                &ldquo;[to {allMessages[0].targetRole}] : {allMessages[0].message}&rdquo;
               </p>
               <span className="text-[9px] text-slate-500 font-mono block">
-                Dikirim pukul {new Date(myMessages[0].createdAt).toLocaleTimeString('id-ID')}
+                Dikirim pukul {new Date(allMessages[0].createdAt).toLocaleTimeString('id-ID')}
               </span>
             </div>
           )}
@@ -1322,7 +1301,7 @@ export default function VendorView({
               Instruksi Baru ({activeAlert.targetRole})
             </div>
             <h2 className="text-2xl font-bold text-white leading-snug font-sans">
-              &ldquo;{activeAlert.message}&rdquo;
+              &ldquo;[to {activeAlert.targetRole}] : {activeAlert.message}&rdquo;
             </h2>
             <button
               onClick={() => setActiveAlert(null)}

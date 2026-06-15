@@ -212,11 +212,11 @@ export async function sendPrompterMessageAction(
 
     // Dispatch push notification to target vendors (awaited to prevent serverless event-loop freeze)
     try {
-      // Find the specific role token to generate direct redirect link
+      // Find the shared role token to generate direct redirect link
       const roleToken = await db.query.roleTokens.findFirst({
         where: and(
           eq(roleTokens.roomId, roomId),
-          eq(roleTokens.role, targetRole)
+          eq(roleTokens.role, 'All')
         ),
       });
 
@@ -306,11 +306,11 @@ export async function sendTimeAlertNotificationAction(
     const title = alertType === '5m' ? `⏱️ Sisa Waktu: Sesi "${item.title}"` : `🚨 Bersiap! Sesi "${item.title}"`;
     const body = `Sesi "${item.title}" tersisa kurang dari ${alertLabel}! Harap bersiap.`;
 
-    // Find the specific role token to generate direct redirect link
+    // Find the shared role token to generate direct redirect link
     const roleToken = await db.query.roleTokens.findFirst({
       where: and(
         eq(roleTokens.roomId, roomId),
-        eq(roleTokens.role, targetRole)
+        eq(roleTokens.role, 'All')
       ),
     });
 

@@ -11,9 +11,9 @@ export async function addRundownItemAction(prevState: any, formData: FormData) {
   const roomId = formData.get('roomId') as string;
   const title = formData.get('title') as string;
   const durationMinutesStr = formData.get('durationMinutes') as string;
-  const targetRole = formData.get('targetRole') as string;
+  const targetPicsList = formData.getAll('targetPics') as string[];
 
-  if (!roomId || !title || !durationMinutesStr || !targetRole) {
+  if (!roomId || !title || !durationMinutesStr) {
     return { error: 'Semua kolom harus diisi' };
   }
 
@@ -21,6 +21,9 @@ export async function addRundownItemAction(prevState: any, formData: FormData) {
   if (isNaN(durationMinutes) || durationMinutes <= 0) {
     return { error: 'Durasi harus berupa angka positif' };
   }
+
+  const targetPics = targetPicsList.length > 0 ? JSON.stringify(targetPicsList) : JSON.stringify(['All']);
+  const targetRole = targetPicsList.join(', ') || 'All';
 
   try {
     const userId = await getSessionUserId();
@@ -47,6 +50,7 @@ export async function addRundownItemAction(prevState: any, formData: FormData) {
       title,
       durationSeconds: durationMinutes * 60,
       targetRole,
+      targetPics,
       orderIndex: nextOrderIndex,
     });
 

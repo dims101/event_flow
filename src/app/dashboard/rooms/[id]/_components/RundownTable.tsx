@@ -11,6 +11,7 @@ interface RundownItem {
   title: string;
   durationSeconds: number;
   targetRole: string;
+  targetPics?: string | null;
   orderIndex: number;
 }
 
@@ -29,10 +30,37 @@ const getRoleBadgeStyle = (role: string) => {
     case 'MUA':
       return 'border-purple-500/20 bg-purple-500/10 text-purple-400';
     case 'Dokumentasi':
+    case 'Fotografer':
       return 'border-blue-500/20 bg-blue-500/10 text-blue-400';
     default:
       return 'border-slate-800 bg-slate-900 text-slate-400';
   }
+};
+
+const renderPicBadges = (item: RundownItem) => {
+  let list: string[] = [];
+  if (item.targetPics) {
+    try {
+      list = JSON.parse(item.targetPics);
+    } catch (e) {
+      list = item.targetRole ? item.targetRole.split(', ') : ['All'];
+    }
+  } else {
+    list = item.targetRole ? item.targetRole.split(', ') : ['All'];
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {list.map((pic) => (
+        <span
+          key={pic}
+          className={`inline-block px-2 py-0.5 rounded border text-[10px] font-bold ${getRoleBadgeStyle(pic)}`}
+        >
+          {pic}
+        </span>
+      ))}
+    </div>
+  );
 };
 
 export default function RundownTable({ items }: RundownTableProps) {
@@ -111,9 +139,7 @@ export default function RundownTable({ items }: RundownTableProps) {
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-900/40 text-xs">
-                <span className={`inline-block px-2.5 py-0.5 rounded border text-[10px] font-bold ${getRoleBadgeStyle(item.targetRole)}`}>
-                  {item.targetRole}
-                </span>
+                {renderPicBadges(item)}
                 <span className="text-slate-400 font-medium flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5" />
                   <span>{durationMinutes} Menit</span>
@@ -158,9 +184,7 @@ export default function RundownTable({ items }: RundownTableProps) {
                         {durationMinutes} Menit
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`inline-block px-2.5 py-0.5 rounded border text-[10px] font-bold ${getRoleBadgeStyle(item.targetRole)}`}>
-                          {item.targetRole}
-                        </span>
+                        {renderPicBadges(item)}
                       </td>
                       <td className="py-3 px-4 text-center text-slate-400 font-mono text-xs tabular-nums">
                         {formatOffset(currentOffset)}

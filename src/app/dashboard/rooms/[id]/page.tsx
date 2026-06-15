@@ -14,6 +14,8 @@ import RundownTable from './_components/RundownTable';
 import ControlPanel from './_components/ControlPanel';
 import SharePanel from './_components/SharePanel';
 import RoomTabs from './_components/RoomTabs';
+import PicManagement from './_components/PicManagement';
+import { getPicsAction } from '@/app/actions/pic';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,7 +39,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
   }
 
   // Step 2: Fetch all remaining data IN PARALLEL — none depend on each other
-  const [items, tokens, messages, logs] = await Promise.all([
+  const [items, tokens, messages, logs, pics] = await Promise.all([
     db.query.rundownItems.findMany({
       where: eq(rundownItems.roomId, roomId),
       orderBy: (rundownItems, { asc }) => [asc(rundownItems.orderIndex)],
@@ -55,6 +57,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
       orderBy: (activityLogs, { desc }) => [desc(activityLogs.createdAt)],
       limit: 30,
     }),
+    getPicsAction(roomId),
   ]);
 
   const formattedDate = new Date(room.eventDate).toLocaleDateString('id-ID', {
@@ -73,8 +76,9 @@ export default async function RoomPage({ params }: RoomPageProps) {
         </h4>
         <RundownTable items={items} />
       </div>
-      <div>
-        <AddRundownForm roomId={roomId} />
+      <div className="space-y-6">
+        <AddRundownForm roomId={roomId} pics={pics} />
+        <PicManagement roomId={roomId} initialPics={pics} />
       </div>
     </div>
   );
@@ -86,6 +90,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
       initialItems={items}
       initialMessages={messages}
       initialLogs={logs}
+      pics={pics}
     />
   );
 

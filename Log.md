@@ -4,6 +4,33 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ---
 
+## 📅 Pembaruan: 15 Juni 2026 (Bagian 2 - Sistem PIC Dinamis & Tautan Bersama)
+
+### 1. 🗃️ Migrasi ke Sistem PIC (Person In Charge) Dinamis
+*   **Perubahan:**
+    *   **Skema Database:** Menambahkan tabel `pics` pada [schema.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/db/schema.ts) untuk mengelola PIC dinamis per ruangan, serta menambahkan kolom `targetPics` (JSON array text) pada tabel `rundownItems` untuk menyimpan multi-relasi PIC per sesi.
+    *   **Database Migration:** Mengeksekusi skema migrasi baru ke Supabase PostgreSQL untuk membuat tabel `pics` dan menambahkan kolom `target_pics` secara non-destructive dengan driver `postgres` dalam script [migrate.js](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/scratch/migrate.js).
+    *   **PIC Server Actions:** Membuat berkas [pic.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/pic.ts) dengan server actions: `getPicsAction`, `addPicAction`, dan `deletePicAction` untuk manajemen PIC dinamis per ruangan.
+    *   **Room Seeding & Token Generation:** Memperbarui `createRoomAction` di [room.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/room.ts) untuk menanamkan (*seed*) PIC default (`MC`, `MUA`, `Fotografer`) secara otomatis saat pembuatan ruangan baru, dan hanya men-generate satu token akses bersama dengan peran `'All'`.
+    *   **Rundown Items Refactor:** Memperbarui `addRundownItemAction` di [rundown.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/rundown.ts) untuk menyimpan array PIC terpilih sebagai string JSON pada kolom `targetPics` dengan tetap menulis string comma-separated ke `targetRole` untuk kompatibilitas ke belakang (*backward compatibility*).
+*   **Tujuan:** Mengganti sistem divisi vendor statis yang terbatas menjadi sistem PIC dinamis yang dikustomisasi oleh EO dan mendukung multi-PIC di setiap sesi acara.
+
+### 2. 📱 Antarmuka Pengelolaan PIC & Pilihan Badge Sesi Rundown
+*   **Perubahan:**
+    *   **Komponen UI PicManagement:** Membuat komponen [PicManagement.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/PicManagement.tsx) yang diletakkan pada tab "Akses" di dashboard EO untuk menambah dan menghapus PIC.
+    *   **Form Sesi Rundown Checklist:** Memperbarui [AddRundownForm.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/AddRundownForm.tsx) dengan pilihan multi-select berbasis checkbox badge untuk menugaskan satu atau beberapa PIC ke sesi rundown.
+    *   **Tabel Rundown Multi-Badge:** Memperbarui [RundownTable.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/RundownTable.tsx) untuk merender daftar badge PIC yang ditugaskan di setiap baris rundown dengan parser fallback jika data lama kosong.
+*   **Tujuan:** Memberikan kemudahan bagi EO untuk menyusun penanggung jawab sesi secara intuitif dengan antarmuka yang bersih dan interaktif.
+
+### 3. 📢 Pocket Prompter Dinamis & Layar Bersama Layanan Lapangan (Shared Prompter Screen)
+*   **Perubahan:**
+    *   **Dropdown Penerima Dinamis:** Memperbarui dropdown divisi penerima pada prompter [ControlPanel.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/ControlPanel.tsx) agar memuat daftar PIC dinamis dari database, memotong pilihan divisi hardcoded yang lama.
+    *   **Refaktorisasi Layar Vendor Bersama (Shared View):** Memodifikasi [VendorView.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/v/[token]/_components/VendorView.tsx) untuk menghilangkan filter divisi (menampilkan seluruh pesan prompter) karena menggunakan satu link akses bersama.
+    *   **Format Prefix Instruksi:** Menambahkan format prefix visual `[to NamaPIC] : pesan` pada tampilan instruksi terakhir, popup alerts instan raksasa (overlay 7 detik), Document PiP, dan Canvas Fallback PiP agar kru lapangan dapat dengan cepat mengidentifikasi target penerima pesan tersebut.
+*   **Tujuan:** Menyederhanakan pembagian tautan akses (cukup satu link untuk seluruh kru) dan memperjelas pembagian instruksi visual langsung di layar bersama kru.
+
+---
+
 ## 📅 Pembaruan: 15 Juni 2026
 
 ### 0. ⚡ Integrasi Upstash Redis (Penggantian In-Memory Mock)

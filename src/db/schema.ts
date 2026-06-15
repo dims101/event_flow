@@ -32,6 +32,7 @@ export const rundownItems = pgTable('rundown_items', {
   title: text('title').notNull(),
   durationSeconds: integer('duration_seconds').notNull(),
   targetRole: text('target_role').notNull(), // 'All', 'MC', 'Catering', 'MUA', 'Dokumentasi'
+  targetPics: text('target_pics'), // Stores JSON array of PIC names e.g. '["MC", "MUA"]'
   orderIndex: integer('order_index').notNull(),
 });
 
@@ -59,5 +60,12 @@ export const pushSubscriptions = pgTable('push_subscriptions', {
   p256dh: text('p256dh').notNull(),
   auth: text('auth').notNull(),
   deviceInfo: text('device_info'),
+  createdAt: bigint('created_at', { mode: 'number' }).notNull(),
+});
+
+export const pics = pgTable('pics', {
+  id: text('id').primaryKey(),
+  roomId: text('room_id').notNull().references(() => rooms.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
   createdAt: bigint('created_at', { mode: 'number' }).notNull(),
 });

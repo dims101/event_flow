@@ -5,11 +5,17 @@ import { useRouter } from 'next/navigation';
 import { addRundownItemAction } from '@/app/actions/rundown';
 import { Plus, AlertCircle, Sparkles } from 'lucide-react';
 
-interface AddRundownFormProps {
-  roomId: string;
+interface Pic {
+  id: string;
+  name: string;
 }
 
-export default function AddRundownForm({ roomId }: AddRundownFormProps) {
+interface AddRundownFormProps {
+  roomId: string;
+  pics: Pic[];
+}
+
+export default function AddRundownForm({ roomId, pics }: AddRundownFormProps) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +71,7 @@ export default function AddRundownForm({ roomId }: AddRundownFormProps) {
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-4">
           <div className="space-y-1">
             <label htmlFor="durationMinutes" className="text-xs font-bold text-slate-400 tracking-wide">
               Durasi (Menit)
@@ -81,22 +87,30 @@ export default function AddRundownForm({ roomId }: AddRundownFormProps) {
             />
           </div>
 
-          <div className="space-y-1">
-            <label htmlFor="targetRole" className="text-xs font-bold text-slate-400 tracking-wide">
-              Target Divisi
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-400 tracking-wide block">
+              Target PIC (Pilih PIC yang bertugas)
             </label>
-            <select
-              id="targetRole"
-              name="targetRole"
-              required
-              className="w-full px-3.5 py-2 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm appearance-none cursor-pointer"
-            >
-              <option value="All">Semua Kru (All)</option>
-              <option value="MC">Master of Ceremony (MC)</option>
-              <option value="Catering">Katering (Catering)</option>
-              <option value="MUA">Make-Up Artist (MUA)</option>
-              <option value="Dokumentasi">Dokumentasi (Foto/Video)</option>
-            </select>
+            <div className="flex flex-wrap gap-2 p-3 bg-slate-950 border border-slate-800 rounded-lg min-h-[44px]">
+              {pics.length === 0 ? (
+                <span className="text-xs text-slate-500 italic">Tidak ada PIC. Silakan tambahkan PIC terlebih dahulu.</span>
+              ) : (
+                pics.map((pic) => (
+                  <label
+                    key={pic.id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900/60 hover:bg-slate-900 cursor-pointer text-xs font-semibold select-none text-slate-300 transition hover:border-slate-700"
+                  >
+                    <input
+                      type="checkbox"
+                      name="targetPics"
+                      value={pic.name}
+                      className="w-3.5 h-3.5 rounded border-slate-800 bg-slate-950 text-indigo-650 focus:ring-indigo-500 cursor-pointer"
+                    />
+                    <span>{pic.name}</span>
+                  </label>
+                ))
+              )}
+            </div>
           </div>
         </div>
 

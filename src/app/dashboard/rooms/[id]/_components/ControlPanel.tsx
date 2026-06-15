@@ -51,12 +51,18 @@ interface ActivityLog {
   createdAt: number;
 }
 
+interface Pic {
+  id: string;
+  name: string;
+}
+
 interface ControlPanelProps {
   roomId: string;
   initialRoom: Room;
   initialItems: RundownItem[];
   initialMessages: PrompterMessage[];
   initialLogs: ActivityLog[];
+  pics: Pic[];
 }
 
 export default function ControlPanel({ 
@@ -64,7 +70,8 @@ export default function ControlPanel({
   initialRoom, 
   initialItems, 
   initialMessages,
-  initialLogs
+  initialLogs,
+  pics
 }: ControlPanelProps) {
   const router = useRouter();
   
@@ -1257,16 +1264,18 @@ export default function ControlPanel({
               <label htmlFor="target" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Divisi Target
               </label>
-              <select
+               <select
                 id="target"
                 value={targetRole}
                 onChange={(e) => setTargetRole(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-sm appearance-none cursor-pointer min-h-[40px]"
               >
-                <option value="All">Semua Kru (All)</option>
-                <option value="MC">Master of Ceremony (MC)</option>
-                <option value="Catering">Katering (Catering)</option>
-                <option value="MUA">Make-Up Artist (MUA)</option>
+                <option value="All">Semua (All)</option>
+                {pics.map((pic) => (
+                  <option key={pic.id} value={pic.name}>
+                    {pic.name}
+                  </option>
+                ))}
               </select>
             </div>
 

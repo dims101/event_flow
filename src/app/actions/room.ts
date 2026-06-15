@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/db';
-import { rooms, roleTokens } from '@/db/schema';
+import { rooms, roleTokens, pics } from '@/db/schema';
 import { getCurrentUser, getSessionUserId } from './auth';
 import { eq, and } from 'drizzle-orm';
 
@@ -33,16 +33,24 @@ export async function createRoomAction(prevState: any, formData: FormData) {
       timerElapsedSeconds: 0,
     });
 
-    // Generate tokens for MC, Catering, MUA, and All
-    const roles = ['MC', 'Catering', 'MUA', 'All'];
-    for (const role of roles) {
-      await db.insert(roleTokens).values({
+    // Seed default PICs: MC, MUA, and Fotografer
+    const defaultPics = ['MC', 'MUA', 'Fotografer'];
+    for (const name of defaultPics) {
+      await db.insert(pics).values({
         id: crypto.randomUUID(),
         roomId,
-        token: crypto.randomUUID(),
-        role,
+        name,
+        createdAt: Date.now(),
       });
     }
+
+    // Generate only ONE token with role 'All' (shared access link)
+    await db.insert(roleTokens).values({
+      id: crypto.randomUUID(),
+      roomId,
+      token: crypto.randomUUID(),
+      role: 'All',
+    });
 
     return { success: true };
   } catch (error: any) {
