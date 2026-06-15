@@ -95,6 +95,13 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   Mengonversi seluruh string dots elipsis manual `...` menjadi simbol karakter elipsis tunggal `…` sesuai pedoman typography modern, serta meloloskan tanda kutip tidak sah dalam JSX `VendorView.tsx`.
 *   **Tujuan:** Menyediakan pengalaman otentikasi yang ramah pengguna serta standarisasi tipografi profesional.
 
+### 13. ⏱️ Fitur Transisi Otomatis Sesi Rundown Selesai (Automated Rundown Session Auto-Advance)
+*   **Perubahan:**
+    *   **Server Actions Validation:** Menambahkan parameter `isAutoAdvance` pada Server Action `updateTimerStatusAction` di [roomControl.ts](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/actions/roomControl.ts) untuk memvalidasi bahwa transisi otomatis hanya berjalan jika room belum berpindah ke target index yang baru dan index saat ini adalah index yang tepat sebelumnya. Ini mencegah tab atau admin ganda memicu transisi duplikat secara beruntun.
+    *   **Locks di Klien (Control Panel):** Menambahkan reference lock `isTransitioningRef` pada [ControlPanel.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/ControlPanel.tsx) yang memblokir trigger ganda dari pemanggilan tick lokal sebelum database berhasil diupdate dan dibroadcast ulang ke React state.
+    *   **Auto-Advance Trigger:** Mengintegrasikan logika transisi otomatis di dalam `tick` callback: jika timer sedang berjalan dan waktu tersisa habis (`diff <= 0`), sistem secara otomatis memindahkan ke rundown berikutnya atau menghentikan timer (`stopped`) jika itu adalah sesi terakhir.
+*   **Tujuan:** Menghadirkan transisi otomatis yang seamless antar sesi rundown saat waktu berakhir, mengurangi beban intervensi manual oleh Show Caller di hari-H acara.
+
 ---
 
 ## 📅 Pembaruan: 14 Juni 2026
