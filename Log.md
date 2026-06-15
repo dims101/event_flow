@@ -137,7 +137,19 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ---
 
+## 📅 Pembaruan: 15 Juni 2026
+
+### 1. 💙 Integrasi Sistem Desain Atlassian (Atlassian Design System Integration)
+*   **Perubahan:** 
+    *   Menerapkan spesifikasi token warna Atlassian dari [atlassian-design.md](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/atlassian-design.md) dan [atlassian-theme.json](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/atlassian-theme.json) ke dalam [globals.css](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/globals.css).
+    *   Memetakan variabel CSS utama (`--bg-1` hingga `--bg-6`, `--text-1` hingga `--text-3`, `--brand-base`, `--brand-hover`, `--brand-light`, `--brand-subtle`) menggunakan skema warna **OKLCH** asli Atlassian untuk mode terang (`:root`) dan mode gelap (`:root.dark`).
+    *   Menyesuaikan status warna (`--status-good`, `--status-bad`, `--status-warn`) dan latar belakang status subtil (`-bg`) dengan palet baru Atlassian untuk keselarasan visual (simetri mode terang/gelap).
+*   **Tujuan:** Memastikan antarmuka EventFlow memiliki skema warna profesional, konsisten, berpusat pada pengguna, serta memenuhi rasio kontras aksesibilitas WCAG 2.2 AA secara otomatis.
+
+---
+
 ## 🛠️ Status Kompilasi Proyek
-*   **Uji Coba Build:** Berhasil dijalankan via `npm run build`.
-*   **Hasil:** Kompilasi sukses 100% menggunakan Next.js (Turbopack) dengan status **Zero Errors** (baik pada parser TypeScript maupun page bundle optimization).
+*   **Uji Coba Build:** Berhasil dijalankan via `npm run build` pada 15 Juni 2026.
+*   **Hasil:** Kompilasi sukses 100% menggunakan Next.js dengan status **Zero Errors** pada page bundle optimization.
+
 

@@ -4,57 +4,57 @@
   --background: var(--bg-1);
   --foreground: var(--text-1);
 
-  /* Light Mode CSS variables based on blue-theme.json */
-  --bg-1: oklch(0.969 0.009 128.6);          /* Page background */
-  --bg-2: oklch(0.948 0.009 128.6);          /* Card / Modal background */
-  --bg-3: oklch(0.948 0.009 128.6);          /* Secondary card2 background / Inputs */
-  --bg-4: oklch(0.925 0.009 128.6);          /* Hover / Item highlights */
-  --bg-5: oklch(0.909 0.009 128.6);          /* Standard borders / Dividers */
-  --bg-6: oklch(0.850 0.009 128.6);          /* Disabled states / Strong borders */
+  /* Light Mode CSS variables based on atlassian-theme.json and atlassian-design.md */
+  --bg-1: oklch(0.985 0.002 247.9);          /* Page background (color.background.neutral) */
+  --bg-2: oklch(1.000 0.000 0.0);            /* Card / Modal background (elevation.surface) */
+  --bg-3: oklch(0.967 0.003 247.9);          /* Secondary card2 background / Inputs (color.background.input) */
+  --bg-4: oklch(0.938 0.004 247.9);          /* Hover / Item highlights (color.background.neutral.subtle.hovered) */
+  --bg-5: oklch(0.898 0.006 247.9);          /* Standard borders / Dividers (color.border) */
+  --bg-6: oklch(0.803 0.010 247.9);          /* Disabled states / Strong borders (color.border.disabled) */
 
-  --text-1: oklch(0.000 0.000 0.0);          /* Primary text */
-  --text-2: oklch(0.085 0.000 127.5);        /* Secondary text / labels (textMuted) */
-  --text-3: oklch(0.200 0.000 127.5);        /* Muted text / metadata */
+  --text-1: oklch(0.148 0.027 257.0);        /* Primary text (color.text) */
+  --text-2: oklch(0.364 0.026 248.8);        /* Secondary text / labels (color.text.subtle) */
+  --text-3: oklch(0.468 0.023 248.8);        /* Muted text / metadata (color.text.subtle.muted) */
 
-  --brand-base: oklch(0.374 0.149 275.5);    /* Primary color (blue-violet) */
-  --brand-hover: oklch(0.320 0.149 275.5);   /* Darker brand for hover */
-  --brand-light: oklch(0.375 0.126 275.7);   /* Active border highlight / ring */
-  --brand-subtle: oklch(0.950 0.030 275.5);  /* Subtle brand background surface */
+  --brand-base: oklch(0.485 0.207 266.6);    /* Primary color (color.background.brand.bold) */
+  --brand-hover: oklch(0.430 0.200 266.6);   /* Darker brand for hover */
+  --brand-light: oklch(0.603 0.170 263.6);   /* Active border highlight / ring (ring) */
+  --brand-subtle: oklch(0.927 0.038 259.9);  /* Subtle brand background surface (color.background.brand) */
 
-  /* Status Colors from blue-theme.json */
-  --status-good: oklch(0.363 0.045 90.4);
-  --status-good-bg: oklch(0.950 0.020 90.4);
-  --status-bad: oklch(0.375 0.105 336.8);
-  --status-bad-bg: oklch(0.950 0.020 336.8);
-  --status-warn: oklch(0.447 0.102 50.4);
-  --status-warn-bg: oklch(0.950 0.020 50.4);
+  /* Status Colors from atlassian-theme.json & atlassian-design.md */
+  --status-good: oklch(0.505 0.141 156.4);     /* success */
+  --status-good-bg: oklch(0.950 0.020 156.4);  /* success subtle bg */
+  --status-bad: oklch(0.462 0.198 28.5);       /* danger */
+  --status-bad-bg: oklch(0.950 0.020 28.5);    /* danger subtle bg */
+  --status-warn: oklch(0.771 0.158 81.3);      /* warning */
+  --status-warn-bg: oklch(0.950 0.020 81.3);   /* warning subtle bg */
 }
 
 :root.dark {
-  /* Dark Mode CSS variables based on blue-theme.json */
-  --bg-1: oklch(0.000 0.000 0.0);            /* Page background */
-  --bg-2: oklch(0.040 0.000 0.0);            /* Card / Modal background (elevated slightly for contrast) */
-  --bg-3: oklch(0.080 0.000 0.0);            /* Secondary card2 background / Inputs */
-  --bg-4: oklch(0.120 0.000 0.0);            /* Hover / Item highlights */
-  --bg-5: oklch(0.320 0.010 275.5);          /* Thin contrast border in dark mode (32% lightness) */
-  --bg-6: oklch(0.450 0.015 275.5);          /* Active border / Strong border in dark mode (45% lightness) */
+  /* Dark Mode CSS variables based on atlassian-theme.json and atlassian-design.md */
+  --bg-1: oklch(0.203 0.009 252.3);          /* Page background */
+  --bg-2: oklch(0.224 0.010 252.3);          /* Card / Modal background */
+  --bg-3: oklch(0.264 0.012 252.3);          /* Secondary card2 background / Inputs */
+  --bg-4: oklch(0.318 0.015 252.3);          /* Hover / Item highlights */
+  --bg-5: oklch(0.354 0.016 252.3);          /* Thin contrast border in dark mode */
+  --bg-6: oklch(0.428 0.020 252.3);          /* Active border / Strong border in dark mode */
 
-  --text-1: oklch(0.969 0.009 128.6);        /* Primary text */
-  --text-2: oklch(0.688 0.009 128.6);        /* Secondary text / labels (textMuted) */
-  --text-3: oklch(0.500 0.009 128.6);        /* Muted text / metadata */
+  --text-1: oklch(0.916 0.009 248.8);        /* Primary text */
+  --text-2: oklch(0.718 0.017 248.8);        /* Secondary text / labels */
+  --text-3: oklch(0.655 0.018 248.8);        /* Muted text / metadata */
 
-  --brand-base: oklch(0.591 0.226 276.7);    /* Primary color (violet-blue) */
-  --brand-hover: oklch(0.650 0.226 276.7);   /* Lighter brand for hover in dark mode */
-  --brand-light: oklch(0.578 0.152 275.4);   /* Active border highlight / ring */
-  --brand-subtle: oklch(0.120 0.050 276.7);  /* Subtle brand background surface */
+  --brand-base: oklch(0.686 0.156 257.6);    /* Primary color */
+  --brand-hover: oklch(0.740 0.156 257.6);   /* Lighter brand for hover in dark mode */
+  --brand-light: oklch(0.485 0.207 266.6);   /* Active border highlight / ring */
+  --brand-subtle: oklch(0.231 0.046 258.9);  /* Subtle brand background surface */
 
-  /* Status Colors from blue-theme.json */
-  --status-good: oklch(0.573 0.080 95.2);
-  --status-good-bg: oklch(0.120 0.030 95.2);
-  --status-bad: oklch(0.599 0.172 336.1);
-  --status-bad-bg: oklch(0.120 0.050 336.1);
-  --status-warn: oklch(0.666 0.168 53.6);
-  --status-warn-bg: oklch(0.120 0.050 53.6);
+  /* Status Colors from atlassian-theme.json & atlassian-design.md */
+  --status-good: oklch(0.628 0.165 156.4);
+  --status-good-bg: oklch(0.120 0.030 156.4);
+  --status-bad: oklch(0.551 0.206 28.5);
+  --status-bad-bg: oklch(0.120 0.050 28.5);
+  --status-warn: oklch(0.835 0.177 81.3);
+  --status-warn-bg: oklch(0.120 0.050 81.3);
 }
 
 
