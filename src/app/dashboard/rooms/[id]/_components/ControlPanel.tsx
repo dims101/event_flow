@@ -87,6 +87,7 @@ export default function ControlPanel({
   // Local ticker states
   const [timerDisplay, setTimerDisplay] = useState('00:00');
   const [isOvertime, setIsOvertime] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
   const [isPipActive, setIsPipActive] = useState(false);
   const pipWindowRef = useRef<any>(null);
 
@@ -294,6 +295,7 @@ export default function ControlPanel({
       if (room.currentRundownIndex === -1 || items.length === 0) {
         setTimerDisplay('00:00');
         setIsOvertime(false);
+        setRemainingSeconds(null);
         
         // Update Document PiP if active
         if (pipWindowRef.current) {
@@ -312,6 +314,7 @@ export default function ControlPanel({
       if (!currentItem) {
         setTimerDisplay('00:00');
         setIsOvertime(false);
+        setRemainingSeconds(null);
         return;
       }
 
@@ -333,6 +336,7 @@ export default function ControlPanel({
       
       setTimerDisplay(formatted);
       setIsOvertime(over);
+      setRemainingSeconds(Math.floor(diff));
 
       // Auto-advance session when timer runs out
       if (room.timerStatus === 'running' && diff <= 0 && !isTransitioningRef.current) {
@@ -443,9 +447,17 @@ export default function ControlPanel({
           
           if (timerEl) {
             timerEl.innerText = formatted;
-            timerEl.className = `font-mono text-4xl font-extrabold tracking-tighter text-center ${
-              over ? 'text-rose-500' : room.timerStatus === 'running' ? 'text-indigo-400' : 'text-slate-300'
-            }`;
+            const remSec = Math.floor(diff);
+            const pipColorClass = over
+              ? 'text-rose-500'
+              : remSec <= 60
+              ? 'text-red-500 animate-pulse-fast'
+              : remSec <= 300
+              ? 'text-amber-500'
+              : room.timerStatus === 'running'
+              ? 'text-indigo-400'
+              : 'text-slate-300';
+            timerEl.className = `font-mono text-4xl font-extrabold tracking-tighter text-center ${pipColorClass}`;
           }
           if (dotEl) {
             const currentStatus = room.timerStatus;
@@ -908,7 +920,27 @@ export default function ControlPanel({
             isFrameOvertime = (totalAllowed - elapsed) < 0;
           }
 
-          ctx.fillStyle = isFrameOvertime ? '#ef4444' : colorTextPrimary;
+          let frameRemainingSec = null;
+          if (frameRoom && frameActiveItem) {
+            let elapsed = frameRoom.timerElapsedSeconds;
+            if (frameRoom.timerStatus === 'running' && frameRoom.timerStartTime) {
+              elapsed += (Date.now() - frameRoom.timerStartTime) / 1000;
+            }
+            const totalAllowed = frameActiveItem.durationSeconds + frameRoom.currentOffsetSeconds;
+            const diff = totalAllowed - elapsed;
+            frameRemainingSec = Math.floor(diff);
+          }
+
+          if (isFrameOvertime) {
+            ctx.fillStyle = '#ef4444';
+          } else if (frameRemainingSec !== null && frameRemainingSec <= 60 && frameRoom?.timerStatus === 'running') {
+            ctx.fillStyle = '#f87171'; // Red/Rose
+          } else if (frameRemainingSec !== null && frameRemainingSec <= 300 && frameRoom?.timerStatus === 'running') {
+            ctx.fillStyle = '#f59e0b'; // Amber
+          } else {
+            ctx.fillStyle = colorTextPrimary;
+          }
+
           ctx.font = 'bold 64px monospace';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -1005,7 +1037,15 @@ export default function ControlPanel({
 
           {/* TIMER DIGITS */}
           <div className={`relative z-10 font-mono text-7xl md:text-8xl font-extrabold tracking-tighter my-4 sm:my-6 select-none ${
-            isOvertime ? 'text-rose-500' : room.timerStatus === 'running' ? 'text-indigo-400' : 'text-slate-400'
+            isOvertime
+              ? 'text-rose-500'
+              : remainingSeconds !== null && remainingSeconds <= 60
+              ? 'text-red-500 animate-pulse-slow'
+              : remainingSeconds !== null && remainingSeconds <= 300
+              ? 'text-amber-500'
+              : room.timerStatus === 'running'
+              ? 'text-indigo-400'
+              : 'text-slate-400'
           }`}>
             {timerDisplay}
           </div>

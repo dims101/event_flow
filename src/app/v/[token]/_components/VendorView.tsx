@@ -152,6 +152,7 @@ export default function VendorView({
   // Ticker states
   const [timerDisplay, setTimerDisplay] = useState('00:00');
   const [isOvertime, setIsOvertime] = useState(false);
+  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
   const [isPipActive, setIsPipActive] = useState(false);
   
   // Prompter alert states
@@ -378,6 +379,7 @@ export default function VendorView({
       if (!room || room.currentRundownIndex === -1 || items.length === 0) {
         setTimerDisplay('00:00');
         setIsOvertime(false);
+        setRemainingSeconds(null);
         
         // Update Document PiP if active
         if (pipWindowRef.current) {
@@ -410,6 +412,7 @@ export default function VendorView({
       if (!currentItem) {
         setTimerDisplay('00:00');
         setIsOvertime(false);
+        setRemainingSeconds(null);
         return;
       }
 
@@ -430,6 +433,7 @@ export default function VendorView({
       
       setTimerDisplay(formatted);
       setIsOvertime(over);
+      setRemainingSeconds(Math.floor(diff));
 
       // Update Document PiP if active
       if (pipWindowRef.current) {
@@ -487,9 +491,17 @@ export default function VendorView({
             
             if (timerEl) {
               timerEl.innerText = formatted;
-              timerEl.className = `font-mono text-4xl font-extrabold tracking-tighter text-center ${
-                over ? 'text-rose-500' : room.timerStatus === 'running' ? 'text-indigo-400' : 'text-slate-300'
-              }`;
+              const remSec = Math.floor(diff);
+              const pipColorClass = over
+                ? 'text-rose-500'
+                : remSec <= 60
+                ? 'text-red-500 animate-pulse-fast'
+                : remSec <= 300
+                ? 'text-amber-500'
+                : room.timerStatus === 'running'
+                ? 'text-indigo-400'
+                : 'text-slate-300';
+              timerEl.className = `font-mono text-4xl font-extrabold tracking-tighter text-center ${pipColorClass}`;
             }
             if (dotEl) {
               const currentStatus = room.timerStatus;
@@ -978,7 +990,27 @@ export default function VendorView({
             isFrameOvertime = (totalAllowed - elapsed) < 0;
           }
 
-          ctx.fillStyle = isFrameOvertime ? '#ef4444' : colorTextPrimary;
+          let frameRemainingSec = null;
+          if (frameRoom && frameActiveItem) {
+            let elapsed = frameRoom.timerElapsedSeconds;
+            if (frameRoom.timerStatus === 'running' && frameRoom.timerStartTime) {
+              elapsed += (Date.now() - frameRoom.timerStartTime) / 1000;
+            }
+            const totalAllowed = frameActiveItem.durationSeconds + (frameRoom.currentOffsetSeconds || 0);
+            const diff = totalAllowed - elapsed;
+            frameRemainingSec = Math.floor(diff);
+          }
+
+          if (isFrameOvertime) {
+            ctx.fillStyle = '#ef4444';
+          } else if (frameRemainingSec !== null && frameRemainingSec <= 60 && frameRoom?.timerStatus === 'running') {
+            ctx.fillStyle = '#f87171'; // Red/Rose
+          } else if (frameRemainingSec !== null && frameRemainingSec <= 300 && frameRoom?.timerStatus === 'running') {
+            ctx.fillStyle = '#f59e0b'; // Amber
+          } else {
+            ctx.fillStyle = colorTextPrimary;
+          }
+
           ctx.font = 'bold 64px monospace';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
@@ -1224,7 +1256,15 @@ export default function VendorView({
       {/* 2. GIANT TIMER VIEW */}
       <div className="flex flex-col items-center justify-center py-6">
         <div className={`font-mono text-8xl sm:text-9xl font-extrabold tracking-tighter select-none ${
-          isOvertime ? 'text-white' : room?.timerStatus === 'running' ? 'text-indigo-400' : 'text-slate-400'
+          isOvertime
+            ? 'text-white'
+            : remainingSeconds !== null && remainingSeconds <= 60
+            ? 'text-red-500 animate-pulse-slow'
+            : remainingSeconds !== null && remainingSeconds <= 300
+            ? 'text-amber-500'
+            : room?.timerStatus === 'running'
+            ? 'text-indigo-400'
+            : 'text-slate-400'
         }`}>
           {timerDisplay}
         </div>

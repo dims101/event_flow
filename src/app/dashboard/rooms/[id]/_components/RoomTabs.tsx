@@ -7,7 +7,7 @@ interface RoomTabsProps {
   rundownBuilder: React.ReactNode;
   controlCenter: React.ReactNode;
   sharePanel: React.ReactNode;
-  defaultTab?: 'builder' | 'control';
+  defaultTab?: 'builder' | 'control' | 'share';
 }
 
 export default function RoomTabs({
@@ -17,7 +17,7 @@ export default function RoomTabs({
   defaultTab = 'builder',
 }: RoomTabsProps) {
   // Pure client-side state — no URL change, no server re-render on tab switch
-  const [currentTab, setCurrentTab] = useState<'builder' | 'control'>(defaultTab);
+  const [currentTab, setCurrentTab] = useState<'builder' | 'control' | 'share'>(defaultTab);
 
   return (
     <div className="space-y-6">
@@ -43,7 +43,18 @@ export default function RoomTabs({
           }`}
         >
           <Sliders className="w-4 h-4" />
-          <span>Pusat Kendali Hari-H</span>
+          <span>Pusat Kendali</span>
+        </button>
+        <button
+          onClick={() => setCurrentTab('share')}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition duration-150 shrink-0 cursor-pointer min-h-[40px] select-none ${
+            currentTab === 'share'
+              ? 'border-indigo-500 text-indigo-400 font-bold'
+              : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-800'
+          }`}
+        >
+          <Share2 className="w-4 h-4" />
+          <span>Distribusi Akses</span>
         </button>
       </div>
 
@@ -53,12 +64,13 @@ export default function RoomTabs({
           <div className="space-y-6">{rundownBuilder}</div>
         </div>
         <div className={currentTab === 'control' ? 'block animate-in fade-in duration-200' : 'hidden'}>
-          <div className="grid grid-cols-1 gap-8">
-            <div>{controlCenter}</div>
-            <div className="border-t border-slate-900 pt-8">{sharePanel}</div>
-          </div>
+          <div>{controlCenter}</div>
+        </div>
+        <div className={currentTab === 'share' ? 'block animate-in fade-in duration-200' : 'hidden'}>
+          <div>{sharePanel}</div>
         </div>
       </div>
     </div>
   );
 }
+

@@ -102,6 +102,17 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **Auto-Advance Trigger:** Mengintegrasikan logika transisi otomatis di dalam `tick` callback: jika timer sedang berjalan dan waktu tersisa habis (`diff <= 0`), sistem secara otomatis memindahkan ke rundown berikutnya atau menghentikan timer (`stopped`) jika itu adalah sesi terakhir.
 *   **Tujuan:** Menghadirkan transisi otomatis yang seamless antar sesi rundown saat waktu berakhir, mengurangi beban intervensi manual oleh Show Caller di hari-H acara.
 
+### 14. 🎨 Warna Indikator Sisa Waktu Timer (Dynamic Timer Warning Text Colors)
+*   **Perubahan:**
+    *   **State Pelacak Sisa Waktu:** Menambahkan state `remainingSeconds` pada [ControlPanel.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/dashboard/rooms/[id]/_components/ControlPanel.tsx) dan [VendorView.tsx](file:///C:/Users/Dimas/.gemini/antigravity/scratch/event_flow/src/app/v/[token]/_components/VendorView.tsx) untuk menangkap sisa waktu panggung secara dinamis setiap detak timer.
+    *   **Modifikasi Warna Main UI:** Mengubah warna teks digit timer pada dasbor EO dan Vendor View agar berubah warna secara dinamis:
+        *   Sisa waktu $> 5$ menit: Warna normal (`text-indigo-400` saat berjalan, `text-slate-400` saat dijeda/berhenti).
+        *   Sisa waktu $\le 5$ menit: Warna kuning/oranye (`text-amber-500`).
+        *   Sisa waktu $\le 1$ menit: Warna merah berkedip lambat (`text-red-500 animate-pulse-slow`).
+        *   Overtime/Habis waktu: Warna merah menyala (`text-rose-500` di EO, `text-white` dengan background merah berdenyut di Vendor).
+    *   **Pembaruan Jendela Melayang (PiP):** Menyinkronkan perubahan warna ini pada Document PiP (`timerEl.className`) dan Canvas Fallback PiP (`ctx.fillStyle`) agar kru tetap mendapatkan isyarat visual yang sama saat menggunakan mode melayang.
+*   **Tujuan:** Memberikan isyarat visual yang instan dan intuitif bagi Show Caller dan vendor lapangan saat durasi sesi rundown mulai memasuki masa-masa kritis.
+
 ---
 
 ## 📅 Pembaruan: 14 Juni 2026
