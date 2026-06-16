@@ -261,22 +261,25 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
           >
 
             {/* Logo area */}
-            <div ref={logoRef} className="w-full flex justify-center select-none mt-20 sm:mt-28 md:mt-32 py-6 animate-logo-path hero-logo">
-              <EventFlowLogo className="w-full max-w-[320px] sm:max-w-[440px] md:max-w-[560px] h-auto" />
+            <div ref={logoRef} className="relative w-full flex justify-center select-none mt-20 sm:mt-28 md:mt-32 py-6 animate-logo-path hero-logo">
+              {/* Ethereal background glow behind the logo */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] sm:w-[100%] sm:h-[100%] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.16)_0%,rgba(168,85,247,0.1)_45%,transparent_80%)] blur-[60px] sm:blur-[90px] md:blur-[130px] pointer-events-none z-0" />
+              
+              <EventFlowLogo className="relative z-10 w-full max-w-[320px] sm:max-w-[440px] md:max-w-[560px] h-auto drop-shadow-[0_0_50px_rgba(99,102,241,0.2)]" />
             </div>
 
             {/* Subtext */}
             <p className="text-lg md:text-xl text-slate-400 max-w-2xl leading-relaxed font-medium">
-              Kelola jadwal panggung (*rundown*) secara *real-time* dan kirim instruksi instan ke kru lapangan. Aplikasi tetap berjalan lancar meski di area susah sinyal.
+              Akhiri miskomunikasi dan jadwal molor. Orkestrasi *rundown* panggung secara *real-time*, kirim instruksi kilat ke seluruh kru, dan pastikan acara tetap berjalan sempurna meski koneksi internet terputus.
             </p>
 
             {/* Custom CTA pills with double bezel & nested trailing indicators */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6 w-full max-w-md sm:max-w-2xl">
               <Link
-                href={session ? "/dashboard" : "/login"}
+                href={session ? "/dashboard" : "/register"}
                 className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-full transition-all duration-350 shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98] whitespace-nowrap"
               >
-                <span>Masuk ke Dasbor</span>
+                <span>{session ? "Mulai Orkestrasi" : "Mulai Gratis Sekarang"}</span>
                 <span className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                   <ArrowUpRight className="w-4 h-4 text-white" strokeWidth={2.5} />
                 </span>
@@ -293,7 +296,7 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
             {/* Client Logo Strip */}
             <div className="pt-16 w-full flex flex-col items-center space-y-4 select-none">
               <span className="text-[10px] font-extrabold tracking-[0.2em] text-slate-500 uppercase text-center">
-                Dipercaya oleh Show Caller & EO terkemuka
+                Dipercaya oleh Show Caller & EO terkemuka untuk mengamankan jalannya acara
               </span>
               <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 text-sm font-extrabold text-slate-400 tracking-wider">
                 <span className="opacity-40 transition-opacity hover:opacity-80">KARNIVAL</span>
@@ -316,13 +319,13 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
             className="text-center space-y-4 mb-20"
           >
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/5 bg-white/5 text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] select-none">
-              Fitur Utama
+              Tinggalkan Cara Lama
             </div>
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-100">
-              Dirancang untuk Event Skala Tinggi
+              Presisi Panggung Tanpa Kompromi
             </h2>
             <p className="text-slate-400 text-base max-w-lg mx-auto font-medium">
-              Mengatasi masalah koordinasi klasik: miskomunikasi waktu dan hilangnya sinyal di lapangan.
+              Ucapkan selamat tinggal pada *rundown* kertas yang usang dan koordinasi HT yang berisik. EventFlow memberi Anda kendali penuh atas setiap detik acara.
             </p>
           </motion.div>
 
@@ -345,9 +348,9 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
                     <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
                       <Timer className="w-6 h-6" strokeWidth={1.5} />
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-100">Rundown Dinamis</h3>
+                    <h3 className="text-2xl font-bold text-slate-100">Rundown Tahan Banting</h3>
                     <p className="text-slate-400 text-sm md:text-base leading-relaxed font-medium">
-                      Sesuaikan durasi acara secara real-time saat terjadi kendala di panggung. Jadwal rundown seluruh kru dan vendor otomatis bergeser seketika demi presisi koordinasi.
+                      Jadwal molor? Cukup geser durasi satu sesi, dan seluruh waktu panggung kru & vendor otomatis menyesuaikan secara *real-time*. Sinkronisasi seketika, tanpa miskomunikasi.
                     </p>
                   </div>
                   <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold tracking-wider uppercase select-none">
@@ -372,9 +375,9 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
                     <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
                       <MessageSquare className="w-6 h-6" strokeWidth={1.5} />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-100">Prompter Saku Instan</h3>
+                    <h3 className="text-xl font-bold text-slate-100">Prompter Haptic Kilat</h3>
                     <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                      Kirim instruksi penting ke divisi tertentu (seperti MC atau Catering). Layar ponsel target akan berkedip dan bergetar agar instruksi langsung terbaca.
+                      Kirim pesan krusial langsung ke layar kru tanpa repot berteriak di HT. Layar berkedip dan gawai bergetar, memastikan instruksi Anda terbaca detik itu juga.
                     </p>
                   </div>
                   <div className="text-indigo-400 text-xs font-bold tracking-wider uppercase select-none">
@@ -398,9 +401,9 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
                     <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
                       <Link2 className="w-6 h-6" strokeWidth={1.5} />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-100">Akses Instan Tanpa Login</h3>
+                    <h3 className="text-xl font-bold text-slate-100">Distribusi Tanpa Hambatan</h3>
                     <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                      Bagikan tautan khusus peran kru via WhatsApp. Kru lapangan dan vendor bisa langsung memantau rundown tanpa repot mendaftar akun.
+                      Kru dan vendor tidak perlu instal aplikasi atau membuat akun. Cukup bagikan tautan via WhatsApp, dan mereka langsung terhubung ke *master timer* panggung.
                     </p>
                   </div>
                   <div className="text-indigo-400 text-xs font-bold tracking-wider uppercase select-none">
@@ -424,9 +427,9 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
                     <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
                       <WifiOff className="w-6 h-6" strokeWidth={1.5} />
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-100">Tetap Lancar Tanpa Sinyal</h3>
+                    <h3 className="text-2xl font-bold text-slate-100">Anti-Gagal Meski Blank Spot</h3>
                     <p className="text-slate-400 text-sm md:text-base leading-relaxed font-medium">
-                      Sinyal mendadak hilang di ballroom? Jangan khawatir. Aplikasi otomatis mendeteksi status luring dan menyimpan data rundown terbaru secara lokal di IndexedDB agar hitung mundur tetap berjalan presisi.
+                      Sinyal *ballroom* tiba-tiba hilang? Jangan panik. Arsitektur *offline-first* kami otomatis mengambil alih, memastikan hitung mundur panggung tetap berjalan 100% presisi tanpa jeda sedikit pun.
                     </p>
                   </div>
                   <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold tracking-wider uppercase select-none">
@@ -450,13 +453,13 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
             className="text-center space-y-4 mb-20"
           >
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/5 bg-white/5 text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] select-none">
-              Testimoni Pengguna
+              Bukti Nyata
             </div>
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-100">
-              Dipercaya oleh Para Profesional Event
+              Mengapa Profesional Mengandalkan EventFlow
             </h2>
             <p className="text-slate-400 text-base max-w-lg mx-auto font-medium">
-              Bagaimana para Show Caller dan Produser Event mengamankan jalannya acara Hari-H.
+              Jangan hanya percaya kata-kata kami. Lihat bagaimana Show Caller terbaik mengamankan acara mereka dari kekacauan teknis.
             </p>
           </motion.div>
 
@@ -472,7 +475,7 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
               <div className="h-full bg-white/5 border border-white/10 rounded-[2.5rem] p-2 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-indigo-500/30">
                 <div className="h-full bg-slate-950/80 border border-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] rounded-[calc(2.5rem-0.5rem)] p-8 flex flex-col justify-between gap-6">
                   <p className="text-slate-300 text-sm leading-relaxed font-medium italic">
-                    "EventFlow mengubah cara kerja koordinasi panggung kami. Sinkronisasi rundown real-time membuat Show Caller dan seluruh vendor musik/lighting berjalan seirama tanpa ada miskomunikasi waktu."
+                    "Sejak beralih ke EventFlow, rasa cemas karena *delay* panggung hilang sepenuhnya. Sinkronisasi *master timer* membuat seluruh tim—dari visual hingga audio—bergerak sebagai satu kesatuan."
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-extrabold text-sm font-mono select-none">
@@ -498,7 +501,7 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
               <div className="h-full bg-white/5 border border-white/10 rounded-[2.5rem] p-2 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-indigo-500/30">
                 <div className="h-full bg-slate-950/80 border border-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] rounded-[calc(2.5rem-0.5rem)] p-8 flex flex-col justify-between gap-6">
                   <p className="text-slate-300 text-sm leading-relaxed font-medium italic">
-                    "Fitur Prompter Saku sangat membantu kru di ballroom besar yang bising. Begitu ada instruksi visual berkedip dan haptic di ponsel, tim langsung responsif tanpa perlu radio HT."
+                    "Di *ballroom* yang sangat bising, HT sering tidak terdengar. Dengan Prompter Haptic, saya bisa mengirim instruksi krusial langsung ke saku MC. Begitu bergetar, mereka tahu apa yang harus dilakukan."
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-extrabold text-sm font-mono select-none">
@@ -524,7 +527,7 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
               <div className="h-full bg-white/5 border border-white/10 rounded-[2.5rem] p-2 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-indigo-500/30">
                 <div className="h-full bg-slate-950/80 border border-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] rounded-[calc(2.5rem-0.5rem)] p-8 flex flex-col justify-between gap-6">
                   <p className="text-slate-300 text-sm leading-relaxed font-medium italic">
-                    "Arsitektur offline-first EventFlow adalah penyelamat nyata. Ketika sinyal internet terputus di tengah ruang bawah tanah ballroom, master timer countdown tetap berjalan sinkron di semua gawai kru."
+                    "Mimpi buruk terbesar EO adalah sinyal hilang di dalam gedung. *Offline-first engine* EventFlow membuktikan ketangguhannya. Saat sinyal mati total, hitung mundur di puluhan gawai kru tetap berjalan presisi."
                   </p>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-extrabold text-sm font-mono select-none">
@@ -634,13 +637,13 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
 
                 <div className="relative z-10 max-w-2xl mx-auto space-y-4">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-indigo-500/10 bg-indigo-500/5 text-indigo-400 text-[10px] font-bold uppercase tracking-[0.2em] select-none">
-                    Mulai Sekarang
+                    Garansi Tanpa Risiko
                   </div>
                   <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-slate-100">
-                    Siap Ambil Kendali Panggung Anda?
+                    Ambil Alih Kendali Panggung Anda, Hari Ini.
                   </h2>
                   <p className="text-slate-400 text-sm md:text-base leading-relaxed font-medium">
-                    Bergabunglah dengan ratusan Event Organizer yang telah mendigitalkan rundown mereka. Mulai koordinasi real-time yang lancar hari ini.
+                    Tinggalkan kekacauan *rundown* manual. Mulai uji coba gratis Anda sekarang dan rasakan ketenangan pikiran dalam mengeksekusi setiap detik acara Anda.
                   </p>
                 </div>
 
@@ -649,7 +652,7 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
                     href={session ? "/dashboard" : "/register"}
                     className="group relative w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-full transition-all duration-350 shadow-lg hover:shadow-indigo-500/20 active:scale-[0.98]"
                   >
-                    <span>Daftar Sekarang</span>
+                    <span>{session ? "Buka Dasbor" : "Mulai Uji Coba Gratis"}</span>
                     <span className="w-6 h-6 rounded-full bg-white/15 flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
                       <ArrowUpRight className="w-4 h-4 text-white" strokeWidth={2.5} />
                     </span>

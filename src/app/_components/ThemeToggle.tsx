@@ -2,10 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setMounted(true);
@@ -32,7 +34,7 @@ export default function ThemeToggle() {
     }
   };
 
-  if (!mounted) return null;
+  if (!mounted || pathname === '/') return null;
 
   return (
     <button
