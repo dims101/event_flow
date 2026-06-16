@@ -8,6 +8,7 @@ import { eq, and } from 'drizzle-orm';
 export async function createRoomAction(prevState: any, formData: FormData) {
   const name = formData.get('name') as string;
   const eventDate = formData.get('eventDate') as string;
+  const rundownStartTime = (formData.get('rundownStartTime') as string) || '08:00';
 
   if (!name || !eventDate) {
     return { error: 'Nama event dan tanggal harus diisi' };
@@ -26,6 +27,7 @@ export async function createRoomAction(prevState: any, formData: FormData) {
       id: roomId,
       name,
       eventDate,
+      rundownStartTime,
       userId,
       currentOffsetSeconds: 0,
       currentRundownIndex: -1,
@@ -91,6 +93,23 @@ export async function deleteRoomAction(roomId: string) {
   } catch (error) {
     console.error('Delete room error:', error);
     return { error: 'Gagal menghapus event' };
+  }
+}
+
+export async function updateRoomStartTimeAction(roomId: string, newStartTime: string) {
+  try {
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
+
+    await db
+      .update(rooms)
+      .set({ rundownStartTime: newStartTime })
+      .where(and(eq(rooms.id, roomId), eq(rooms.userId, userId)));
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Update room start time error:', error);
+    return { error: 'Gagal memperbarui waktu mulai rundown' };
   }
 }
 

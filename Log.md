@@ -6,7 +6,22 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ## 📅 Pembaruan: 16 Juni 2026
 
-### 1. ✏️ Fitur Edit Sesi Rundown (Inline Edit)
+### 1. 🕒 Fitur Waktu Mulai Rundown (Rundown Start Time)
+*   **Perubahan:**
+    *   **Skema Database:** Menambahkan kolom `rundownStartTime` pada tabel `rooms` dengan nilai *default* `'08:00'`.
+    *   **Input Form & Server Action:** Memodifikasi form pembuatan Event (`CreateEventModal.tsx`) dan `createRoomAction` agar EO dapat langsung menentukan jam mulai rundown di awal pembuatan ruangan.
+    *   **Inline Edit Header:** Menambahkan antarmuka edit *inline* di *header* tabel jadwal (`RundownTable.tsx`) yang memanggil `updateRoomStartTimeAction`. Perubahan jam akan langsung merender ulang seluruh durasi sesi di bawahnya tanpa memuat ulang layar penuh.
+    *   **Kalkulasi Waktu Aktual:** Mengubah format kolom Estimasi Mulai yang awalnya berbasis *offset* (`+00:00 - +00:10`) menjadi jam absolut dalam format 24 jam (misalnya `08:00 - 08:10`). Angka jam dihitung dinamis menggunakan fungsi kustom `formatSessionTime` yang mengakumulasikan `durationMinutes` dari indeks atas ke bawah.
+    *   **Penyesuaian UI Tabel:** Memodifikasi proporsi lebar tabel *Desktop* dengan mengalokasikan porsi lebar kolom secara eksplisit (seperti `w-[25%]` untuk Sesi dan `w-[30%]` untuk Kru Target) agar antarmuka tidak melar, serta menerapkan huruf *Geist Mono 400 12px* pada kolom Durasi agar tampil lebih estetik dan *tabular*.
+*   **Tujuan:** Memberikan patokan waktu nyata berbasis jam aktual bagi *Show Caller* dan vendor lapangan alih-alih mengandalkan durasi offset semu, serta menghadirkan antarmuka tabel yang lebih proporsional di layar lebar.
+
+### 2. 🐛 Perbaikan Bug & Peringatan Hydration Next.js
+*   **Perubahan:**
+    *   **Migrasi Next Script:** Memperbaiki peringatan *Encountered a script tag while rendering React component* di `layout.tsx` dengan memanfaatkan komponen resmi `<Script strategy="beforeInteractive">` bawaan `next/script` untuk skrip inisialisasi mode gelap (*dark mode*).
+    *   **Sinkronisasi Drizzle Schema:** Memperbaiki masalah *Failed Query (column rundown_start_time does not exist)* dan perambatan *Runtime Error Performance Measure* di *server-side rendering* dengan mengeksekusi langsung fail migrasi mandiri (`migrate.ts`) yang tersambung ke `dotenv` untuk mendorong perubahan skema baru ke *cloud database* PostgreSQL Supabase.
+*   **Tujuan:** Menjaga kebersihan *render* aplikasi dari *error* interupsi Next.js dan menjamin stabilitas migrasi basis data antar lingkungan pengembangan.
+
+### 3. ✏️ Fitur Edit Sesi Rundown (Inline Edit)
 *   **Perubahan:**
     *   **UI Edit Form (Mobile & Desktop):** Menambahkan tombol edit (ikon pensil) pada setiap item rundown di `RundownTable.tsx`. Ketika diklik, baris tersebut secara reaktif berubah menjadi form *inline* tanpa mengganggu tata letak keseluruhan. Pengguna dapat mengubah nama sesi, durasi, dan mengatur ulang target PIC.
     *   **Server Action `editRundownItemAction`:** Membuat fungsi asinkron baru di `rundown.ts` yang menangani pembaruan data sesi ke basis data Supabase PostgreSQL dengan aman dan efisien.

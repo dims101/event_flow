@@ -11,6 +11,7 @@ export const rooms = pgTable('rooms', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   eventDate: text('event_date').notNull(),
+  rundownStartTime: text('rundown_start_time').notNull().default('08:00'),
   userId: text('user_id').notNull().references(() => users.id),
   currentOffsetSeconds: integer('current_offset_seconds').notNull().default(0),
   currentRundownIndex: integer('current_rundown_index').notNull().default(-1),

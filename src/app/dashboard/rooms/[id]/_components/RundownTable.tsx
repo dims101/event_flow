@@ -3,6 +3,7 @@
 import React, { useTransition, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteRundownItemAction, reorderRundownItemsAction, editRundownItemAction } from '@/app/actions/rundown';
+import { updateRoomStartTimeAction } from '@/app/actions/room';
 import { Trash2, Clock, ClipboardList, GripVertical, Pencil, X, Check } from 'lucide-react';
 import { getRoleBadgeStyle } from '@/lib/picColors';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
@@ -25,6 +26,7 @@ interface Pic {
 interface RundownTableProps {
   items: RundownItem[];
   pics: Pic[];
+  room: { id: string; rundownStartTime: string };
 }
 
 const renderPicBadges = (item: RundownItem) => {
@@ -53,11 +55,12 @@ const renderPicBadges = (item: RundownItem) => {
   );
 };
 
-export default function RundownTable({ items, pics }: RundownTableProps) {
+export default function RundownTable({ items, pics, room }: RundownTableProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [localItems, setLocalItems] = useState(items);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [isEditingStartTime, setIsEditingStartTime] = useState(false);
 
   useEffect(() => {
     setLocalItems(items);
@@ -134,13 +137,86 @@ export default function RundownTable({ items, pics }: RundownTableProps) {
   // Calculate cumulative times
   let accumulatedMinutes = 0;
 
-  const formatOffset = (mins: number) => {
-    const h = Math.floor(mins / 60);
-    const m = mins % 60;
-    return `+${h > 0 ? `${h}j ` : ''}${m}m`;
+  const formatSessionTime = (startTimeStr: string, offsetMinutes: number, durationMinutes: number) => {
+    // Parse "HH:MM"
+    const [hStr, mStr] = startTimeStr.split(':');
+    let baseHour = parseInt(hStr, 10) || 0;
+    let baseMinute = parseInt(mStr, 10) || 0;
+
+    // Start time
+    const totalStartMins = baseHour * 60 + baseMinute + offsetMinutes;
+    const startH = Math.floor(totalStartMins / 60) % 24;
+    const startM = totalStartMins % 60;
+
+    // End time
+    const totalEndMins = totalStartMins + durationMinutes;
+    const endH = Math.floor(totalEndMins / 60) % 24;
+    const endM = totalEndMins % 60;
+
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${pad(startH)}:${pad(startM)} - ${pad(endH)}:${pad(endM)}`;
+  };
+
+  const handleStartTimeSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const newTime = formData.get('startTime') as string;
+    
+    startTransition(async () => {
+      const res = await updateRoomStartTimeAction(room.id, newTime);
+      if (res?.error) alert(res.error);
+      else {
+        setIsEditingStartTime(false);
+        router.refresh();
+      }
+    });
   };
 
   return (
+    <div className="space-y-4">
+      {/* Header section for Rundown Start Time */}
+      <div className="flex items-center justify-between bg-slate-900 border border-slate-800 rounded-xl p-4">
+        <div>
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Waktu Mulai Rundown</h3>
+          {!isEditingStartTime ? (
+            <p className="text-lg font-bold text-slate-100 font-mono mt-0.5">{room.rundownStartTime}</p>
+          ) : (
+            <form onSubmit={handleStartTimeSubmit} className="flex items-center gap-2 mt-1.5">
+              <input 
+                type="time" 
+                name="startTime" 
+                defaultValue={room.rundownStartTime}
+                required
+                className="px-2 py-1 rounded bg-slate-950 border border-slate-700 text-slate-100 font-mono text-sm focus:outline-none focus:border-indigo-500"
+              />
+              <button 
+                type="submit" 
+                disabled={isPending}
+                className="p-1.5 bg-green-600/20 text-green-400 rounded hover:bg-green-600/30 transition disabled:opacity-50"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+              <button 
+                type="button" 
+                onClick={() => setIsEditingStartTime(false)}
+                className="p-1.5 bg-slate-800 text-slate-400 rounded hover:bg-slate-700 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </form>
+          )}
+        </div>
+        {!isEditingStartTime && (
+          <button 
+            onClick={() => setIsEditingStartTime(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+            <span>Edit</span>
+          </button>
+        )}
+      </div>
+
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="space-y-4" suppressHydrationWarning>
         {/* MOBILE LIST VIEW (hidden on desktop) */}
@@ -249,7 +325,7 @@ export default function RundownTable({ items, pics }: RundownTableProps) {
                                     <div className="flex items-center gap-2">
                                       <span className="font-mono text-xs text-slate-500 font-bold">#{index + 1}</span>
                                       <span className="text-xs font-mono text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-900/60">
-                                        Mulai {formatOffset(startOffset)}
+                                        {formatSessionTime(room.rundownStartTime, startOffset, durationMinutes)}
                                       </span>
                                     </div>
                                     <h5 className="font-bold text-slate-200 text-sm leading-snug">{item.title}</h5>
@@ -303,12 +379,12 @@ export default function RundownTable({ items, pics }: RundownTableProps) {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-900/40 bg-slate-900/30 text-slate-400 text-[10px] font-bold uppercase tracking-wider select-none">
-                  <th className="py-3 px-4 w-16 text-center">No</th>
-                  <th className="py-3 px-4">Sesi / Kegiatan</th>
-                  <th className="py-3 px-4 w-28 text-center">Durasi</th>
-                  <th className="py-3 px-4 w-32">Kru Target</th>
-                  <th className="py-3 px-4 w-24 text-center">Est. Mulai</th>
-                  <th className="py-3 px-4 w-12 text-center">Aksi</th>
+                  <th className="py-3 px-4 w-12 text-center">No</th>
+                  <th className="py-3 px-4 w-[25%]">Sesi / Kegiatan</th>
+                  <th className="py-3 px-4 w-[15%] text-center">Durasi</th>
+                  <th className="py-3 px-4 w-[30%]">Kru Target</th>
+                  <th className="py-3 px-4 w-[20%] text-center">Est. Mulai</th>
+                  <th className="py-3 px-4 w-16 text-center">Aksi</th>
                 </tr>
               </thead>
               <Droppable droppableId="rundown-desktop">
@@ -433,14 +509,14 @@ export default function RundownTable({ items, pics }: RundownTableProps) {
                                 <td className="py-3 px-4 font-semibold text-slate-200">
                                   {item.title}
                                 </td>
-                                <td className="py-3 px-4 text-center font-medium text-slate-300 tabular-nums">
+                                <td className="py-3 px-4 text-center font-mono font-normal text-xs text-slate-300 tabular-nums">
                                   {durationMinutes} Menit
                                 </td>
                                 <td className="py-3 px-4">
                                   {renderPicBadges(item)}
                                 </td>
                                 <td className="py-3 px-4 text-center text-slate-400 font-mono text-xs tabular-nums">
-                                  {formatOffset(currentOffset)}
+                                  {formatSessionTime(room.rundownStartTime, currentOffset, durationMinutes)}
                                 </td>
                                 <td className="py-3 px-4 text-center">
                                   <div className="flex items-center justify-center gap-1">
@@ -479,6 +555,7 @@ export default function RundownTable({ items, pics }: RundownTableProps) {
         </div>
       </div>
     </DragDropContext>
+    </div>
   );
 }
 

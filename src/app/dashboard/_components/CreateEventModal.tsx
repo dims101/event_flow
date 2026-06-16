@@ -102,6 +102,20 @@ export default function CreateEventModal({ isOpen, onClose }: CreateEventModalPr
             />
           </div>
 
+          <div className="space-y-1">
+            <label htmlFor="rundownStartTime" className="text-xs font-bold text-slate-400 tracking-wide">
+              Waktu Mulai Rundown
+            </label>
+            <input
+              id="rundownStartTime"
+              name="rundownStartTime"
+              type="time"
+              required
+              defaultValue="08:00"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-slate-800 bg-slate-950 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition duration-150 text-base"
+            />
+          </div>
+
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-900/40">
             <button
               type="button"
