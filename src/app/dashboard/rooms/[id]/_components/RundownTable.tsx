@@ -243,7 +243,7 @@ export default function RundownTable({ items, pics, room }: RundownTableProps) {
                           className={`border border-slate-900/40 rounded-xl p-4 flex flex-col gap-3 justify-between transition-colors ${
                             snapshot.isDragging ? 'bg-slate-800 border-indigo-500/40' : 'bg-slate-900'
                           }`}
-                          style={{ ...provided.draggableProps.style }}
+                          style={provided.draggableProps.style as React.CSSProperties}
                         >
                           {editingItemId === item.id ? (
                             <form onSubmit={(e) => handleEditSubmit(e, item.id)} className="space-y-3">
@@ -409,6 +409,7 @@ export default function RundownTable({ items, pics, room }: RundownTableProps) {
                                 className="bg-slate-800/80"
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
+                                style={provided.draggableProps.style as React.CSSProperties}
                               >
                                 <td colSpan={6} className="p-0">
                                   <div style={{ display: 'none' }} {...provided.dragHandleProps} />
@@ -487,7 +488,7 @@ export default function RundownTable({ items, pics, room }: RundownTableProps) {
                                   snapshot.isDragging ? 'bg-slate-800' : 'hover:bg-slate-900/40'
                                 }`}
                                 style={{
-                                  ...provided.draggableProps.style,
+                                  ...(provided.draggableProps.style as React.CSSProperties),
                                   display: snapshot.isDragging ? 'table' : 'table-row',
                                 }}
                               >
