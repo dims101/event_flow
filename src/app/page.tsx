@@ -100,7 +100,7 @@ export default async function Home() {
       {/* Navigation Header */}
       <header className="relative z-20 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between border-b border-slate-900/30">
         <Link href="/" className="flex items-center gap-1.5 select-none" aria-label="EventFlow Home">
-          <EventFlowLogo className="h-10 md:h-12 w-auto" />
+          <EventFlowLogo className="h-6 md:h-7 w-auto" />
         </Link>
         
         {/* Nav Anchors */}
@@ -134,7 +134,7 @@ export default async function Home() {
         </div>
 
         <div className="flex justify-center select-none py-4">
-          <EventFlowLogo className="h-28 md:h-40 w-auto" />
+          <EventFlowLogo className="h-24 md:h-32 w-auto" />
         </div>
 
         <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">

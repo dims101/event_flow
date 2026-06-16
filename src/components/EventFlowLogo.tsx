@@ -1,10 +1,10 @@
 import React from "react";
 
-export function EventFlowLogo({ className = "h-8 w-auto" }: { className?: string }) {
+export function EventFlowLogo({ className = "h-7 w-auto" }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 2048 1116"
+      viewBox="165 345 1730 470"
       className={className}
       preserveAspectRatio="xMinYMin meet"
     >
@@ -15,7 +15,7 @@ export function EventFlowLogo({ className = "h-8 w-auto" }: { className?: string
       />
       {/* Path 2: Accent (#294ED1 in light, #589AF9 in dark) */}
       <path
-        className="fill-[#294ED1] dark:fill-[#589AF9] transition-colors duration-150"
+        className="fill-indigo-600 transition-colors duration-150"
         d="M499.17 601.99c8.5 1.78 19.42 11.68 26.23 17.47l49.37 42.57c5.81 4.96 43.82 32.64 32.16 41.7-36.83 28.64-80.79 50.5-119.71 76.66-7.83 5.26-21.82 14.37-31.03 14.97-10.78-7.02-6.85-17.1-4.24-27.73 2.88-11.7 5.8-23.37 8.47-35.14-15.12-.16-86.27 3.11-94.6-2.64-2.6-1.8-4.24-4.01-4.66-7.22-1.24-9.42 6.77-43.31 12.74-50.54 3.38-4.1 7.76-6.32 12.88-7.42 6.9-1.48 14.85-.45 21.9-.4 14.85.12 29.68-.1 44.52-.16 6.22-.02 12.42.69 18.63.13 16.66-11.94 5.5-52.44 27.34-62.25"
       />
       {/* Path 3: Navy -> Slate-100 */}
@@ -25,7 +25,7 @@ export function EventFlowLogo({ className = "h-8 w-auto" }: { className?: string
       />
       {/* Path 4: Accent (#294ED1 in light, #589AF9 in dark) */}
       <path
-        className="fill-[#294ED1] dark:fill-[#589AF9] transition-colors duration-150"
+        className="fill-indigo-600 transition-colors duration-150"
         d="M1603.66 514.2c32.45-2.33 58.69 6.07 64.06 42.33 5.5 37.07-16.34 83.8-56.47 89.47-13.7 1.44-32.33 1.79-44.56-5.76-31.71-19.59-26.53-66.73-9.56-94.46 10.7-17.49 26.57-27.26 46.53-31.57m-15.83 110.35c6.95.38 12.45.68 19.42.4 40.18-6.42 54.01-95.19 1.09-90.7-20.93 6.68-32.86 21.54-37.08 42.82-4.17 21.06-1.08 34.86 16.57 47.48"
       />
       {/* Path 5: Navy -> Slate-100 */}
@@ -35,7 +35,7 @@ export function EventFlowLogo({ className = "h-8 w-auto" }: { className?: string
       />
       {/* Path 6: Accent (#294ED1 in light, #589AF9 in dark) */}
       <path
-        className="fill-[#294ED1] dark:fill-[#589AF9] transition-colors duration-150"
+        className="fill-indigo-600 transition-colors duration-150"
         d="M1767.42 514.95q12.72.13 25.43-.18c1.36 15.59 4.1 31.46 5.89 47.04 1.94 16.83 3.64 32.85 6.4 49.58 4.29-16.04 13.42-34.12 20.17-49.73 6.63-15.33 13.24-31.6 20.23-46.62q12.34-.24 24.69-.31c-1.99 9.52-6.47 18.2-10.59 26.98-15.12 33.82-32.27 69.27-46.2 103.36-9.52-.04-17.49-.08-27.03.77-.93-27.12-8.79-63-11.08-93.18-11.11 15.82-23.28 49.24-32.1 67.44-4.07 8.4-6.34 17.11-11.8 25.32-6.01-.15-18.6.17-23.61-1.2-3.16-4.23-17.68-115.67-19.49-129.43q12.94.3 25.89.12c.26 7.58 2.7 23.46 3.72 31.64q3.62 29.25 6.81 58.55c16.59-23.66 27.7-65.64 42.67-90.15"
       />
       {/* Path 7: Navy -> Slate-100 */}
@@ -45,7 +45,7 @@ export function EventFlowLogo({ className = "h-8 w-auto" }: { className?: string
       />
       {/* Path 8: Accent (#294ED1 in light, #589AF9 in dark) */}
       <path
-        className="fill-[#294ED1] dark:fill-[#589AF9] transition-colors duration-150"
+        className="fill-indigo-600 transition-colors duration-150"
         d="M1381.92 472.14c33.73-.98 71.8-.03 106.11-.2-2.67 9.04-3.11 12.59-4.21 21.89-26.62-1.08-54.33.93-81.92-.73a581 581 0 0 1-8.23 54.44c23.55-.01 49.1.45 72.49-.6-.56 6.84-1.79 14.69-2.72 21.58l-8.21-.13c-17.95 0-48.89 1.29-65.66-.13-3.27 22.63-10.08 55.43-11.7 76.8-9.01-.8-16.72-.24-25.75.26.57-11.49 3.54-27.31 5.5-38.84l10.07-58.59c2.15-12.64 10.64-66.25 14.23-75.75"
       />
       {/* Path 9: Navy -> Slate-100 */}
@@ -55,7 +55,7 @@ export function EventFlowLogo({ className = "h-8 w-auto" }: { className?: string
       />
       {/* Path 10: Accent (#294ED1 in light, #589AF9 in dark) */}
       <path
-        className="fill-[#294ED1] dark:fill-[#589AF9] transition-colors duration-150"
+        className="fill-indigo-600 transition-colors duration-150"
         d="m1512.64 472.15 24.33-.4a235 235 0 0 1-2.02 19.1c-7.92 50.81-17.65 101.78-25.33 152.59l-1.88.95c-6.73-.22-16.81.53-23.77.84l20.35-123.77c1.22-7.25 7.01-45.27 8.32-49.31"
       />
       {/* Path 11: Black -> Slate-100 */}
