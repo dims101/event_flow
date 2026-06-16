@@ -74,7 +74,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
         <h4 className="text-md font-bold text-slate-100 uppercase tracking-wider font-sans">
           Jadwal Acara ({items.length} Sesi)
         </h4>
-        <RundownTable items={items} />
+        <RundownTable items={items} pics={pics} />
       </div>
       <div className="space-y-6">
         <AddRundownForm roomId={roomId} pics={pics} />

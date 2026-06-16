@@ -37,7 +37,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${geistSans.variable} ${geistMono.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
       suppressHydrationWarning
     >
       <head>
@@ -62,7 +62,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100 font-sans antialiased">
+      <body className="min-h-screen flex flex-col bg-slate-950 text-slate-100 font-sans antialiased">
         {process.env.NODE_ENV !== "development" ? (
           <SerwistProvider swUrl="/sw.js">
             {children}

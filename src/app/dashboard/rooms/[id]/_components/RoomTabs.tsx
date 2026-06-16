@@ -60,13 +60,13 @@ export default function RoomTabs({
 
       {/* Tab Contents — rendered once, toggled with CSS visibility for instant switching */}
       <div className="mt-4">
-        <div className={currentTab === 'builder' ? 'block animate-in fade-in duration-200' : 'hidden'}>
+        <div className={currentTab === 'builder' ? 'block' : 'hidden'}>
           <div className="space-y-6">{rundownBuilder}</div>
         </div>
-        <div className={currentTab === 'control' ? 'block animate-in fade-in duration-200' : 'hidden'}>
+        <div className={currentTab === 'control' ? 'block' : 'hidden'}>
           <div>{controlCenter}</div>
         </div>
-        <div className={currentTab === 'share' ? 'block animate-in fade-in duration-200' : 'hidden'}>
+        <div className={currentTab === 'share' ? 'block' : 'hidden'}>
           <div>{sharePanel}</div>
         </div>
       </div>

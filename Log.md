@@ -4,6 +4,23 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ---
 
+## 📅 Pembaruan: 16 Juni 2026
+
+### 1. ✏️ Fitur Edit Sesi Rundown (Inline Edit)
+*   **Perubahan:**
+    *   **UI Edit Form (Mobile & Desktop):** Menambahkan tombol edit (ikon pensil) pada setiap item rundown di `RundownTable.tsx`. Ketika diklik, baris tersebut secara reaktif berubah menjadi form *inline* tanpa mengganggu tata letak keseluruhan. Pengguna dapat mengubah nama sesi, durasi, dan mengatur ulang target PIC.
+    *   **Server Action `editRundownItemAction`:** Membuat fungsi asinkron baru di `rundown.ts` yang menangani pembaruan data sesi ke basis data Supabase PostgreSQL dengan aman dan efisien.
+    *   **Refresh State Otomatis:** Memanfaatkan `router.refresh()` dan sistem reaktivitas React untuk merender ulang tabel saat pembaruan berhasil, sehingga menghindari *delay* atau perpindahan halaman yang tidak perlu.
+*   **Tujuan:** Memberikan kemudahan dan kecepatan bagi EO dalam memodifikasi sesi rundown secara *on-the-fly* langsung di antarmuka halaman tanpa perlu menavigasi ke modal atau *form* terpisah.
+
+### 2. 🐛 Perbaikan Bug Drag-and-Drop (DND)
+*   **Perubahan:**
+    *   **Penghapusan ID Duplikat:** Menghilangkan duplikasi `draggableId` yang sebelumnya bentrok antara *view* mobile dan desktop dengan menambahkan prefix unik (`mobile-{id}` dan `desktop-{id}`).
+    *   **Pencegahan Invariant Error DND:** Menyertakan prop `isDragDisabled={editingItemId === item.id}` pada komponen `<Draggable>` serta menyertakan `dragHandleProps` cadangan (pada `div` tersembunyi) di dalam form *inline edit* untuk mematuhi aturan ketat (*invariant constraints*) dari pustaka `@hello-pangea/dnd`.
+    *   **Optimalisasi `suppressHydrationWarning`:** Menghapus state `isMounted` yang sebelumnya menyebabkan jeda kosong visual (1.5 detik) dan menggantinya dengan atribut peringatan hidrasi agar *render* tabel berjalan seketika (*instant*).
+*   **Tujuan:** Memastikan fitur *drag-and-drop* berjalan responsif dan presisi pada perangkat layar sentuh dan *desktop*, serta menghilangkan pesan galat merah di konsol *developer* saat mode *editing* diaktifkan.
+
+---
 ## 📅 Pembaruan: 15 Juni 2026 (Bagian 4 - Fitur Monitor Panggung)
 
 ### 1. 📺 Monitor Panggung — Tampilan Timer Fullscreen untuk TV / Proyektor
