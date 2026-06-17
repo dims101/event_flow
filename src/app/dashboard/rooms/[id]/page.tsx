@@ -1,4 +1,9 @@
 import React, { Suspense } from 'react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Room Details',
+};
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/db';

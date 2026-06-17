@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Alex_Brush } from "next/font/google";
 import "./globals.css";
 import { SerwistProvider } from "@serwist/turbopack/react";
 import ThemeToggle from "./_components/ThemeToggle";
@@ -15,8 +15,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const alexBrush = Alex_Brush({
+  weight: "400",
+  variable: "--font-alex-brush",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "EventFlow ⏱️ - Real-Time Event Command Center",
+  title: {
+    template: "%s - EventFlow",
+    default: "EventFlow - Real-time Session Countdown",
+  },
   description: "Dynamic rundown synchronization, pocket prompters, and haptic cues for D-Day event production.",
   manifest: "/manifest.json",
   appleWebApp: {
@@ -38,7 +47,7 @@ export default function RootLayout({
   return (
     <html
       lang="id"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${alexBrush.variable}`}
       suppressHydrationWarning
     >
       <head>

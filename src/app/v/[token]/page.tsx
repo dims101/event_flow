@@ -1,4 +1,9 @@
 import React from 'react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Vendor View',
+};
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { roleTokens, rooms, rundownItems, prompterMessages } from '@/db/schema';

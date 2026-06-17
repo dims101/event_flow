@@ -18,7 +18,7 @@ export default function DashboardHeader() {
       <div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition duration-150 flex items-center justify-center gap-2 cursor-pointer min-h-[40px] select-none"
+          className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-base sm:text-sm text-white font-semibold rounded-lg transition duration-150 flex items-center justify-center gap-2 cursor-pointer min-h-[40px] select-none"
         >
           <Plus className="w-5 h-5" />
           <span>Buat Event Baru</span>
