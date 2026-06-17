@@ -30,7 +30,7 @@ export const timerAutoAdvance = inngest.createFunction(
       if (!room) return;
 
       // Ensure that the timer hasn't been changed during sleep (race condition fallback)
-      if (room.timerStatus !== "running" || room.timerStartTime !== startTime || room.currentRundownIndex !== targetIndex) {
+      if (room.timerStatus !== "running" || String(room.timerStartTime) !== String(startTime) || String(room.currentRundownIndex) !== String(targetIndex)) {
         return;
       }
 
@@ -59,19 +59,21 @@ export const timerAutoAdvance = inngest.createFunction(
           await db.update(rundownItems).set({ appliedOffsetSeconds: 0 }).where(eq(rundownItems.id, item.id));
         }
 
-        logActivityBackground(roomId, 'timer', `Pindah ke sesi "${item?.title}" (Timer otomatis)`);
+        logActivityBackground(roomId, 'timer', `Pindah ke sesi "${item?.title || nextIndex}" (Timer otomatis)`);
         await redis.set(`room:${roomId}`, nowMs.toString());
 
         // We trigger the next timer
-        await inngest.send(timerStartedEvent.create({
-          roomId: roomId,
-          targetIndex: nextIndex,
-          durationSeconds: item ? item.durationSeconds : 0,
-          startTime: nowMs
-        }));
-
+        await inngest.send({
+          name: "timer/started",
+          data: {
+            roomId: roomId,
+            targetIndex: nextIndex,
+            durationSeconds: item ? item.durationSeconds : 0,
+            startTime: nowMs
+          }
+        });
       } else {
-        // Stop timer
+        // This was the last session! Stop the timer.
         await db.update(rooms).set({
           timerStatus: "stopped",
           timerStartTime: null,
@@ -79,7 +81,7 @@ export const timerAutoAdvance = inngest.createFunction(
           currentRundownIndex: -1,
           currentOffsetSeconds: 0
         }).where(eq(rooms.id, roomId));
-        logActivityBackground(roomId, 'timer', `Timer otomatis dihentikan (Acara selesai)`);
+        logActivityBackground(roomId, 'timer', `Acara selesai (Timer otomatis)`);
         await redis.set(`room:${roomId}`, nowMs.toString());
       }
     });
