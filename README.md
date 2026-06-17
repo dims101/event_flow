@@ -76,8 +76,9 @@ Platform ini dibangun menggunakan teknologi modern yang memastikan performa ting
 * **Database Relasional**: [PostgreSQL](https://www.postgresql.org/) via [Supabase](https://supabase.com/) & [Drizzle ORM](https://orm.drizzle.team/)
 * **Real-time Synchronization**: **Supabase Realtime** via `@supabase/supabase-js` — mendengarkan perubahan langsung dari PostgreSQL database via WebSocket untuk sinkronisasi instan di browser tanpa membebani server/database dengan query berulang (Zero DB Query overhead untuk event).
 * **Real-time State & Cache (Legacy/Backend)**: [Upstash Redis](https://upstash.com/) via `@upstash/redis` SDK — dipertahankan untuk pencatatan cadangan dan fallbacks. Mendukung mode in-memory mock untuk pengembangan lokal.
-* **Offline Database**: [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
-* **PWA Enabler & Push Notification**: `@serwist/next` & `@serwist/turbopack` (Static compiles custom service worker `sw.ts`)
+*   **Offline Database**: [Dexie.js](https://dexie.org/) (IndexedDB wrapper)
+*   **Background Jobs & Orchestration**: [Inngest](https://inngest.com) — menangani proses latar belakang tahan lama (*durable execution*) seperti *auto-advance timer* yang stabil meski *browser* ditutup.
+*   **PWA Enabler & Push Notification**: `@serwist/next` & `@serwist/turbopack` (Static compiles custom service worker `sw.ts`)
 
 ---
 

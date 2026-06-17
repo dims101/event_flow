@@ -7,6 +7,7 @@ import { eq, and } from 'drizzle-orm';
 import { sendPushNotification } from '@/lib/pushSender';
 import { getSessionUserId } from './auth';
 import { logActivityBackground } from '@/lib/serverUtils';
+import { inngest } from '@/inngest/client';
 
 // Keep the awaited version for cases that need it
 export async function logActivity(
@@ -156,6 +157,35 @@ export async function updateTimerStatusAction(
     // Fire-and-forget: does not block response
     logActivityBackground(roomId, 'timer', description || 'Timer diperbarui');
 
+    try {
+      if (status === 'running') {
+        const item = await db.query.rundownItems.findFirst({
+          where: and(
+            eq(rundownItems.roomId, roomId),
+            eq(rundownItems.orderIndex, updateData.currentRundownIndex)
+          ),
+        });
+        if (item) {
+          const remainingSeconds = item.durationSeconds + (updateData.currentOffsetSeconds || 0) - (updateData.timerElapsedSeconds || 0);
+          await inngest.send({
+            name: 'timer/started',
+            data: {
+              roomId,
+              targetIndex: updateData.currentRundownIndex,
+              durationSeconds: remainingSeconds > 0 ? remainingSeconds : 0,
+              startTime: updateData.timerStartTime
+            }
+          });
+        }
+      } else if (status === 'paused') {
+        await inngest.send({ name: 'timer/paused', data: { roomId } });
+      } else if (status === 'stopped') {
+        await inngest.send({ name: 'timer/stopped', data: { roomId } });
+      }
+    } catch (inngestErr) {
+      console.error('Failed to send inngest event:', inngestErr);
+    }
+
     return { success: true, room: updatedRoom[0] };
   } catch (error: any) {
     console.error('Update timer status error:', error);
@@ -221,6 +251,29 @@ export async function adjustRoomOffsetAction(roomId: string, seconds: number) {
 
     // Fire-and-forget
     logActivityBackground(roomId, 'offset', description);
+
+    try {
+      const updatedRoom = await db.query.rooms.findFirst({ where: eq(rooms.id, roomId) });
+      if (updatedRoom && updatedRoom.timerStatus === 'running') {
+        const activeItem = await db.query.rundownItems.findFirst({
+           where: and(eq(rundownItems.roomId, roomId), eq(rundownItems.orderIndex, updatedRoom.currentRundownIndex))
+        });
+        if (activeItem) {
+          const remainingSeconds = activeItem.durationSeconds + updatedRoom.currentOffsetSeconds - (updatedRoom.timerElapsedSeconds || 0);
+          await inngest.send({
+            name: 'timer/started',
+            data: {
+              roomId,
+              targetIndex: updatedRoom.currentRundownIndex,
+              durationSeconds: remainingSeconds > 0 ? remainingSeconds : 0,
+              startTime: updatedRoom.timerStartTime
+            }
+          });
+        }
+      }
+    } catch (inngestErr) {
+      console.error('Failed to send inngest offset event:', inngestErr);
+    }
 
     return { success: true };
   } catch (error: any) {

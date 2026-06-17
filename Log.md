@@ -4,6 +4,18 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ---
 
+## 📅 Pembaruan: 17 Juni 2026
+
+### 1. ⏱️ Integrasi Inngest untuk Timer Auto-Advance (Background Jobs)
+*   **Perubahan:**
+    *   **Instalasi & Konfigurasi Inngest**: Menginstal modul `inngest` dan membuat fungsi *client* serta *webhook API route* (`/api/inngest/route.ts`).
+    *   **Durable Execution untuk Timer**: Memindahkan logika *auto-advance* (pemindahan sesi otomatis jika durasi habis) dari sisi klien (React/Web Worker) ke Inngest Cloud menggunakan fitur `step.sleep`. Timer kini akan berjalan stabil di *background* meskipun *browser* EO tidak sengaja ditutup.
+    *   **Fitur Pembatalan Otomatis (CancelOn)**: Mengonfigurasi `cancelOn` di dalam *function* Inngest agar proses hitung mundur dapat dibatalkan sewaktu-waktu secara presisi jika EO mengklik "Pause", "Stop", mengubah Offset waktu, atau melompati sesi.
+    *   **Pemutakhiran Server Actions**: Menambahkan *trigger event* `inngest.send()` ke dalam `roomControl.ts` (`updateTimerStatusAction` & `adjustRoomOffsetAction`) untuk menyinkronkan alur kerja dasbor dengan infrastruktur *background job*.
+*   **Tujuan:** Mengatasi *bug* berhentinya *timer* (tidak mau melompat ke sesi selanjutnya) ketika *tab* panel kontrol utama tertutup, dengan cara memindahkan tanggung jawab orkestrasi waktu dari sesi peramban lokal ke sistem *serverless* terdistribusi.
+
+---
+
 ## 📅 Pembaruan: 16 Juni 2026
 
 ### 1. 🕒 Fitur Waktu Mulai Rundown (Rundown Start Time)
