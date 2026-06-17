@@ -8,11 +8,11 @@ import { redis } from "@/lib/redis";
 export const timerAutoAdvance = inngest.createFunction(
   {
     id: "timer-auto-advance",
-    triggers: [timerStartedEvent],
+    triggers: [{ event: "timer/started" }],
     cancelOn: [
-      { event: timerPausedEvent, match: "data.roomId" },
-      { event: timerStoppedEvent, match: "data.roomId" },
-      { event: timerStartedEvent, match: "data.roomId" }
+      { event: "timer/paused", match: "data.roomId" },
+      { event: "timer/stopped", match: "data.roomId" },
+      { event: "timer/started", match: "data.roomId" }
     ]
   },
   async ({ event, step }) => {
