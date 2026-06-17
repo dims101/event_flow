@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { getSyncedTime } from '@/lib/timeSync';
 
 interface MonitorViewProps {
   roomId: string;
@@ -211,7 +212,7 @@ export default function MonitorView({
 
       let elapsed = currentRoom.timerElapsedSeconds;
       if (currentRoom.timerStatus === 'running' && currentRoom.timerStartTime) {
-        elapsed += (Date.now() - currentRoom.timerStartTime) / 1000;
+        elapsed += (getSyncedTime() - currentRoom.timerStartTime) / 1000;
       }
 
       const totalAllowed =

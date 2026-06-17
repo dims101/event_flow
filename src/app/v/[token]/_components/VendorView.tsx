@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { localDb } from '@/lib/localDb';
 import { supabase } from '@/lib/supabaseClient';
 import { getRundownItemsAction } from '@/app/actions/rundown';
+import { getSyncedTime } from '@/lib/timeSync';
 import { subscribeToPushAction, unsubscribeFromPushAction } from '@/app/actions/pushSubscribe';
 import { 
   Monitor, AlertTriangle, MessageSquare, Bell, Wifi, WifiOff, 
@@ -419,7 +420,7 @@ export default function VendorView({
 
       let elapsed = room.timerElapsedSeconds;
       if (room.timerStatus === 'running' && room.timerStartTime) {
-        elapsed += (Date.now() - room.timerStartTime) / 1000;
+        elapsed += (getSyncedTime() - room.timerStartTime) / 1000;
       }
 
       const totalAllowed = currentItem.durationSeconds + (room.currentOffsetSeconds || 0);

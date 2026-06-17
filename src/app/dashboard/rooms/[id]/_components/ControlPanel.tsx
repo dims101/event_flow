@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import { getRundownItemsAction } from '@/app/actions/rundown';
+import { getSyncedTime } from '@/lib/timeSync';
 import { 
   updateTimerStatusAction, 
   adjustRoomOffsetAction, 
@@ -85,6 +86,11 @@ export default function ControlPanel({
   });
 
   const [connected, setConnected] = useState(false);
+  const connectedRef = useRef(connected);
+  useEffect(() => {
+    connectedRef.current = connected;
+  }, [connected]);
+
   const [prompterText, setPrompterText] = useState('');
   const [targetRole, setTargetRole] = useState('All');
   
@@ -346,7 +352,7 @@ export default function ControlPanel({
       // Calculate total elapsed seconds
       let elapsed = room.timerElapsedSeconds;
       if (room.timerStatus === 'running' && room.timerStartTime) {
-        elapsed += (Date.now() - room.timerStartTime) / 1000;
+        elapsed += (getSyncedTime() - room.timerStartTime) / 1000;
       }
 
       const totalAllowed = currentItem.durationSeconds + room.currentOffsetSeconds;
@@ -364,15 +370,17 @@ export default function ControlPanel({
       setRemainingSeconds(Math.floor(diff));
 
       // Auto-advance session when timer runs out
-      if (room.timerStatus === 'running' && diff <= 0 && !isTransitioningRef.current) {
+      if (room.timerStatus === 'running' && diff <= 0 && !isTransitioningRef.current && connectedRef.current) {
         isTransitioningRef.current = true;
         const nextIndex = room.currentRundownIndex + 1;
         if (nextIndex < items.length) {
-          updateTimerStatusAction(roomId, 'running', nextIndex, true)
+          updateTimerStatusAction(roomId, 'running', nextIndex, true, getSyncedTime())
             .then((res) => {
               if (res && res.error) {
                 console.error('Failed to auto-advance to next session:', res.error);
                 isTransitioningRef.current = false;
+              } else if (res && res.room) {
+                setState((prev: any) => ({ ...prev, room: mapRoom(res.room) }));
               }
             })
             .catch((err) => {
@@ -380,11 +388,13 @@ export default function ControlPanel({
               isTransitioningRef.current = false;
             });
         } else {
-          updateTimerStatusAction(roomId, 'stopped', undefined, true)
+          updateTimerStatusAction(roomId, 'stopped', undefined, true, getSyncedTime())
             .then((res) => {
               if (res && res.error) {
                 console.error('Failed to stop timer at end of rundown:', res.error);
                 isTransitioningRef.current = false;
+              } else if (res && res.room) {
+                setState((prev: any) => ({ ...prev, room: mapRoom(res.room) }));
               }
             })
             .catch((err) => {
@@ -594,7 +604,10 @@ export default function ControlPanel({
 
     const nextStatus = room.timerStatus === 'running' ? 'paused' : 'running';
     startTimerTransition(async () => {
-      await updateTimerStatusAction(roomId, nextStatus);
+      const res = await updateTimerStatusAction(roomId, nextStatus, undefined, undefined, getSyncedTime());
+      if (res && res.room) {
+        setState((prev: any) => ({ ...prev, room: mapRoom(res.room) }));
+      }
     });
   };
 
@@ -614,7 +627,10 @@ export default function ControlPanel({
     }
     const targetStatus = status || room.timerStatus;
     startTimerTransition(async () => {
-      await updateTimerStatusAction(roomId, targetStatus as any, index);
+      const res = await updateTimerStatusAction(roomId, targetStatus as any, index, undefined, getSyncedTime());
+      if (res && res.room) {
+        setState((prev: any) => ({ ...prev, room: mapRoom(res.room) }));
+      }
     });
   };
 
@@ -623,7 +639,10 @@ export default function ControlPanel({
       return;
     }
     startTimerTransition(async () => {
-      await updateTimerStatusAction(roomId, 'stopped');
+      const res = await updateTimerStatusAction(roomId, 'stopped', undefined, undefined, getSyncedTime());
+      if (res && res.room) {
+        setState((prev: any) => ({ ...prev, room: mapRoom(res.room) }));
+      }
     });
   };
 

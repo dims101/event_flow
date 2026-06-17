@@ -32,7 +32,8 @@ export async function updateTimerStatusAction(
   roomId: string,
   status: 'running' | 'paused' | 'stopped',
   targetIndex?: number,
-  isAutoAdvance?: boolean
+  isAutoAdvance?: boolean,
+  clientTimestamp?: number
 ) {
   try {
     const userId = await getSessionUserId();
@@ -64,7 +65,7 @@ export async function updateTimerStatusAction(
     let timerElapsedSeconds = room.timerElapsedSeconds;
     let currentRundownIndex = room.currentRundownIndex;
 
-    const nowMs = Date.now();
+    const nowMs = Math.round(clientTimestamp || Date.now());
     let description = '';
 
     if (targetIndex !== undefined) {
@@ -124,7 +125,7 @@ export async function updateTimerStatusAction(
       }
     } else if (status === 'paused') {
       if (room.timerStatus === 'running' && room.timerStartTime) {
-        const addedElapsed = Math.floor((nowMs - room.timerStartTime) / 1000);
+        const addedElapsed = Math.ceil((nowMs - room.timerStartTime) / 1000);
         timerElapsedSeconds += addedElapsed;
       }
       timerStartTime = null;
@@ -146,15 +147,16 @@ export async function updateTimerStatusAction(
     }
 
     // Await only the critical DB update — log runs in background
-    await db
+    const updatedRoom = await db
       .update(rooms)
       .set(updateData)
-      .where(eq(rooms.id, roomId));
+      .where(eq(rooms.id, roomId))
+      .returning();
 
     // Fire-and-forget: does not block response
     logActivityBackground(roomId, 'timer', description || 'Timer diperbarui');
 
-    return { success: true };
+    return { success: true, room: updatedRoom[0] };
   } catch (error: any) {
     console.error('Update timer status error:', error);
     return { error: 'Gagal memperbarui status timer' };
