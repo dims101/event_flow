@@ -7,7 +7,7 @@ import { eq, and } from 'drizzle-orm';
 import { sendPushNotification } from '@/lib/pushSender';
 import { getSessionUserId } from './auth';
 import { logActivityBackground } from '@/lib/serverUtils';
-import { inngest } from '@/inngest/client';
+import { inngest, timerStartedEvent, timerPausedEvent, timerStoppedEvent } from '@/inngest/client';
 
 // Keep the awaited version for cases that need it
 export async function logActivity(
@@ -167,20 +167,17 @@ export async function updateTimerStatusAction(
         });
         if (item) {
           const remainingSeconds = item.durationSeconds + (updateData.currentOffsetSeconds || 0) - (updateData.timerElapsedSeconds || 0);
-          await inngest.send({
-            name: 'timer/started',
-            data: {
-              roomId,
-              targetIndex: updateData.currentRundownIndex,
-              durationSeconds: remainingSeconds > 0 ? remainingSeconds : 0,
-              startTime: updateData.timerStartTime
-            }
-          });
+          await inngest.send(timerStartedEvent.create({
+            roomId,
+            targetIndex: updateData.currentRundownIndex,
+            durationSeconds: remainingSeconds > 0 ? remainingSeconds : 0,
+            startTime: updateData.timerStartTime
+          }));
         }
       } else if (status === 'paused') {
-        await inngest.send({ name: 'timer/paused', data: { roomId } });
+        await inngest.send(timerPausedEvent.create({ roomId }));
       } else if (status === 'stopped') {
-        await inngest.send({ name: 'timer/stopped', data: { roomId } });
+        await inngest.send(timerStoppedEvent.create({ roomId }));
       }
     } catch (inngestErr) {
       console.error('Failed to send inngest event:', inngestErr);
@@ -260,15 +257,12 @@ export async function adjustRoomOffsetAction(roomId: string, seconds: number) {
         });
         if (activeItem) {
           const remainingSeconds = activeItem.durationSeconds + updatedRoom.currentOffsetSeconds - (updatedRoom.timerElapsedSeconds || 0);
-          await inngest.send({
-            name: 'timer/started',
-            data: {
-              roomId,
-              targetIndex: updatedRoom.currentRundownIndex,
-              durationSeconds: remainingSeconds > 0 ? remainingSeconds : 0,
-              startTime: updatedRoom.timerStartTime
-            }
-          });
+          await inngest.send(timerStartedEvent.create({
+            roomId,
+            targetIndex: updatedRoom.currentRundownIndex,
+            durationSeconds: remainingSeconds > 0 ? remainingSeconds : 0,
+            startTime: updatedRoom.timerStartTime
+          }));
         }
       }
     } catch (inngestErr) {

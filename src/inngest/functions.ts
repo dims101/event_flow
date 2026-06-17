@@ -1,4 +1,4 @@
-import { inngest } from "./client";
+import { inngest, timerStartedEvent, timerPausedEvent, timerStoppedEvent } from "./client";
 import { db } from "@/db";
 import { rooms, rundownItems } from "@/db/schema";
 import { eq } from "drizzle-orm";
@@ -8,13 +8,13 @@ import { redis } from "@/lib/redis";
 export const timerAutoAdvance = inngest.createFunction(
   {
     id: "timer-auto-advance",
+    triggers: [{ event: timerStartedEvent }],
     cancelOn: [
-      { event: "timer/paused", match: "data.roomId" },
-      { event: "timer/stopped", match: "data.roomId" },
-      { event: "timer/started", match: "data.roomId" }
+      { event: timerPausedEvent, match: "data.roomId" },
+      { event: timerStoppedEvent, match: "data.roomId" },
+      { event: timerStartedEvent, match: "data.roomId" }
     ]
   },
-  { event: "timer/started" },
   async ({ event, step }) => {
     // Wait for the exact duration needed
     await step.sleep("wait-for-session-end", `${event.data.durationSeconds}s`);
@@ -63,15 +63,12 @@ export const timerAutoAdvance = inngest.createFunction(
         await redis.set(`room:${roomId}`, nowMs.toString());
 
         // We trigger the next timer
-        await inngest.send({
-          name: "timer/started",
-          data: {
-            roomId: roomId,
-            targetIndex: nextIndex,
-            durationSeconds: item ? item.durationSeconds : 0,
-            startTime: nowMs
-          }
-        });
+        await inngest.send(timerStartedEvent.create({
+          roomId: roomId,
+          targetIndex: nextIndex,
+          durationSeconds: item ? item.durationSeconds : 0,
+          startTime: nowMs
+        }));
 
       } else {
         // Stop timer
