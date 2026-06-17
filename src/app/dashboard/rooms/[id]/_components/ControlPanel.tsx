@@ -369,40 +369,9 @@ export default function ControlPanel({
       setIsOvertime(over);
       setRemainingSeconds(Math.floor(diff));
 
-      // Auto-advance session when timer runs out
-      if (room.timerStatus === 'running' && diff <= 0 && !isTransitioningRef.current && connectedRef.current) {
-        isTransitioningRef.current = true;
-        const nextIndex = room.currentRundownIndex + 1;
-        if (nextIndex < items.length) {
-          updateTimerStatusAction(roomId, 'running', nextIndex, true, getSyncedTime())
-            .then((res) => {
-              if (res && res.error) {
-                console.error('Failed to auto-advance to next session:', res.error);
-                isTransitioningRef.current = false;
-              } else if (res && res.room) {
-                setState((prev: any) => ({ ...prev, room: mapRoom(res.room) }));
-              }
-            })
-            .catch((err) => {
-              console.error('Failed to auto-advance to next session:', err);
-              isTransitioningRef.current = false;
-            });
-        } else {
-          updateTimerStatusAction(roomId, 'stopped', undefined, true, getSyncedTime())
-            .then((res) => {
-              if (res && res.error) {
-                console.error('Failed to stop timer at end of rundown:', res.error);
-                isTransitioningRef.current = false;
-              } else if (res && res.room) {
-                setState((prev: any) => ({ ...prev, room: mapRoom(res.room) }));
-              }
-            })
-            .catch((err) => {
-              console.error('Failed to stop timer at end of rundown:', err);
-              isTransitioningRef.current = false;
-            });
-        }
-      }
+      // Client-side auto-advance logic is DELETED because we now rely purely on 
+      // Inngest background jobs (server-side durable execution) for auto-advancing.
+      // This prevents race conditions and ensures it works when the tab is closed.
 
       // Auto push warning check for remaining 5 minutes and 1 minute
       if (room.timerStatus === 'running' && !over) {
