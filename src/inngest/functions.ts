@@ -1,9 +1,10 @@
 import { inngest, timerStartedEvent, timerPausedEvent, timerStoppedEvent } from "./client";
 import { db } from "@/db";
-import { rooms, rundownItems } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { rooms, rundownItems, roleTokens } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 import { logActivityBackground } from "@/lib/serverUtils";
 import { redis } from "@/lib/redis";
+import { sendPushNotification } from "@/lib/pushSender";
 
 export const timerAutoAdvance = inngest.createFunction(
   {
@@ -16,8 +17,58 @@ export const timerAutoAdvance = inngest.createFunction(
     ]
   },
   async ({ event, step }) => {
-    // Wait for the exact duration needed
-    await step.sleep("wait-for-session-end", `${event.data.durationSeconds}s`);
+    const { roomId, targetIndex, startTime } = event.data;
+    let remaining = event.data.durationSeconds;
+
+    // Helper to send push
+    const sendPush = async (alertLabel: string, remainingTimeDesc: string) => {
+      const room = await db.query.rooms.findFirst({ where: eq(rooms.id, roomId) });
+      if (!room || room.timerStatus !== "running" || String(room.timerStartTime) !== String(startTime) || String(room.currentRundownIndex) !== String(targetIndex)) return;
+
+      const item = await db.query.rundownItems.findFirst({
+        where: and(eq(rundownItems.roomId, roomId), eq(rundownItems.orderIndex, targetIndex)),
+      });
+      if (!item) return;
+
+      const roleToken = await db.query.roleTokens.findFirst({
+        where: and(eq(roleTokens.roomId, roomId), eq(roleTokens.role, 'All')),
+      });
+
+      const title = alertLabel === 'Sesi Berganti' ? `🔄 Sesi Berganti: "${item.title}"` : (alertLabel === '5m' ? `⏱️ Sisa Waktu: Sesi "${item.title}"` : `🚨 Bersiap! Sesi "${item.title}"`);
+      const body = alertLabel === 'Sesi Berganti' ? `Sesi "${item.title}" telah dimulai!` : `Sesi "${item.title}" tersisa kurang dari ${remainingTimeDesc}! Harap bersiap.`;
+
+      try {
+        await sendPushNotification(roomId, item.targetRole || 'All', {
+          title,
+          body,
+          url: roleToken ? `/v/${roleToken.token}` : '/',
+        });
+      } catch (err) {
+        console.error(`Failed to send push for ${alertLabel}:`, err);
+      }
+    };
+
+    if (remaining > 300) {
+      await step.sleep("wait-for-5m-warning", `${remaining - 300}s`);
+      remaining = 300;
+      await step.run("send-5m-warning", async () => {
+        const room = await db.query.rooms.findFirst({ where: eq(rooms.id, roomId) });
+        if (room?.enablePush5m) await sendPush('5m', '5 menit');
+      });
+    }
+
+    if (remaining > 60) {
+      await step.sleep("wait-for-1m-warning", `${remaining - 60}s`);
+      remaining = 60;
+      await step.run("send-1m-warning", async () => {
+        const room = await db.query.rooms.findFirst({ where: eq(rooms.id, roomId) });
+        if (room?.enablePush1m) await sendPush('1m', '1 menit');
+      });
+    }
+
+    if (remaining > 0) {
+      await step.sleep("wait-for-session-end", `${remaining}s`);
+    }
 
     // Time is up, auto advance
     await step.run("auto-advance", async () => {
@@ -57,6 +108,21 @@ export const timerAutoAdvance = inngest.createFunction(
 
         if (item) {
           await db.update(rundownItems).set({ appliedOffsetSeconds: 0 }).where(eq(rundownItems.id, item.id));
+        }
+
+        if (room.enablePushSessionChange && item) {
+          const roleToken = await db.query.roleTokens.findFirst({
+            where: and(eq(roleTokens.roomId, roomId), eq(roleTokens.role, 'All')),
+          });
+          try {
+            await sendPushNotification(roomId, item.targetRole || 'All', {
+              title: `🔄 Sesi Berganti: "${item.title}"`,
+              body: `Sesi "${item.title}" telah dimulai!`,
+              url: roleToken ? `/v/${roleToken.token}` : '/',
+            });
+          } catch (err) {
+            console.error('Failed to send session change push:', err);
+          }
         }
 
         logActivityBackground(roomId, 'timer', `Pindah ke sesi "${item?.title || nextIndex}" (Timer otomatis)`);

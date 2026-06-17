@@ -432,3 +432,33 @@ export async function sendTimeAlertNotificationAction(
   }
 }
 
+export async function updateRoomPushSettingsAction(
+  roomId: string,
+  settings: {
+    enablePush5m?: boolean;
+    enablePush1m?: boolean;
+    enablePushSessionChange?: boolean;
+  }
+) {
+  try {
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
+
+    const room = await db.query.rooms.findFirst({
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, userId)),
+    });
+
+    if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
+
+    await db.update(rooms).set(settings).where(eq(rooms.id, roomId));
+
+    // Force realtime broadcast
+    await redis.set(`room:${roomId}`, Date.now().toString());
+
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update push settings:', error);
+    return { error: 'Gagal memperbarui pengaturan notifikasi' };
+  }
+}
+

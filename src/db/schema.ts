@@ -1,4 +1,4 @@
-import { pgTable, text, integer, bigint } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, bigint, boolean } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -18,6 +18,9 @@ export const rooms = pgTable('rooms', {
   timerStatus: text('timer_status').notNull().default('stopped'), // 'running', 'paused', 'stopped'
   timerStartTime: bigint('timer_start_time', { mode: 'number' }), // unix timestamp in ms
   timerElapsedSeconds: integer('timer_elapsed_seconds').notNull().default(0),
+  enablePush5m: boolean('enable_push_5m').notNull().default(true),
+  enablePush1m: boolean('enable_push_1m').notNull().default(true),
+  enablePushSessionChange: boolean('enable_push_session_change').notNull().default(true),
 });
 
 export const roleTokens = pgTable('role_tokens', {

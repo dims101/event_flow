@@ -10,12 +10,13 @@ import {
   adjustRoomOffsetAction, 
   sendPrompterMessageAction,
   clearPrompterMessagesAction,
-  sendTimeAlertNotificationAction
+  sendTimeAlertNotificationAction,
+  updateRoomPushSettingsAction
 } from '@/app/actions/roomControl';
 import { 
   Play, Pause, Square, SkipBack, SkipForward, Plus, Minus, Send, 
   Trash2, Clock, Activity, MessageSquare, Monitor, Check, Calendar, 
-  ChevronRight, Sparkles, AlertCircle, Hourglass, HelpCircle 
+  ChevronRight, Sparkles, AlertCircle, Hourglass, HelpCircle, Bell 
 } from 'lucide-react';
 import { getRoleBadgeStyle } from '@/lib/picColors';
 
@@ -28,6 +29,9 @@ interface Room {
   timerStatus: string;
   timerStartTime: number | null;
   timerElapsedSeconds: number;
+  enablePush5m: boolean;
+  enablePush1m: boolean;
+  enablePushSessionChange: boolean;
 }
 
 interface RundownItem {
@@ -155,6 +159,9 @@ export default function ControlPanel({
       timerStatus: dbRoom.timer_status || dbRoom.timerStatus,
       timerStartTime: dbRoom.timer_start_time !== undefined ? dbRoom.timer_start_time : dbRoom.timerStartTime,
       timerElapsedSeconds: dbRoom.timer_elapsed_seconds !== undefined ? dbRoom.timer_elapsed_seconds : dbRoom.timerElapsedSeconds,
+      enablePush5m: dbRoom.enable_push_5m !== undefined ? dbRoom.enable_push_5m : (dbRoom.enablePush5m ?? true),
+      enablePush1m: dbRoom.enable_push_1m !== undefined ? dbRoom.enable_push_1m : (dbRoom.enablePush1m ?? true),
+      enablePushSessionChange: dbRoom.enable_push_session_change !== undefined ? dbRoom.enable_push_session_change : (dbRoom.enablePushSessionChange ?? true),
     };
   };
 
@@ -372,37 +379,7 @@ export default function ControlPanel({
       // Client-side auto-advance logic is DELETED because we now rely purely on 
       // Inngest background jobs (server-side durable execution) for auto-advancing.
       // This prevents race conditions and ensures it works when the tab is closed.
-
-      // Auto push warning check for remaining 5 minutes and 1 minute
-      if (room.timerStatus === 'running' && !over) {
-        const remainingSeconds = Math.floor(diff);
-        const itemIndex = room.currentRundownIndex;
-        
-        // Initialize tracker for this item index if not exists
-        if (!sentAlertsRef.current[itemIndex]) {
-          sentAlertsRef.current[itemIndex] = {};
-        }
-
-        // Check for 5 minutes (300 seconds) warning — trigger window between 240s and 300s
-        if (remainingSeconds <= 300 && remainingSeconds > 240) {
-          if (!sentAlertsRef.current[itemIndex]['5m']) {
-            sentAlertsRef.current[itemIndex]['5m'] = true;
-            sendTimeAlertNotificationAction(roomId, itemIndex, '5m').catch((err) => {
-              console.error('Failed to trigger 5m alert:', err);
-            });
-          }
-        }
-
-        // Check for 1 minute (60 seconds) warning — trigger window between 10s and 60s
-        if (remainingSeconds <= 60 && remainingSeconds > 10) {
-          if (!sentAlertsRef.current[itemIndex]['1m']) {
-            sentAlertsRef.current[itemIndex]['1m'] = true;
-            sendTimeAlertNotificationAction(roomId, itemIndex, '1m').catch((err) => {
-              console.error('Failed to trigger 1m alert:', err);
-            });
-          }
-        }
-      }
+      // Push notifications are also handled entirely by Inngest now.
 
       // Update Document PiP if active
       if (pipWindowRef.current) {
@@ -640,6 +617,29 @@ export default function ControlPanel({
       startMsgTransition(async () => {
         await clearPrompterMessagesAction(roomId);
       });
+    }
+  };
+
+  const handleTogglePushSetting = async (field: 'enablePush5m' | 'enablePush1m' | 'enablePushSessionChange') => {
+    try {
+      const newValue = !room[field];
+      // Optimistic update
+      setState((prev: any) => ({
+        ...prev,
+        room: { ...prev.room, [field]: newValue }
+      }));
+      
+      const res = await updateRoomPushSettingsAction(roomId, { [field]: newValue });
+      if (res.error) {
+        // Revert optimistic
+        setState((prev: any) => ({
+          ...prev,
+          room: { ...prev.room, [field]: !newValue }
+        }));
+        alert(res.error);
+      }
+    } catch (e) {
+      console.error(e);
     }
   };
 
@@ -1379,6 +1379,45 @@ export default function ControlPanel({
               <Plus className="w-3.5 h-3.5" />
               <span>5m</span>
             </button>
+          </div>
+        </div>
+
+        {/* PUSH NOTIFICATION SETTINGS */}
+        <div className="bg-slate-900 border border-slate-900/40 rounded-xl p-5 sm:p-6 space-y-4">
+          <div className="flex items-start gap-2">
+            <Bell className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" />
+            <div>
+              <h3 className="text-sm font-bold text-slate-100 font-sans">Notifikasi Otomatis (Push)</h3>
+              <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+                Atur peringatan yang dikirim ke perangkat Vendor.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <label className="flex items-center justify-between cursor-pointer group">
+              <span className="text-sm font-medium text-slate-300 group-hover:text-slate-100 transition">Peringatan 5 Menit Terakhir</span>
+              <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${room.enablePush5m ? 'bg-indigo-500' : 'bg-slate-700'}`}>
+                <input type="checkbox" className="sr-only" checked={room.enablePush5m} onChange={() => handleTogglePushSetting('enablePush5m')} />
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${room.enablePush5m ? 'translate-x-6' : 'translate-x-1'}`} />
+              </div>
+            </label>
+
+            <label className="flex items-center justify-between cursor-pointer group">
+              <span className="text-sm font-medium text-slate-300 group-hover:text-slate-100 transition">Peringatan 1 Menit Terakhir</span>
+              <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${room.enablePush1m ? 'bg-indigo-500' : 'bg-slate-700'}`}>
+                <input type="checkbox" className="sr-only" checked={room.enablePush1m} onChange={() => handleTogglePushSetting('enablePush1m')} />
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${room.enablePush1m ? 'translate-x-6' : 'translate-x-1'}`} />
+              </div>
+            </label>
+
+            <label className="flex items-center justify-between cursor-pointer group">
+              <span className="text-sm font-medium text-slate-300 group-hover:text-slate-100 transition">Peringatan Pergantian Sesi</span>
+              <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${room.enablePushSessionChange ? 'bg-indigo-500' : 'bg-slate-700'}`}>
+                <input type="checkbox" className="sr-only" checked={room.enablePushSessionChange} onChange={() => handleTogglePushSetting('enablePushSessionChange')} />
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${room.enablePushSessionChange ? 'translate-x-6' : 'translate-x-1'}`} />
+              </div>
+            </label>
           </div>
         </div>
 
