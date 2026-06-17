@@ -34,7 +34,7 @@ export default function ThemeToggle() {
     }
   };
 
-  if (!mounted || pathname === '/') return null;
+  if (!mounted || pathname === '/' || pathname === '/login' || pathname === '/register') return null;
 
   return (
     <button
