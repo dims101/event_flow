@@ -135,7 +135,6 @@ export const timerAutoAdvance = inngest.createFunction(
         }
 
         logActivityBackground(roomId, 'timer', `Pindah ke sesi "${item?.title || nextIndex}" (Timer otomatis)`);
-        await redis.set(`room:${roomId}`, nowMs.toString());
 
         // We trigger the next timer
         await inngest.send({
@@ -157,7 +156,6 @@ export const timerAutoAdvance = inngest.createFunction(
           currentOffsetSeconds: 0
         }).where(eq(rooms.id, roomId));
         logActivityBackground(roomId, 'timer', `Acara selesai (Timer otomatis)`);
-        await redis.set(`room:${roomId}`, nowMs.toString());
       }
     });
   }

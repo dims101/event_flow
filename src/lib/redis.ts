@@ -7,10 +7,6 @@ if (!globalStore.redisMockDb) {
   globalStore.redisMockDb = new Map<string, string>();
 }
 
-if (!globalStore.redisSubscribers) {
-  globalStore.redisSubscribers = new Map<string, Set<() => void>>();
-}
-
 const isPlaceholder = (val?: string): boolean => {
   if (!val) return true;
   return val.includes("your-redis-instance") || val.includes("your_redis_token");
@@ -43,67 +39,16 @@ export const redis = {
   },
 
   set: async (key: string, value: string, options?: { ex?: number }): Promise<void> => {
-    // key format: "room:{roomId}" or "prompter:{roomId}"
-    const parts = key.split(":");
-    const roomId = parts[1];
-
     if (upstashClient) {
       if (options?.ex) {
         await upstashClient.set(key, value, { ex: options.ex });
       } else {
         await upstashClient.set(key, value);
       }
-      if (roomId) {
-        // Publish to notify all SSE subscribers watching this room
-        await upstashClient.publish(roomId, value);
-      }
       return;
     }
 
-    // Fallback: mock in-memory set + local pub/sub notification
+    // Fallback: mock in-memory set
     globalStore.redisMockDb.set(key, value);
-
-    if (roomId && globalStore.redisSubscribers.has(roomId)) {
-      const subs: Set<() => void> = globalStore.redisSubscribers.get(roomId);
-      subs.forEach((cb) => {
-        try {
-          cb();
-        } catch (err) {
-          console.error("PubSub callback error:", err);
-        }
-      });
-    }
-  },
-
-  /**
-   * Subscribe to room-specific updates.
-   * Returns an unsubscribe function for cleanup.
-   */
-  subscribe: (roomId: string, callback: () => void): (() => void) => {
-    if (upstashClient) {
-      const subscription = upstashClient.subscribe([roomId]);
-      subscription.on("message", () => {
-        callback();
-      });
-      return () => {
-        subscription.unsubscribe();
-      };
-    }
-
-    // Fallback: mock in-memory pub/sub
-    if (!globalStore.redisSubscribers.has(roomId)) {
-      globalStore.redisSubscribers.set(roomId, new Set());
-    }
-    globalStore.redisSubscribers.get(roomId).add(callback);
-
-    return () => {
-      const subs: Set<() => void> = globalStore.redisSubscribers.get(roomId);
-      if (subs) {
-        subs.delete(callback);
-        if (subs.size === 0) {
-          globalStore.redisSubscribers.delete(roomId);
-        }
-      }
-    };
   },
 };

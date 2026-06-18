@@ -23,7 +23,6 @@ export async function logActivity(
       description,
       createdAt: Date.now(),
     });
-    await redis.set(`room:${roomId}`, Date.now().toString());
   } catch (error) {
     console.error('Failed to log activity:', error);
   }
@@ -464,13 +463,9 @@ export async function updateRoomPushSettingsAction(
 
     await db.update(rooms).set(settings).where(eq(rooms.id, roomId));
 
-    // Force realtime broadcast
-    await redis.set(`room:${roomId}`, Date.now().toString());
-
     return { success: true };
   } catch (error) {
     console.error('Failed to update push settings:', error);
     return { error: 'Gagal memperbarui pengaturan notifikasi' };
   }
 }
-
