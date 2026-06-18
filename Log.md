@@ -452,6 +452,12 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   Menghapus seluruh baris eksekusi *ghost trigger* `redis.set(room:{roomId})` yang sudah tidak terpakai dari seluruh *Server Actions* (`roomControl.ts`, `serverUtils.ts`) dan *Inngest jobs* (`inngest/functions.ts`).
 *   **Tujuan:** Mengurangi utang teknis (*technical debt*), mencegah kebingungan arsitektur *real-time*, serta merampingkan kinerja aplikasi agar berfokus penuh pada integrasi Supabase WebSocket.
 
+### 6. 🐛 Perbaikan Bug UI Sinkronisasi Timer (Supabase Realtime Partial Updates)
+*   **Perubahan:** 
+    *   Memperbarui fungsi *merge state* di dalam `ControlPanel.tsx` dan `VendorView.tsx` ketika menerima sinkronisasi *event* `UPDATE` dari *Supabase Realtime* untuk tabel `rooms`.
+    *   Memastikan hanya *field* yang terdefinisi pada `payload.new` yang ditimpa (di-merge) ke dalam *state* ruangan lokal klien.
+*   **Tujuan:** Menghentikan *bug* UI di mana timer menampilkan waktu lembur `-00:30` ketika sesi seharusnya sudah berganti secara otomatis oleh layanan Inngest di latar belakang. Sebelumnya, konfigurasi bawaan `REPLICA IDENTITY DEFAULT` milik PostgreSQL hanya memancarkan kolom yang berubah pada Supabase payload, sehingga fungsi `mapRoom()` me-*replace* dan menghilangkan kolom penting (`timerStartTime` dan *state* lainnya menjadi `undefined`), yang membuat kalkulator sisa waktu klien (UI) rusak dan harus di-*reload* manual.
+
 ---
 
 ## 🛠️ Status Kompilasi Proyek

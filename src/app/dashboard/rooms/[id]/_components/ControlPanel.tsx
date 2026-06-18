@@ -210,10 +210,25 @@ export default function ControlPanel({
           filter: `id=eq.${roomId}`,
         },
         (payload: any) => {
-          setState((prev: any) => ({
-            ...prev,
-            room: mapRoom(payload.new),
-          }));
+          setState((prev: any) => {
+            if (!prev.room) return prev;
+            const updated = { ...prev.room };
+            if (payload.new.name !== undefined) updated.name = payload.new.name;
+            if (payload.new.event_date !== undefined) updated.eventDate = payload.new.event_date;
+            if (payload.new.current_offset_seconds !== undefined) updated.currentOffsetSeconds = payload.new.current_offset_seconds;
+            if (payload.new.current_rundown_index !== undefined) updated.currentRundownIndex = payload.new.current_rundown_index;
+            if (payload.new.timer_status !== undefined) updated.timerStatus = payload.new.timer_status;
+            if (payload.new.timer_start_time !== undefined) updated.timerStartTime = payload.new.timer_start_time !== null ? Number(payload.new.timer_start_time) : null;
+            if (payload.new.timer_elapsed_seconds !== undefined) updated.timerElapsedSeconds = payload.new.timer_elapsed_seconds;
+            if (payload.new.enable_push_5m !== undefined) updated.enablePush5m = payload.new.enable_push_5m;
+            if (payload.new.enable_push_1m !== undefined) updated.enablePush1m = payload.new.enable_push_1m;
+            if (payload.new.enable_push_session_change !== undefined) updated.enablePushSessionChange = payload.new.enable_push_session_change;
+            
+            return {
+              ...prev,
+              room: updated,
+            };
+          });
         }
       )
       .on(

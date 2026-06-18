@@ -314,9 +314,18 @@ export default function VendorView({
           filter: `id=eq.${roomId}`,
         },
         (payload: any) => {
-          const mappedRoom = mapRoom(payload.new);
           setState((prev: any) => {
-            const nextState = { ...prev, room: mappedRoom };
+            if (!prev.room) return prev;
+            const updated = { ...prev.room };
+            if (payload.new.name !== undefined) updated.name = payload.new.name;
+            if (payload.new.event_date !== undefined) updated.eventDate = payload.new.event_date;
+            if (payload.new.current_offset_seconds !== undefined) updated.currentOffsetSeconds = payload.new.current_offset_seconds;
+            if (payload.new.current_rundown_index !== undefined) updated.currentRundownIndex = payload.new.current_rundown_index;
+            if (payload.new.timer_status !== undefined) updated.timerStatus = payload.new.timer_status;
+            if (payload.new.timer_start_time !== undefined) updated.timerStartTime = payload.new.timer_start_time !== null ? Number(payload.new.timer_start_time) : null;
+            if (payload.new.timer_elapsed_seconds !== undefined) updated.timerElapsedSeconds = payload.new.timer_elapsed_seconds;
+            
+            const nextState = { ...prev, room: updated };
             updateDexieCache(nextState);
             return nextState;
           });
