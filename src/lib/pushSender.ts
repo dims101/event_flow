@@ -1,7 +1,7 @@
 import webpush from "web-push";
 import { db } from "@/db";
 import { pushSubscriptions } from "@/db/schema";
-import { eq, and, or } from "drizzle-orm";
+import { eq, and, or, inArray } from "drizzle-orm";
 
 if (
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY &&
