@@ -4,7 +4,15 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ---
 
-## 📅 Pembaruan: 17 Juni 2026
+## 📅 Pembaruan: 18 Juni 2026 (Bagian 2 - Solusi Delay Auto-Advance)
+
+### 1. ⏱️ Perbaikan Delay 17 Detik pada Transisi Otomatis Timer
+*   **Perubahan:**
+    *   **Penghapusan Parameter `clientTimestamp`**: Menghapus total penggunaan `clientTimestamp` dari `updateTimerStatusAction` di `roomControl.ts`. Pencatatan waktu mulai timer (`timerStartTime`) di database kini secara mutlak menggunakan `Date.now()` dari sisi server untuk mencegah distorsi hitungan Inngest akibat desinkronisasi jam perangkat EO atau *caching* API waktu.
+    *   **Perbaikan Kalkulasi Offset Durasi Inngest**: Memperbaiki logika penghitungan `remainingSeconds` agar secara tepat mengakumulasikan nilai `room.currentOffsetSeconds` yang sudah ada ketika state timer berubah tanpa reset index. Ini memastikan perintah *sleep* Inngest berdurasi presisi 100% sama dengan kalkulasi UI (durasi sesi asli + waktu tambahan/pengurangan dari fitur Offset).
+*   **Tujuan:** Menyelesaikan anomali "delay 17 detik" yang dilaporkan pengguna. Timer kini akan melompat ke sesi berikutnya persis seketika UI hitung mundur menyentuh `00:00`, memulihkan harmoni antara frontend React dan durasi eksekusi *background job* Inngest.
+
+## 📅 Pembaruan: 18 Juni 2026
 
 ### 1. ⏱️ Integrasi Inngest untuk Timer Auto-Advance (Background Jobs)
 *   **Perubahan:**
