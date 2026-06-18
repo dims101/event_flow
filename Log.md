@@ -420,6 +420,32 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ---
 
+## 📅 Pembaruan: 18 Juni 2026
+
+### 1. 🐛 Perbaikan Bug Filter Notifikasi Multi-Divisi (Multi-Role Logic)
+*   **Perubahan:** 
+    *   Mengubah logika pembanding pada parameter target pengiriman notifikasi Push di `src/lib/pushSender.ts`.
+    *   Mengonversi input teks peruntukan majemuk (misal: `"MC, Fotografer"`) menjadi sebuah *Array*, lalu menggunakan fungsi pencarian `inArray()` dari SQL Drizzle untuk mendeteksi langganan (*subscription*) secara aman.
+*   **Tujuan:** Mencegah terjadinya *silent failure* (notifikasi tidak terkirim) di masa depan apabila *Event Organizer* (EO) memutuskan untuk membagikan token tautan terpisah untuk masing-masing peran/divisi. Logika sebelumnya (pencocokan statis identik `eq`) akan menggagalkan pengiriman jika string targetnya berisi nama banyak divisi.
+
+### 2. 🛡️ Keamanan Jalur Langganan Notifikasi (IDOR Vulnerability Fix)
+*   **Perubahan:** 
+    *   Mencabut penerimaan ID Ruangan (`roomId`) dan tipe Peran (`role`) dari antarmuka luar (*client-side*) pada `src/app/actions/pushSubscribe.ts`.
+    *   Mengonversi `subscribeToPushAction` agar hanya menerima `token` acak, lalu menggunakan token tersebut untuk mencari `roomId` serta otorisasi `role` yang sah langsung dari *database* peladen.
+*   **Tujuan:** Menutup celah keamanan IDOR (Insecure Direct Object Reference) yang memungkinkan penyerang/pengguna anonim mengirim dan mendaftarkan perangkat tak berizin ke dalam pusaran siaran ruangan manapun hanya bermodalkan `roomId`.
+
+### 3. ⏱️ Kalkulasi Akurat Durasi Timer (Current Date Now)
+*   **Perubahan:** 
+    *   Menghapus kebergantungan parameter *client* `timerStartTime` saat menjeda (Pause) atau mengubah Offset Waktu di dalam berkas `src/app/actions/roomControl.ts`.
+    *   Menerapkan pengambilan stempel waktu baru yang konsisten secara utuh via perintah server `Date.now()`.
+*   **Tujuan:** Menjamin keakuratan durasi sinkronisasi timer Inngest yang rentan terdistorsi apabila komputer klien milik EO tertinggal waktu akibat mode hemat daya.
+
+### 4. 🔂 Deduplikasi Peringatan 1 Menit & 5 Menit (Redis Locking)
+*   **Perubahan:** 
+    *   Menambahkan mekanisme *Redis Lock* secara terpusat di dalam *step* Inngest (`src/inngest/functions.ts`) untuk melacak riwayat penyebaran notifikasi peringatan per indeks sesi.
+*   **Tujuan:** Mencegah peringatan "5 Menit" atau "1 Menit" dikirim berulang kali (*spamming* redundan) ke ponsel kru lapangan akibat adanya *restart* tugas saat terjadi penambahan/pengurangan manual *offset* waktu oleh EO.
+
+---
 
 ## 🛠️ Status Kompilasi Proyek
 *   **Uji Coba Build:** Berhasil dijalankan via `npm run build` pada 15 Juni 2026.

@@ -166,7 +166,13 @@ export async function updateTimerStatusAction(
           ),
         });
         if (item) {
-          const remainingSeconds = item.durationSeconds + (updateData.currentOffsetSeconds || 0) - (updateData.timerElapsedSeconds || 0);
+          const nowMs = Date.now();
+          const elapsedSinceStart = (updateData.timerStatus === 'running' && updateData.timerStartTime) 
+            ? Math.floor((nowMs - Number(updateData.timerStartTime)) / 1000) 
+            : 0;
+          const totalElapsed = (updateData.timerElapsedSeconds || 0) + elapsedSinceStart;
+          const remainingSeconds = item.durationSeconds + (updateData.currentOffsetSeconds || 0) - totalElapsed;
+
           await inngest.send(timerStartedEvent.create({
             roomId,
             targetIndex: updateData.currentRundownIndex,
@@ -256,7 +262,13 @@ export async function adjustRoomOffsetAction(roomId: string, seconds: number) {
            where: and(eq(rundownItems.roomId, roomId), eq(rundownItems.orderIndex, updatedRoom.currentRundownIndex))
         });
         if (activeItem) {
-          const remainingSeconds = activeItem.durationSeconds + updatedRoom.currentOffsetSeconds - (updatedRoom.timerElapsedSeconds || 0);
+          const nowMs = Date.now();
+          const elapsedSinceStart = updatedRoom.timerStartTime 
+            ? Math.floor((nowMs - Number(updatedRoom.timerStartTime)) / 1000) 
+            : 0;
+          const totalElapsed = (updatedRoom.timerElapsedSeconds || 0) + elapsedSinceStart;
+          const remainingSeconds = activeItem.durationSeconds + updatedRoom.currentOffsetSeconds - totalElapsed;
+
           await inngest.send(timerStartedEvent.create({
             roomId,
             targetIndex: updatedRoom.currentRundownIndex,

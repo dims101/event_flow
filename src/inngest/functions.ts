@@ -22,6 +22,13 @@ export const timerAutoAdvance = inngest.createFunction(
 
     // Helper to send push
     const sendPush = async (alertLabel: string, remainingTimeDesc: string) => {
+      const lockKey = `time_alert:${roomId}:${targetIndex}:${alertLabel}`;
+      if (alertLabel !== 'Sesi Berganti') {
+        const alreadySent = await redis.get(lockKey);
+        if (alreadySent) return;
+        await redis.set(lockKey, '1', { ex: 7200 }); // lock for 2 hours
+      }
+
       const room = await db.query.rooms.findFirst({ where: eq(rooms.id, roomId) });
       if (!room || room.timerStatus !== "running" || String(room.timerStartTime) !== String(startTime) || String(room.currentRundownIndex) !== String(targetIndex)) return;
 
@@ -91,12 +98,14 @@ export const timerAutoAdvance = inngest.createFunction(
         orderBy: (rundownItems, { asc }) => [asc(rundownItems.orderIndex)],
       });
 
-      const nextIndex = targetIndex + 1;
+      const currentIndexInArray = items.findIndex(i => String(i.orderIndex) === String(targetIndex));
+      const nextItem = currentIndexInArray !== -1 ? items[currentIndexInArray + 1] : undefined;
       const nowMs = Date.now();
 
-      if (nextIndex < items.length) {
+      if (nextItem) {
+        const nextIndex = nextItem.orderIndex;
         // Move to next session
-        const item = items.find(i => i.orderIndex === nextIndex);
+        const item = nextItem;
         
         await db.update(rooms).set({
           timerStatus: "running",

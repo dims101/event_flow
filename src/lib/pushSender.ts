@@ -30,6 +30,9 @@ export async function sendPushNotification(
   }
 
   try {
+    // Parse targetRole strings like "MC, Fotografer" into an array
+    const targetRolesArray = targetRole.split(',').map(r => r.trim()).filter(Boolean);
+
     // Find subscriptions for the given room and role (including role 'All')
     const subscriptions = await db.query.pushSubscriptions.findMany({
       where: and(
@@ -37,7 +40,7 @@ export async function sendPushNotification(
         targetRole === "All"
           ? undefined // Send to everyone in the room
           : or(
-              eq(pushSubscriptions.role, targetRole),
+              inArray(pushSubscriptions.role, targetRolesArray),
               eq(pushSubscriptions.role, "All") // Anyone subscribed to 'All' should also receive it
             )
       ),

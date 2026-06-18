@@ -1,15 +1,14 @@
 'use server';
 
 import { db } from "@/db";
-import { pushSubscriptions } from "@/db/schema";
+import { pushSubscriptions, roleTokens } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 
 /**
  * Saves or updates a push subscription token for a specific room and vendor role.
  */
 export async function subscribeToPushAction(
-  roomId: string,
-  role: string,
+  token: string,
   subJSON: { endpoint: string; keys: { p256dh: string; auth: string } },
   deviceInfo: string
 ) {
@@ -18,6 +17,17 @@ export async function subscribeToPushAction(
     if (!endpoint || !keys?.p256dh || !keys?.auth) {
       return { error: 'Invalid subscription object properties' };
     }
+
+    const tokenData = await db.query.roleTokens.findFirst({
+      where: eq(roleTokens.token, token)
+    });
+    
+    if (!tokenData) {
+       return { error: 'Akses ditolak: Token tidak valid' };
+    }
+    
+    const roomId = tokenData.roomId;
+    const role = tokenData.role;
 
     // Check if subscription endpoint already exists
     const existing = await db.query.pushSubscriptions.findFirst({

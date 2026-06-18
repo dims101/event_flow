@@ -1267,8 +1267,7 @@ export default function VendorView({
 
         // 4. Simpan ke Database
         const res = await subscribeToPushAction(
-          roomId,
-          vendorRole,
+          token,
           JSON.parse(JSON.stringify(sub)),
           navigator.userAgent
         );
