@@ -445,6 +445,13 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   Menambahkan mekanisme *Redis Lock* secara terpusat di dalam *step* Inngest (`src/inngest/functions.ts`) untuk melacak riwayat penyebaran notifikasi peringatan per indeks sesi.
 *   **Tujuan:** Mencegah peringatan "5 Menit" atau "1 Menit" dikirim berulang kali (*spamming* redundan) ke ponsel kru lapangan akibat adanya *restart* tugas saat terjadi penambahan/pengurangan manual *offset* waktu oleh EO.
 
+### 5. 🧹 Pembersihan Kode *Legacy* Server-Sent Events (SSE)
+*   **Perubahan:** 
+    *   Menghapus secara permanen direktori rute API `src/app/api/rooms/[id]/stream` karena fungsionalitasnya telah digantikan secara penuh oleh *Supabase Realtime* (`supabase.channel()`).
+    *   Menghapus fungsi `subscribe()` dan `publish()` beserta logika *in-memory map* dari berkas cadangan `src/lib/redis.ts`.
+    *   Menghapus seluruh baris eksekusi *ghost trigger* `redis.set(room:{roomId})` yang sudah tidak terpakai dari seluruh *Server Actions* (`roomControl.ts`, `serverUtils.ts`) dan *Inngest jobs* (`inngest/functions.ts`).
+*   **Tujuan:** Mengurangi utang teknis (*technical debt*), mencegah kebingungan arsitektur *real-time*, serta merampingkan kinerja aplikasi agar berfokus penuh pada integrasi Supabase WebSocket.
+
 ---
 
 ## 🛠️ Status Kompilasi Proyek
