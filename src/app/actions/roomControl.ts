@@ -32,8 +32,7 @@ export async function updateTimerStatusAction(
   roomId: string,
   status: 'running' | 'paused' | 'stopped',
   targetIndex?: number,
-  isAutoAdvance?: boolean,
-  clientTimestamp?: number
+  isAutoAdvance?: boolean
 ) {
   try {
     const userId = await getSessionUserId();
@@ -65,7 +64,7 @@ export async function updateTimerStatusAction(
     let timerElapsedSeconds = room.timerElapsedSeconds;
     let currentRundownIndex = room.currentRundownIndex;
 
-    const nowMs = Math.round(clientTimestamp || Date.now());
+    const nowMs = Date.now();
     let description = '';
 
     if (targetIndex !== undefined) {
@@ -170,7 +169,9 @@ export async function updateTimerStatusAction(
             ? Math.floor((nowMs - Number(updateData.timerStartTime)) / 1000) 
             : 0;
           const totalElapsed = (updateData.timerElapsedSeconds || 0) + elapsedSinceStart;
-          const remainingSeconds = item.durationSeconds + (updateData.currentOffsetSeconds || 0) - totalElapsed;
+          
+          const currentOffset = updateData.currentOffsetSeconds !== undefined ? updateData.currentOffsetSeconds : room.currentOffsetSeconds;
+          const remainingSeconds = item.durationSeconds + currentOffset - totalElapsed;
 
           await inngest.send(timerStartedEvent.create({
             roomId,

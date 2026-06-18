@@ -574,7 +574,7 @@ export default function ControlPanel({
     const nextStatus = room.timerStatus === 'running' ? 'paused' : 'running';
     setPendingAction('playpause');
     startTimerTransition(async () => {
-      const res = await updateTimerStatusAction(roomId, nextStatus, undefined, undefined, getSyncedTime());
+      const res = await updateTimerStatusAction(roomId, nextStatus, undefined, undefined);
       if (res && res.room) {
         setState((prev: any) => ({ ...prev, room: mapRoom(res.room) }));
       }
@@ -601,7 +601,7 @@ export default function ControlPanel({
     else setPendingAction('prev');
 
     startTimerTransition(async () => {
-      const res = await updateTimerStatusAction(roomId, targetStatus as any, index, undefined, getSyncedTime());
+      const res = await updateTimerStatusAction(roomId, targetStatus as any, index, undefined);
       if (res && res.room) {
         setState((prev: any) => ({ ...prev, room: mapRoom(res.room) }));
       }
@@ -614,7 +614,7 @@ export default function ControlPanel({
     }
     setPendingAction('stop');
     startTimerTransition(async () => {
-      const res = await updateTimerStatusAction(roomId, 'stopped', undefined, undefined, getSyncedTime());
+      const res = await updateTimerStatusAction(roomId, 'stopped', undefined, undefined);
       if (res && res.room) {
         setState((prev: any) => ({ ...prev, room: mapRoom(res.room) }));
       }
