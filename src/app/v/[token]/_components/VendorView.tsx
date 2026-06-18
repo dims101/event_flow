@@ -696,20 +696,20 @@ export default function VendorView({
         // Initialize PiP structure
         const pipDiv = pipWindow.document.createElement('div');
         pipDiv.innerHTML = `
-          <div id="pip-container" class="relative min-h-screen grid grid-cols-[0.45fr_1.55fr] gap-2 font-sans p-2 select-none bg-slate-950 text-slate-100">
+          <div id="pip-container" class="relative min-h-screen grid grid-cols-[50%_50%] gap-3 font-sans p-2 select-none bg-slate-950 text-slate-100 min-w-0">
             <!-- Left: Rundown List -->
-            <div id="pip-rundown-list" class="flex flex-col gap-1 pr-1.5 border-r border-slate-900/60 overflow-hidden text-[13px] justify-center">
+            <div id="pip-rundown-list" class="flex flex-col gap-1 pr-1.5 border-r border-slate-900/60 overflow-hidden text-[13px] justify-center min-w-0">
               <!-- Items will be injected here dynamically -->
             </div>
             
             <!-- Right: Timer, Wall Clock, Prompter -->
-            <div class="flex flex-col items-center justify-center relative pl-1">
+            <div class="flex flex-col items-center justify-center relative pl-1 min-w-0">
               <span id="pip-status-dot" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500"></span>
-              <span id="pip-title" class="text-sm font-bold text-slate-400 uppercase tracking-wider text-center mb-1.5">EVENTFLOW</span>
+              <span id="pip-title" class="text-sm font-bold text-white uppercase tracking-wider text-center mb-1.5 truncate max-w-full">EVENTFLOW</span>
               
               <div id="pip-clock-view" class="flex flex-col items-center justify-center w-full">
-                <div id="pip-timer" class="font-mono text-6xl font-black tracking-tighter text-slate-300 text-center leading-none">00:00</div>
-                <div class="mt-2 flex items-center gap-2 text-base px-3 py-1 rounded bg-slate-900 border border-slate-800 text-slate-400 font-bold tracking-wider text-center">
+                <div id="pip-timer" class="font-mono text-6xl font-black tracking-tighter text-white text-center leading-none">00:00</div>
+                <div class="mt-2 flex items-center gap-2 text-base px-3 py-1 rounded bg-slate-900 border border-slate-800 text-white font-bold tracking-wider text-center">
                   <span id="pip-wall-time" class="font-mono">00:00:00</span>
                 </div>
               </div>
@@ -752,7 +752,7 @@ export default function VendorView({
           .pip-item {
             display: flex;
             align-items: center;
-            padding: 4px 6px;
+            padding: 6px 12px;
             border-radius: 4px;
             margin: 2px 0;
             transition: all 0.15s ease;
@@ -764,19 +764,18 @@ export default function VendorView({
             -webkit-box-orient: vertical;
             overflow: hidden;
             word-break: break-word;
-            line-height: 1.2;
+            line-height: 1.25;
           }
           .pip-item-active {
-            font-weight: 850;
-            font-size: 16px;
+            font-weight: normal;
             color: #818cf8;
             background-color: rgba(99, 102, 241, 0.15);
-            border-left: 3.5px solid #6366f1;
-            padding-left: 6px;
+            border-left: 4px solid #6366f1;
+            padding-left: 10px;
           }
           .pip-item-inactive {
             font-size: 13px;
-            color: #94a3b8;
+            color: #ffffff;
           }
         `;
         pipWindow.document.head.appendChild(animStyle);
@@ -985,8 +984,8 @@ export default function VendorView({
         // Define colors dynamically depending on parent theme
         const colorBg = isDark ? '#090d16' : '#FAFBFC';
         const colorTextPrimary = isDark ? '#818cf8' : '#0C66E4';
-        const colorTextMuted = isDark ? '#94a3b8' : '#42526E';
-        const colorTextSlate = isDark ? '#64748b' : '#5E6C84';
+        const colorTextMuted = isDark ? '#ffffff' : '#091E42';
+        const colorTextSlate = isDark ? '#ffffff' : '#091E42';
         const colorTextWhite = isDark ? '#ffffff' : '#091E42';
 
         // Fetch fresh state from ref on each draw frame
@@ -1039,8 +1038,8 @@ export default function VendorView({
           }
         } else {
           // Draw vertical separator
-          const leftWidth = 75;
-          const rightStart = 85;
+          const leftWidth = 140;
+          const rightStart = 150;
           const rightCenterX = rightStart + (canvas.width - rightStart) / 2;
 
           ctx.strokeStyle = isDark ? '#1e293b' : '#e2e8f0';
@@ -1069,7 +1068,7 @@ export default function VendorView({
               const isActive = index === curIdx;
               
               if (isActive) {
-                ctx.font = 'bold 14px sans-serif';
+                ctx.font = '11px sans-serif';
                 ctx.fillStyle = isDark ? '#818cf8' : '#0c66e4'; // Mencolok
               } else {
                 ctx.font = '11px sans-serif';

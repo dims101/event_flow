@@ -14,6 +14,32 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
     *   **Pemutakhiran Server Actions**: Menambahkan *trigger event* `inngest.send()` ke dalam `roomControl.ts` (`updateTimerStatusAction` & `adjustRoomOffsetAction`) untuk menyinkronkan alur kerja dasbor dengan infrastruktur *background job*.
 *   **Tujuan:** Mengatasi *bug* berhentinya *timer* (tidak mau melompat ke sesi selanjutnya) ketika *tab* panel kontrol utama tertutup, dengan cara memindahkan tanggung jawab orkestrasi waktu dari sesi peramban lokal ke sistem *serverless* terdistribusi.
 
+### 2. 🔔 Preferensi *Push Notification* Kustom (Toggles)
+*   **Perubahan:**
+    *   **Skema Database:** Menambahkan kolom `enablePush5m`, `enablePush1m`, dan `enablePushSessionChange` (dengan *default value* `true`) pada tabel `rooms` di `schema.ts`.
+    *   **Antarmuka Kontrol Dasbor:** Menyematkan tiga opsi *toggle switch* baru di menu "Pengaturan Notifikasi" pada `ControlPanel.tsx` agar *Show Caller* dapat menonaktifkan atau mengaktifkan notifikasi push peringatan sisa waktu (5 Menit & 1 Menit) serta notifikasi perpindahan sesi secara mandiri.
+    *   **Server Actions & Payload:** Menerapkan pengecekan preferensi di dalam `roomControl.ts` sebelum mengirim *push notification* ke pelanggan *Service Worker*.
+*   **Tujuan:** Memberikan kendali penuh kepada pengelola acara untuk membungkam notifikasi peringatan yang tidak relevan (seperti sisa 1 menit) agar tidak mengganggu fokus *kru* saat sesi krusial, sambil tetap mengaktifkan notifikasi perpindahan sesi secara universal.
+
+### 3. 🗄️ Pemisahan Koneksi Migrasi Database & Aplikasi (*Transaction vs Session Pooler*)
+*   **Perubahan:**
+    *   **Injeksi Skema Manual:** Menambahkan kolom preferensi notifikasi baru secara aman ke database menggunakan injeksi perintah *ALTER TABLE* langsung (via sesi koneksi *Session Pooler* di port 5432).
+    *   **Variabel *DIRECT_URL***: Mengatur variabel lingkungan `DIRECT_URL` di dalam `.env` serta mengonfigurasi fallback di `drizzle.config.ts` untuk mengarahkan operasi `drizzle-kit push` secara eksplisit.
+*   **Tujuan:** Memperbaiki insiden kegagalan pembacaan database (Error 500 saat membuat event) yang diakibatkan oleh mandeknya perintah modifikasi skema tabel ketika berjalan di atas koneksi *Transaction Pooler* (port 6543) Supabase yang memiliki limitasi *prepared statements*.
+
+### 4. 🎨 Standarisasi Ikon Web (Lucide) vs *Push Notification* (Emoji)
+*   **Perubahan:**
+    *   Menghapus sepenuhnya karakter berbasis *Emoji* Apple/Windows pada antarmuka *Web Dashboard* (seperti pada tombol tabel, opsi menu, dan *heading*) lalu menggantinya dengan ikon vektor responsif dari *Lucide React*.
+    *   Mempertahankan karakter *Emoji* secara eksklusif hanya untuk digunakan di dalam *payload* isi teks *Push Notification* ponsel kru di lapangan (seperti ikon peringatan 🚨).
+*   **Tujuan:** Mematuhi pedoman desain estetika *desktop* yang lebih bersih dan profesional di dalam web tanpa kehilangan ekspresi kewaspadaan di layar notifikasi gawai seluler pengguna lapangan.
+
+### 5. 📱 Penyesuaian Tampilan Picture-in-Picture (PiP) & UX Feedback
+*   **Perubahan:**
+    *   **UX Feedback (Loading States):** Menambahkan indikator *loading* visual (*spinner* `Loader2` dari Lucide) pada tombol-tombol kontrol utama (Play, Pause, Stop) serta *overlay loading* semi-transparan pada Timer utama di dalam `ControlPanel.tsx` untuk memberikan *feedback* visual instan saat pengguna menunggu *Server Action* dieksekusi.
+    *   **Tata Letak Canvas PiP (Mobile Fallback):** Menyesuaikan proporsi layar pada fitur PiP berbasis *Canvas* (di perangkat seluler) menjadi persis **35% untuk daftar sesi dan 65% untuk area timer/judul**, agar tidak memakan ruang terlalu banyak untuk teks.
+    *   **Konsistensi Tipografi & Kontras:** Menghapus ketebalan teks (*bold*) pada sesi aktif di dalam PiP Mobile agar sejajar dengan sesi lainnya, serta mengubah seluruh teks warna abu-abu (judul "EVENTFLOW", timer, *wall clock*, list pasif) menjadi warna **putih cerah** demi memastikan kontras maksimal melawan latar belakang PiP yang gelap (`bg-slate-950`).
+*   **Tujuan:** Meningkatkan kejelasan antarmuka dan aksesibilitas untuk perangkat *mobile*, serta memberikan responsivitas *UI* yang lebih baik bagi pengguna saat mengklik tombol kontrol acara.
+
 ---
 
 ## 📅 Pembaruan: 16 Juni 2026
