@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { getRundownItemsAction } from '@/app/actions/rundown';
 import { getRoleBadgeStyle } from '@/lib/picColors';
 import { Printer, Calendar, Clock, FileText } from 'lucide-react';
+import { EventFlowLogo } from '@/components/EventFlowLogo';
 
 interface RundownItem {
   id: string;
@@ -142,13 +143,10 @@ export default function OwnerShareView({
       {/* Top Header Navigation (Hidden on Print) */}
       <header className="border-b border-slate-900 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40 print:hidden">
         <div className="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-650 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-650/30">
-              EF
-            </div>
-            <div>
-              <span className="font-extrabold tracking-tight text-sm text-slate-100">EventFlow</span>
-              <span className="text-[10px] text-slate-400 block -mt-1 font-mono">Owner Portal</span>
+          <div className="flex items-center gap-2.5">
+            <EventFlowLogo className="h-6 w-auto text-slate-100" />
+            <div className="border-l border-slate-800 pl-2.5">
+              <span className="text-[10px] text-slate-400 block font-mono leading-none">Owner Portal</span>
             </div>
           </div>
           <button
