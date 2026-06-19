@@ -212,7 +212,7 @@ export default function OwnerShareView({
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block font-mono">Waktu Mulai</span>
                   <span className="text-sm font-extrabold text-slate-200 mt-1 flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5 text-indigo-400" />
-                    {room.rundownStartTime} WIB
+                    {room.rundownStartTime}
                   </span>
                 </div>
                 <div className="bg-slate-950/60 border border-slate-850 p-3.5 rounded-2xl flex flex-col justify-center min-w-[120px]">
@@ -238,7 +238,7 @@ export default function OwnerShareView({
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-slate-800 bg-slate-950/50 text-slate-400 font-mono text-xs uppercase tracking-wider">
-                    <th className="py-4 px-6 w-36">Waktu (WIB)</th>
+                    <th className="py-4 px-6 w-44">Waktu</th>
                     <th className="py-4 px-6">Agenda / Kegiatan</th>
                     <th className="py-4 px-6 w-24 text-center">Durasi</th>
                     <th className="py-4 px-6 w-56 text-right">Penanggung Jawab (PIC)</th>
@@ -296,7 +296,7 @@ export default function OwnerShareView({
           <table className="w-full text-left border-collapse text-xs text-black border border-black">
             <thead>
               <tr className="bg-gray-100 border-b-2 border-black">
-                <th className="py-2.5 px-4 w-36 font-mono font-bold uppercase border-r border-black">Waktu (WIB)</th>
+                <th className="py-2.5 px-4 w-44 font-mono font-bold uppercase border-r border-black">Waktu</th>
                 <th className="py-2.5 px-4 font-bold uppercase border-r border-black">Agenda / Kegiatan</th>
                 <th className="py-2.5 px-4 w-24 text-center font-bold uppercase border-r border-black">Durasi</th>
                 <th className="py-2.5 px-4 w-40 text-right font-bold uppercase">PIC / PJ</th>
