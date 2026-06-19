@@ -99,8 +99,23 @@ export const timerAutoAdvance = inngest.createFunction(
       });
 
       const currentIndexInArray = items.findIndex(i => String(i.orderIndex) === String(targetIndex));
+      const currentItem = currentIndexInArray !== -1 ? items[currentIndexInArray] : undefined;
       const nextItem = currentIndexInArray !== -1 ? items[currentIndexInArray + 1] : undefined;
       const nowMs = Date.now();
+
+      // Mathematical Catch-Up: Calculate theoretical perfect end time to eliminate Serverless execution drift
+      let safeStartTimeMs = nowMs;
+      if (currentItem && room.timerStartTime) {
+        const totalAllowedSeconds = currentItem.durationSeconds + (room.currentOffsetSeconds || 0);
+        const expectedEndMs = Number(room.timerStartTime) + ((totalAllowedSeconds - (room.timerElapsedSeconds || 0)) * 1000);
+        const driftMs = nowMs - expectedEndMs;
+        
+        // If the execution is late by 0-15 seconds (typical for Vercel Cold Start / Network), 
+        // we snap the next session's start time to the theoretical exact end time of the previous session.
+        if (driftMs > 0 && driftMs <= 15000) {
+          safeStartTimeMs = expectedEndMs;
+        }
+      }
 
       if (nextItem) {
         const nextIndex = nextItem.orderIndex;
@@ -109,7 +124,7 @@ export const timerAutoAdvance = inngest.createFunction(
         
         await db.update(rooms).set({
           timerStatus: "running",
-          timerStartTime: nowMs,
+          timerStartTime: safeStartTimeMs,
           timerElapsedSeconds: 0,
           currentRundownIndex: nextIndex,
           currentOffsetSeconds: 0
@@ -143,7 +158,7 @@ export const timerAutoAdvance = inngest.createFunction(
             roomId: roomId,
             targetIndex: nextIndex,
             durationSeconds: item ? item.durationSeconds : 0,
-            startTime: nowMs
+            startTime: safeStartTimeMs
           }
         });
       } else {

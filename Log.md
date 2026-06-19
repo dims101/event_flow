@@ -4,6 +4,16 @@ Dokumen ini mencatat log pembaruan teknis yang telah diterapkan pada aplikasi Ev
 
 ---
 
+## 📅 Pembaruan: 19 Juni 2026 (Kompensasi Matematis & Predictive UI)
+
+### 1. 🧮 Solusi Kompensasi Matematis (Mathematical Catch-Up) di Inngest
+*   **Perubahan:** Mengubah pencatatan waktu `timerStartTime` saat Inngest melakukan *auto-advance* di `src/inngest/functions.ts`. Sebelumnya, Inngest murni merekam waktu `Date.now()` pada saat fungsi dijalankan. Kini, fungsi tersebut mengalkulasi ekspektasi waktu selesai sesi yang lalu (*Expected End Time*) dan menjadikannya titik mulai sesi baru, asalkan penyimpangannya kurang dari 15 detik.
+*   **Tujuan:** Mencegah **fenomena Time Drift (Gaps)** yang timbul akibat durasi *Cold Start* infrastruktur Vercel. Keterlambatan server 2-10 detik kini langsung ditebus (catch-up) pada detik-detik awal sesi berikutnya. Hasilnya, jadwal waktu transisi acara dari awal hingga akhir menjadi 100% presisi secara akumulatif, tanpa kemoloran waktu sama sekali.
+
+### 2. 🎭 Implementasi Predictive UI di Klien
+*   **Perubahan:** Menambahkan logika pemalsuan transisi lokal (Optimistic UI) pada fungsi `tick()` di `ControlPanel.tsx`, `VendorView.tsx`, dan `MonitorView.tsx`.
+*   **Tujuan:** Menyembunyikan sisa eksekusi Serverless (waktu tunggu 2-10 detik) secara visual. UI langsung melompat ke sesi selanjutnya ketika angka menyentuh `00:00`, sambil secara diam-diam menunggu konfirmasi dari server yang datang belakangan.
+
 ## 📅 Pembaruan: 18 Juni 2026 (Bagian 2 - Solusi Delay Auto-Advance)
 
 ### 1. ⏱️ Perbaikan Delay 17 Detik pada Transisi Otomatis Timer
