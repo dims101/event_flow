@@ -171,6 +171,7 @@ export default function VendorView({
   const prevStatus = useRef<string | null>(null);
   const pipWindowRef = useRef<any>(null);
   const pipVideoRef = useRef<HTMLVideoElement | null>(null);
+  const isPredictingAdvance = useRef(false);
 
   // Refs to prevent useEffect teardown on state changes, bypassing background throttle issues
   const stateRef = useRef(state);
@@ -320,7 +321,10 @@ export default function VendorView({
             if (payload.new.name !== undefined) updated.name = payload.new.name;
             if (payload.new.event_date !== undefined) updated.eventDate = payload.new.event_date;
             if (payload.new.current_offset_seconds !== undefined) updated.currentOffsetSeconds = payload.new.current_offset_seconds;
-            if (payload.new.current_rundown_index !== undefined) updated.currentRundownIndex = payload.new.current_rundown_index;
+            if (payload.new.current_rundown_index !== undefined) {
+              updated.currentRundownIndex = payload.new.current_rundown_index;
+              isPredictingAdvance.current = false;
+            }
             if (payload.new.timer_status !== undefined) updated.timerStatus = payload.new.timer_status;
             if (payload.new.timer_start_time !== undefined) updated.timerStartTime = payload.new.timer_start_time !== null ? Number(payload.new.timer_start_time) : null;
             if (payload.new.timer_elapsed_seconds !== undefined) updated.timerElapsedSeconds = payload.new.timer_elapsed_seconds;
@@ -436,6 +440,68 @@ export default function VendorView({
       const diff = totalAllowed - elapsed;
 
       const over = diff < 0;
+
+      // --- PREDICTIVE UI START ---
+      if (diff <= 0 && !isPredictingAdvance.current && room.timerStatus === 'running') {
+        isPredictingAdvance.current = true;
+        const currentIndexInArray = items.findIndex((i: any) => i.orderIndex === room.currentRundownIndex);
+        const nextItem = currentIndexInArray !== -1 ? items[currentIndexInArray + 1] : undefined;
+        
+        if (nextItem) {
+          // Mock the advance
+          setState((prev: any) => {
+            const nextState = {
+              ...prev,
+              room: {
+                ...prev.room,
+                currentRundownIndex: nextItem.orderIndex,
+                timerStartTime: getSyncedTime(),
+                timerElapsedSeconds: 0,
+                currentOffsetSeconds: 0
+              }
+            };
+            if (localDb) {
+              localDb.rundownCache.put({
+                id: roomId,
+                roomName,
+                roomState: nextState.room,
+                items: nextState.items,
+                messages: nextState.messages,
+                lastUpdated: Date.now(),
+              }).catch(console.error);
+            }
+            return nextState;
+          });
+        } else {
+          // Last session
+          setState((prev: any) => {
+            const nextState = {
+              ...prev,
+              room: {
+                ...prev.room,
+                timerStatus: 'stopped',
+                currentRundownIndex: -1,
+                timerStartTime: null,
+                timerElapsedSeconds: 0,
+                currentOffsetSeconds: 0
+              }
+            };
+            if (localDb) {
+              localDb.rundownCache.put({
+                id: roomId,
+                roomName,
+                roomState: nextState.room,
+                items: nextState.items,
+                messages: nextState.messages,
+                lastUpdated: Date.now(),
+              }).catch(console.error);
+            }
+            return nextState;
+          });
+        }
+      }
+      // --- PREDICTIVE UI END ---
+
       const absDiff = Math.abs(Math.floor(diff));
       const min = Math.floor(absDiff / 60);
       const sec = absDiff % 60;

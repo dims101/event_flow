@@ -128,6 +128,7 @@ export default function ControlPanel({
   const isInitialLoad = useRef(true);
   const sentAlertsRef = useRef<{ [itemIndex: number]: { '5m'?: boolean; '1m'?: boolean } }>({});
   const isTransitioningRef = useRef(false);
+  const isPredictingAdvance = useRef(false);
 
   // Reset auto-advance lock when the room index or status changes
   useEffect(() => {
@@ -216,7 +217,10 @@ export default function ControlPanel({
             if (payload.new.name !== undefined) updated.name = payload.new.name;
             if (payload.new.event_date !== undefined) updated.eventDate = payload.new.event_date;
             if (payload.new.current_offset_seconds !== undefined) updated.currentOffsetSeconds = payload.new.current_offset_seconds;
-            if (payload.new.current_rundown_index !== undefined) updated.currentRundownIndex = payload.new.current_rundown_index;
+            if (payload.new.current_rundown_index !== undefined) {
+              updated.currentRundownIndex = payload.new.current_rundown_index;
+              isPredictingAdvance.current = false; // Reconciliation unlock
+            }
             if (payload.new.timer_status !== undefined) updated.timerStatus = payload.new.timer_status;
             if (payload.new.timer_start_time !== undefined) updated.timerStartTime = payload.new.timer_start_time !== null ? Number(payload.new.timer_start_time) : null;
             if (payload.new.timer_elapsed_seconds !== undefined) updated.timerElapsedSeconds = payload.new.timer_elapsed_seconds;
@@ -389,6 +393,49 @@ export default function ControlPanel({
       const diff = totalAllowed - elapsed;
 
       const over = diff < 0;
+      
+      // --- PREDICTIVE UI START ---
+      if (diff <= 0 && !isPredictingAdvance.current && room.timerStatus === 'running') {
+        isPredictingAdvance.current = true;
+        const currentIndexInArray = items.findIndex((i: any) => i.orderIndex === room.currentRundownIndex);
+        const nextItem = currentIndexInArray !== -1 ? items[currentIndexInArray + 1] : undefined;
+        
+        if (nextItem) {
+          // Mock the advance
+          setState((prev: any) => ({
+            ...prev,
+            room: {
+              ...prev.room,
+              currentRundownIndex: nextItem.orderIndex,
+              timerStartTime: getSyncedTime(),
+              timerElapsedSeconds: 0,
+              currentOffsetSeconds: 0
+            },
+            logs: [{
+              id: 'mock-' + Date.now(),
+              roomId: room.id,
+              actionType: 'timer',
+              description: `Pindah ke sesi "${nextItem.title}" (Prediksi Klien)`,
+              createdAt: Date.now()
+            }, ...prev.logs].slice(0, 30)
+          }));
+        } else {
+          // Last session
+          setState((prev: any) => ({
+            ...prev,
+            room: {
+              ...prev.room,
+              timerStatus: 'stopped',
+              currentRundownIndex: -1,
+              timerStartTime: null,
+              timerElapsedSeconds: 0,
+              currentOffsetSeconds: 0
+            }
+          }));
+        }
+      }
+      // --- PREDICTIVE UI END ---
+
       const absDiff = Math.abs(Math.floor(diff));
       const min = Math.floor(absDiff / 60);
       const sec = absDiff % 60;

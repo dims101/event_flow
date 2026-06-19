@@ -94,6 +94,7 @@ export default function MonitorView({
   const isInitialLoad = useRef(true);
   const messageClearTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const messageFadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isPredictingAdvance = useRef(false);
 
   useEffect(() => {
     roomRef.current = room;
@@ -128,6 +129,9 @@ export default function MonitorView({
         },
         (payload: any) => {
           setRoom(mapRoom(payload.new));
+          if (payload.new.current_rundown_index !== undefined) {
+            isPredictingAdvance.current = false;
+          }
         }
       )
       .on(
@@ -220,6 +224,34 @@ export default function MonitorView({
       const diff = totalAllowed - elapsed;
 
       const over = diff < 0;
+
+      // --- PREDICTIVE UI START ---
+      if (diff <= 0 && !isPredictingAdvance.current && currentRoom.timerStatus === 'running') {
+        isPredictingAdvance.current = true;
+        const currentIndexInArray = currentItems.findIndex((i: any) => i.orderIndex === currentRoom.currentRundownIndex);
+        const nextItem = currentIndexInArray !== -1 ? currentItems[currentIndexInArray + 1] : undefined;
+        
+        if (nextItem) {
+          setRoom(prev => prev ? ({
+            ...prev,
+            currentRundownIndex: nextItem.orderIndex,
+            timerStartTime: getSyncedTime(),
+            timerElapsedSeconds: 0,
+            currentOffsetSeconds: 0
+          }) : null);
+        } else {
+          setRoom(prev => prev ? ({
+            ...prev,
+            timerStatus: 'stopped',
+            currentRundownIndex: -1,
+            timerStartTime: null,
+            timerElapsedSeconds: 0,
+            currentOffsetSeconds: 0
+          }) : null);
+        }
+      }
+      // --- PREDICTIVE UI END ---
+
       const absDiff = Math.abs(Math.floor(diff));
       const min = Math.floor(absDiff / 60);
       const sec = absDiff % 60;
