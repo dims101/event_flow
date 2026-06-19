@@ -175,152 +175,105 @@ export default function OwnerShareView({
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8 space-y-8 print:p-0 print:space-y-6">
-        {/* Document Brand Header for PDF (Shown ONLY on Print) */}
-        <div className="hidden print:flex items-center justify-between border-b-2 border-black pb-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-black">{room.name}</h1>
-            <p className="text-sm text-gray-700 font-mono mt-0.5">{formattedDate}</p>
-          </div>
-          <div className="text-right">
-            <span className="text-xl font-black tracking-tight text-indigo-600">EventFlow</span>
-            <span className="text-[10px] text-gray-500 font-mono block">Rundown Acara Resmi</span>
+      <main className="max-w-5xl mx-auto px-4 py-8 space-y-8 print:py-6 print:px-0">
+        {/* Hero Welcome Card */}
+        <div className="relative overflow-hidden rounded-3xl border border-slate-900 bg-slate-900/30 backdrop-blur-md p-6 sm:p-8">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold font-mono">
+                <Calendar className="w-3.5 h-3.5" />
+                <span>{formattedDate}</span>
+              </div>
+              <h2 className="text-3xl font-black tracking-tight text-slate-100">{roomName}</h2>
+              <p className="text-sm text-slate-400 max-w-xl">
+                Berikut adalah susunan rancangan rundown untuk acara Anda. Perubahan jadwal yang disepakati akan ter-update di sini secara langsung.
+              </p>
+            </div>
+
+            {/* Event Metadata Cards */}
+            <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
+              <div className="bg-slate-950/60 border border-slate-850 p-3.5 rounded-2xl flex flex-col justify-center min-w-[120px]">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block font-mono">Waktu Mulai</span>
+                <span className="text-sm font-extrabold text-slate-200 mt-1 flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                  {room.rundownStartTime}
+                </span>
+              </div>
+              <div className="bg-slate-950/60 border border-slate-850 p-3.5 rounded-2xl flex flex-col justify-center min-w-[120px]">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block font-mono">Total Durasi</span>
+                <span className="text-sm font-extrabold text-slate-200 mt-1">
+                  {durationText}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* ── SCREEN VIEW: Premium Event Overview (Hidden on Print) ── */}
-        <div className="print:hidden space-y-8 animate-in fade-in duration-300">
-          {/* Hero Welcome Card */}
-          <div className="relative overflow-hidden rounded-3xl border border-slate-900 bg-slate-900/30 backdrop-blur-md p-6 sm:p-8">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl pointer-events-none" />
-            
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold font-mono">
-                  <Calendar className="w-3.5 h-3.5" />
-                  <span>{formattedDate}</span>
-                </div>
-                <h2 className="text-3xl font-black tracking-tight text-slate-100">{roomName}</h2>
-                <p className="text-sm text-slate-400 max-w-xl">
-                  Berikut adalah susunan rancangan rundown untuk acara Anda. Perubahan jadwal yang disepakati akan ter-update di sini secara langsung.
-                </p>
-              </div>
-
-              {/* Event Metadata Cards */}
-              <div className="grid grid-cols-2 gap-3 w-full md:w-auto">
-                <div className="bg-slate-950/60 border border-slate-850 p-3.5 rounded-2xl flex flex-col justify-center min-w-[120px]">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block font-mono">Waktu Mulai</span>
-                  <span className="text-sm font-extrabold text-slate-200 mt-1 flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5 text-indigo-400" />
-                    {room.rundownStartTime}
-                  </span>
-                </div>
-                <div className="bg-slate-950/60 border border-slate-850 p-3.5 rounded-2xl flex flex-col justify-center min-w-[120px]">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block font-mono">Total Durasi</span>
-                  <span className="text-sm font-extrabold text-slate-200 mt-1">
-                    {durationText}
-                  </span>
-                </div>
-              </div>
-            </div>
+        {/* Rundown Table Container */}
+        <div className="bg-slate-900 border border-slate-900/40 rounded-2xl overflow-hidden shadow-xl">
+          <div className="px-6 py-4.5 border-b border-slate-800 flex items-center justify-between">
+            <h3 className="font-bold text-slate-100 font-sans flex items-center gap-2">
+              <FileText className="w-4 h-4 text-slate-400" />
+              <span>Rencana Susunan Sesi ({items.length} Sesi)</span>
+            </h3>
           </div>
 
-          {/* Rundown Table Container */}
-          <div className="bg-slate-900 border border-slate-900/40 rounded-2xl overflow-hidden shadow-xl">
-            <div className="px-6 py-4.5 border-b border-slate-800 flex items-center justify-between">
-              <h3 className="font-bold text-slate-100 font-sans flex items-center gap-2">
-                <FileText className="w-4 h-4 text-slate-400" />
-                <span>Rencana Susunan Sesi ({items.length} Sesi)</span>
-              </h3>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-slate-800 bg-slate-950/50 text-slate-400 font-mono text-xs uppercase tracking-wider">
-                    <th className="py-4 px-6 w-44">Waktu</th>
-                    <th className="py-4 px-6">Agenda / Kegiatan</th>
-                    <th className="py-4 px-6 w-24 text-center">Durasi</th>
-                    <th className="py-4 px-6 w-56 text-right">Penanggung Jawab (PIC)</th>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-slate-800 bg-slate-950/50 text-slate-400 font-mono text-xs uppercase tracking-wider">
+                  <th className="py-4 px-6 w-44">Waktu</th>
+                  <th className="py-4 px-6">Agenda / Kegiatan</th>
+                  <th className="py-4 px-6 w-24 text-center">Durasi</th>
+                  <th className="py-4 px-6 w-56 text-right">Penanggung Jawab (PIC)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60">
+                {timelineItems.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-8 text-center text-slate-500 italic">
+                      Belum ada sesi rundown yang ditambahkan ke event ini.
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60">
-                  {timelineItems.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-8 text-center text-slate-500 italic">
-                        Belum ada sesi rundown yang ditambahkan ke event ini.
+                ) : (
+                  timelineItems.map((item) => (
+                    <tr 
+                      key={item.id}
+                      className="hover:bg-slate-950/10 transition-colors duration-100 text-slate-300"
+                    >
+                      <td className="py-4 px-6 font-semibold font-mono text-indigo-400">
+                        {item.startTime} - {item.endTime}
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="font-bold">{item.title}</div>
+                      </td>
+                      <td className="py-4 px-6 text-center font-mono font-bold text-slate-400">
+                        {item.durationSeconds / 60}m
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex flex-wrap gap-1 justify-end">
+                          {item.targetPics ? (
+                            JSON.parse(item.targetPics).map((pic: string) => (
+                              <span 
+                                key={pic}
+                                className={`px-2 py-0.5 text-[10px] font-bold rounded border ${getRoleBadgeStyle(pic)}`}
+                              >
+                                {pic}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-xs text-slate-500">All</span>
+                          )}
+                        </div>
                       </td>
                     </tr>
-                  ) : (
-                    timelineItems.map((item) => (
-                      <tr 
-                        key={item.id}
-                        className="hover:bg-slate-950/10 transition-colors duration-100 text-slate-300"
-                      >
-                        <td className="py-4 px-6 font-semibold font-mono text-indigo-400">
-                          {item.startTime} - {item.endTime}
-                        </td>
-                        <td className="py-4 px-6">
-                          <div className="font-bold">{item.title}</div>
-                        </td>
-                        <td className="py-4 px-6 text-center font-mono font-bold text-slate-400">
-                          {item.durationSeconds / 60}m
-                        </td>
-                        <td className="py-4 px-6 text-right">
-                          <div className="flex flex-wrap gap-1 justify-end">
-                            {item.targetPics ? (
-                              JSON.parse(item.targetPics).map((pic: string) => (
-                                <span 
-                                  key={pic}
-                                  className={`px-2 py-0.5 text-[10px] font-bold rounded border ${getRoleBadgeStyle(pic)}`}
-                                >
-                                  {pic}
-                                </span>
-                              ))
-                            ) : (
-                              <span className="text-xs text-slate-500">All</span>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-        </div>
-
-        {/* ── PRINT VIEW: Clean Minimalist Table (Hidden on Screen) ── */}
-        <div className="hidden print:block animate-in fade-in">
-          <table className="w-full text-left border-collapse text-xs text-black border border-black">
-            <thead>
-              <tr className="bg-gray-100 border-b-2 border-black">
-                <th className="py-2.5 px-4 w-44 font-mono font-bold uppercase border-r border-black">Waktu</th>
-                <th className="py-2.5 px-4 font-bold uppercase border-r border-black">Agenda / Kegiatan</th>
-                <th className="py-2.5 px-4 w-24 text-center font-bold uppercase border-r border-black">Durasi</th>
-                <th className="py-2.5 px-4 w-40 text-right font-bold uppercase">PIC / PJ</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-black">
-              {timelineItems.map((item) => (
-                <tr key={item.id}>
-                  <td className="py-2.5 px-4 font-mono font-semibold border-r border-black">
-                    {item.startTime} - {item.endTime}
-                  </td>
-                  <td className="py-2.5 px-4 font-bold border-r border-black">
-                    {item.title}
-                  </td>
-                  <td className="py-2.5 px-4 text-center font-mono font-semibold border-r border-black">
-                    {item.durationSeconds / 60}m
-                  </td>
-                  <td className="py-2.5 px-4 text-right font-semibold">
-                    {item.targetPics ? JSON.parse(item.targetPics).join(', ') : 'All'}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
 
         {/* Mobile Footer Print Helper (Hidden on Print) */}
