@@ -67,6 +67,22 @@ export default function OwnerShareView({
   const [room, setRoom] = useState<Room>(mapRoom(initialRoom));
   const [items, setItems] = useState<RundownItem[]>(initialItems.map(mapRundownItem));
 
+  // Force Light Mode only (disable dark mode variables) on mount
+  useEffect(() => {
+    const html = document.documentElement;
+    const hadDark = html.classList.contains('dark');
+    
+    html.classList.remove('dark');
+    html.style.colorScheme = 'light';
+    
+    return () => {
+      if (hadDark) {
+        html.classList.add('dark');
+        html.style.colorScheme = 'dark';
+      }
+    };
+  }, []);
+
   // 1. Real-time Subscription via Supabase (Updates preview if the EO modifies items live during meeting)
   useEffect(() => {
     const roomChannel = supabase
