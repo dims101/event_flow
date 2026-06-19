@@ -61,6 +61,13 @@ export async function createRoomAction(prevState: any, formData: FormData) {
       role: 'Monitor',
     });
 
+    await db.insert(roleTokens).values({
+      id: crypto.randomUUID(),
+      roomId,
+      token: crypto.randomUUID(),
+      role: 'Owner',
+    });
+
     return { success: true };
   } catch (error: any) {
     console.error('Create room error:', error);
@@ -147,5 +154,42 @@ export async function generateMonitorTokenAction(roomId: string) {
   } catch (error) {
     console.error('Generate monitor token error:', error);
     return { error: 'Gagal membuat token monitor' };
+  }
+}
+
+/**
+ * Generate an Owner token for an existing room that doesn't have one yet.
+ * Safe to call multiple times — returns existing token if already exists.
+ */
+export async function generateOwnerTokenAction(roomId: string) {
+  try {
+    const userId = await getSessionUserId();
+    if (!userId) return { error: 'Unauthorized' };
+
+    // Verify room ownership
+    const room = await db.query.rooms.findFirst({
+      where: and(eq(rooms.id, roomId), eq(rooms.userId, userId)),
+    });
+    if (!room) return { error: 'Event tidak ditemukan atau Anda tidak memiliki akses' };
+
+    // Check if Owner token already exists
+    const existing = await db.query.roleTokens.findFirst({
+      where: and(eq(roleTokens.roomId, roomId), eq(roleTokens.role, 'Owner')),
+    });
+    if (existing) return { success: true, token: existing.token };
+
+    // Insert new Owner token
+    const newToken = crypto.randomUUID();
+    await db.insert(roleTokens).values({
+      id: crypto.randomUUID(),
+      roomId,
+      token: newToken,
+      role: 'Owner',
+    });
+
+    return { success: true, token: newToken };
+  } catch (error) {
+    console.error('Generate owner token error:', error);
+    return { error: 'Gagal membuat token owner' };
   }
 }
