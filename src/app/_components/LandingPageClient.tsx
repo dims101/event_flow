@@ -676,7 +676,14 @@ export function LandingPageClient({ session, plans, faqs }: LandingPageClientPro
       </main>
 
       {/* 8. Premium Footer */}
-      <footer className="relative w-full py-12 text-center text-xs text-slate-500 border-t border-white/5 bg-slate-950/90 z-20">
+      <footer className="relative w-full py-12 text-center text-xs text-slate-500 border-t border-white/5 bg-slate-950/90 z-20 flex flex-col items-center justify-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-semibold tracking-wider uppercase text-[10px] text-slate-500">
+          <Link href="/docs" className="hover:text-white transition-colors">Dokumentasi</Link>
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+          <Link href="/login" className="hover:text-white transition-colors">Masuk EO</Link>
+          <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+          <Link href="/register" className="hover:text-white transition-colors">Daftar EO</Link>
+        </div>
         <p className="font-semibold tracking-wider uppercase text-[10px] text-slate-650">&copy; {new Date().getFullYear()} EventFlow. Semua hak dilindungi.</p>
       </footer>
     </div>

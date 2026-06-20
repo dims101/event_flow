@@ -170,7 +170,7 @@ export default function OwnerShareView({
             className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg shadow-md hover:shadow-lg transition duration-150 flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-400 select-none"
           >
             <Printer className="w-4 h-4" />
-            <span>Cetak / Simpan PDF</span>
+            <span>Cetak</span>
           </button>
         </div>
       </header>
@@ -182,7 +182,7 @@ export default function OwnerShareView({
           
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold font-mono">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold font-mono">
                 <Calendar className="w-3.5 h-3.5" />
                 <span>{formattedDate}</span>
               </div>

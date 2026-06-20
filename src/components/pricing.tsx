@@ -105,7 +105,7 @@ export function Pricing({
       </div>
 
       {/* Pricing Cards Grid using concentric Double-Bezel structures */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto items-stretch">
         {plans.map((plan, index) => {
           const isPopular = plan.isPopular;
           return (
@@ -126,11 +126,7 @@ export function Pricing({
                 duration: 0.8,
                 ease: [0.32, 0.72, 0, 1] as const,
               }}
-              className={cn(
-                "flex flex-col relative transition-all duration-300",
-                index === 0 && "md:origin-right",
-                index === 2 && "md:origin-left"
-              )}
+              className="flex flex-col relative transition-all duration-300"
             >
               {/* Outer Shell container of Double Bezel */}
               <div className={cn(
@@ -159,21 +155,27 @@ export function Pricing({
                       </p>
                       
                       <div className="mt-5 flex items-baseline justify-center gap-x-1">
-                        <span className="text-5xl font-extrabold tracking-tight text-slate-100">
-                          <NumberFlow
-                            value={
-                              isMonthly ? Number(plan.price) : Number(plan.yearlyPrice)
-                            }
-                            locales="id-ID"
-                            format={{
-                              style: "currency",
-                              currency: "IDR",
-                              minimumFractionDigits: 0,
-                              maximumFractionDigits: 0,
-                            }}
-                            willChange
-                            className="font-variant-numeric: tabular-nums"
-                          />
+                        <span className="text-5xl font-extrabold tracking-tight text-slate-100 flex items-baseline">
+                          {Number(isMonthly ? plan.price : plan.yearlyPrice) === 0 ? (
+                            <span>Rp 0</span>
+                          ) : (
+                            <>
+                              <span className="text-3xl font-extrabold mr-1">Rp</span>
+                              <NumberFlow
+                                value={
+                                  (isMonthly ? Number(plan.price) : Number(plan.yearlyPrice)) / 1000
+                                }
+                                locales="id-ID"
+                                format={{
+                                  minimumFractionDigits: 0,
+                                  maximumFractionDigits: 0,
+                                }}
+                                willChange
+                                className="font-variant-numeric: tabular-nums"
+                              />
+                              <span className="text-4xl font-extrabold ml-0.5">k</span>
+                            </>
+                          )}
                         </span>
                         {plan.period !== "Next 3 months" && (
                           <span className="text-xs font-semibold text-slate-400">
